@@ -4,7 +4,6 @@ from django.core.paginator import Paginator
 from django.db import models
 from wagtail.admin.panels import FieldPanel, HelpPanel
 from wagtail.models import Page
-from wagtail.permission_policies.pages import PagePermissionPolicy
 from wagtail.search import index
 
 
@@ -35,14 +34,7 @@ class AbstractIndexPage(BasePage):
     def get_context(self, request):
         context = super().get_context(request)
 
-        if request.user.is_authenticated:
-            # Get the child pages, but only if the user has permission to view them
-            permission_policy = PagePermissionPolicy()
-            child_pages = permission_policy.explorable_instances(request.user).child_of(self)
-        else:
-            child_pages = self.get_children().public()
-
-        child_pages = child_pages.live().filter(show_in_menus=True)
+        child_pages = self.get_children().live().filter(show_in_menus=True)
 
         page_number = request.GET.get("page")
         paginator = context["sub_pages"] = Paginator(child_pages, per_page=10)
