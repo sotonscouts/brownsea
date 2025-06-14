@@ -8,8 +8,10 @@
                 <h6 class="logo-assembly__text">Southampton City</h6>
             </div>
         </a>
-        <span class="navbar-text fw-bold border-start ps-3 pe-3 d-none d-lg-block">
-            {{ current_site.site_name }}
+        <span class="navbar-text fw-bold border-start ps-3 pe-3 d-none d-xl-block">
+            <a href="{% pageurl current_site.root_page %}" class="text-decoration-none text-dark">
+                {{ current_site.site_name }}
+            </a>
         </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -21,14 +23,13 @@
                 {% endfor %}
             </ul>
             {% if request.user.is_authenticated %}
-                <div class="navbar-nav d-flex align-items-center">
-                    <span class="nav-item nav-link text-muted py-0">
-                        {{ request.user.get_full_name|default:request.user.username }}
-                    </span>
+                <div class="navbar-nav">
+                    {% include "components/navigation/includes/search_bar.html" %}
                     <form action="{% url 'wagtailadmin_logout' %}" method="POST">
                         {% csrf_token %}
                         <button class="nav-link py-0" type="submit" title="Logout">
-                            <i class="bi bi-box-arrow-right fs-4"></i>
+                            <i class="bi bi-box-arrow-right fs-4 d-none d-lg-inline"></i>
+                            <span class="d-inline d-lg-none">Logout</span>
                         </button>
                     </form>
                 </div>
