@@ -1,0 +1,13 @@
+{% load wagtailcore_tags %}
+
+<div class="alert alert-warning border-start border-5 border-warning" role="alert">
+    <h2 class="alert-heading h5">
+        {% if 'important' not in value.heading|lower %}
+            <span class="visually-hidden">Important: </span>
+        {% endif %}
+        {{ value.heading }}
+    </h2>
+    <div class="alert-content">
+        {{ value.content }}
+    </div>
+</div>

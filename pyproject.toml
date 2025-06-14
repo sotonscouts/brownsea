@@ -1,0 +1,62 @@
+[tool.poetry]
+name = "brownsea"
+version = "0.1.0"
+description = ""
+authors = ["Dan Trickey <git@trickey.io>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+django = "~5.2"
+wagtail = "~7.0"
+
+crispy-bootstrap5 = "^2025.6"
+django-crispy-forms = "^2.4"
+django-vite = "^3.1.0"
+
+[tool.poetry.group.dev.dependencies]
+djhtml = "^3.0.8"
+django-debug-toolbar = "^5.2.0"
+ruff = "^0.11.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "B",
+    "BLE",
+    "C4",
+    "COM",
+    "DJ",
+    "DTZ",
+    "E",
+    "F",
+    "FA",
+    "FBT",
+    "I",
+    "N",
+    "S",
+    "T10",
+    "UP",
+    "W",
+]
+ignore = [
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
+    "B009",    # Do not call `getattr` with a constant attribute value.
+    "COM812",  # Conflicts with formatter
+    "N999",    # Invalid module name
+    "S101",    # S101 Use of `assert` detected
+]
+
+[tool.ruff.lint.isort.sections]
+# Group all Django imports into a separate section.
+"django" = ["django"]

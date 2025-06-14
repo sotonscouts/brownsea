@@ -1,0 +1,54 @@
+@import "bootstrap/scss/variables";
+
+// Nav Bar Styling
+.nav-link {
+    @extend .nav-link;
+    font-weight: 800;
+}
+
+.navbar {
+    // Mega Menu Styles
+    .has-megamenu {
+        position: static;
+    }
+
+    .megamenu {
+        padding: 1rem;
+        margin-top: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+        .dropdown-item {
+            padding: 0.5rem 0;
+            color: var(--bs-body-color);
+
+            &:hover {
+                background: none;
+                color: var(--bs-primary);
+            }
+        }
+
+        h6 {
+            font-weight: 800;
+            color: var(--bs-primary);
+        }
+    }
+}
+
+// Mobile Responsive Styles
+@media (max-width: map-get($grid-breakpoints, "lg")) {
+    .navbar {
+        .megamenu {
+            padding: 0.5rem;
+            
+            .container {
+                padding: 0;
+            }
+
+            .col-lg-3 {
+                margin-bottom: 1rem;
+            }
+        }
+    }
+}

@@ -1,0 +1,45 @@
+{% load wagtailcore_tags %}
+
+{% with ancestors=page.get_ancestors %}
+    {% if page.always_show_breadcrumbs or ancestors|length > 1 %}
+        <div class="breadcrumb-wrapper">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                {% for ancestor in ancestors %}
+                                    {% if not ancestor.is_root %}
+                                        {% if forloop.first %}
+                                            <li class="breadcrumb-item">
+                                                <a href="{% pageurl ancestor %}">{{ ancestor.title }}</a>
+                                            </li>
+                                            {% if ancestors|length > 2 %}
+                                                <li class="d-md-none">
+                                                    <span class="text-muted">...</span>
+                                                </li>
+                                            {% endif %}
+                                        {% elif forloop.last %}
+                                            <li class="breadcrumb-item">
+                                                <a href="{% pageurl ancestor %}">{{ ancestor.title }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="breadcrumb-item d-none d-md-block">
+                                                <a href="{% pageurl ancestor %}">{{ ancestor.title }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-auto d-none d-lg-block">
+                        <a href="#" class="share-link">
+                            <i class="bi bi-share"></i>Share
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}

@@ -1,0 +1,16 @@
+<div class="accordion mb-3">
+    {% for section in value.sections %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{{ section.heading|slugify }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ section.heading|slugify }}" aria-expanded="false" aria-controls="collapse-{{ section.heading|slugify }}">
+                    {{ section.heading }}
+                </button>
+            </h2>
+            <div id="collapse-{{ section.heading|slugify }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ section.heading|slugify }}" data-bs-parent="#accordion-{{ value.heading|slugify }}">
+                <div class="accordion-body">
+                    {{ section.content }}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

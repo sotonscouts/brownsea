@@ -1,0 +1,11 @@
+{% with nav_link=value %}
+    {% if nav_link.link.get_url %}
+        {% if nav_link.secondary_level_links %}
+            {# Top level menu item with curated child links #}
+            {% include "components/navigation/includes/mega_menu.html" with parent_link=nav_link.link.get_url columns=nav_link.secondary_level_links counter=forloop.counter parent_link_text=nav_link.link.get_link_text %}
+        {% else %}
+            {# Primary link with no children #}
+            {% include "components/navigation/includes/menu_item.html" with item_url=nav_link.link.get_url title=nav_link.link.get_link_text %}
+        {% endif %}
+    {% endif %}
+{% endwith %}

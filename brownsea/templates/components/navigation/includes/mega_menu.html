@@ -1,0 +1,32 @@
+<li class="nav-item dropdown has-megamenu">
+    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{{ parent_link_text }}</a>
+    <div class="dropdown-menu megamenu shadow-sm border-0 w-100" role="menu">
+        <div class="container py-4">
+            <h5 class="text-primary h2 fw-bold text-primary mb-4 text-decoration-none"><a href="{{ parent_link }}">{{ parent_link_text }}</a></h5>
+            <div class="row g-4">
+                {% for column in columns %}
+                    <div class="col-lg-3">
+                        <h6 class="fw-bold text-primary mb-3">{{ column.heading }}</h6>
+                        <ul class="list-unstyled">
+                            {% for link in column.links %}
+                                <li>
+                                    <a class="dropdown-item py-2 text-decoration-none" href="{{ link.get_url }}">{{ link.get_link_text }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+
+                <!-- Call to Action Block -->
+                <!-- <div class="col-lg-3">
+                    <div class="bg-primary text-white p-4">
+                        <h4 class="fw-bold mb-2">Get Help</h4>
+                        <h6 class="fw-bold mb-3">Need Help?</h6>
+                        <p class="mb-3">Our support team is here to help you with any questions.</p>
+                        <a href="#" class="btn btn-light">Contact Support</a>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</li>

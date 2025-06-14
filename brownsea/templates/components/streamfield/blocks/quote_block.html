@@ -1,0 +1,10 @@
+<figure class="text-start border-start border-primary border-3 ps-3">
+    <blockquote class="blockquote">
+        <p>{{ value.quote }}</p>
+    </blockquote>
+    {% if value.author %}
+        <figcaption class="blockquote-footer">
+            {{ value.author }}
+        </figcaption>
+    {% endif %}
+</figure>

@@ -1,0 +1,13 @@
+{% load wagtailimages_tags %}
+
+<div class="card h-100">
+    <a href="{{ value.url }}" class="text-decoration-none">
+        {% image value.image height-200 class="card-img-top" %}
+        <div class="card-body">
+            <h3 class="card-title h5">{{ value.title }}</h3>
+            <div class="card-text">
+                {{ value.description }}
+            </div>
+        </div>
+    </a>
+</div>

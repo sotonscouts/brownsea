@@ -1,0 +1,173 @@
+// Inline Logo
+@mixin logo-inline-size($width) {
+    width: $width;
+    height: auto;
+    font-size: ($width * 0.08076923077);
+  
+    h6 {
+      font-size: 1em;
+      line-height: 1em;
+      margin-top: 3.5em;
+      margin-left: -0.04560461905em;
+      margin-bottom: 0em;
+      font-weight: 800;
+    }
+  }
+  
+@mixin logo-inline() {
+    background-image: url('/svg/logo-inline.svg');
+}
+
+// Compute all the inline logo colours
+@each $colour, $value in $logoColours {
+  .logo-inline-#{$colour} {
+    @include logo-inline();
+    display: inline-block;
+    background-repeat: no-repeat;
+    color: $value;
+  }
+
+  .logo-inline-#{$colour} h6 {
+    color: inherit;
+  }
+}
+
+//Compute all the inline logo sizes
+@each $width, $widthpx in $logoSizes {
+  .logo-inline-w#{$width} {
+    @include logo-inline-size($widthpx);
+  }
+}
+
+// Stacked Logo
+@mixin logo-stacked-size($width) {
+  width: $width;
+  height: ($width * 0.95);
+  font-size: ($width * 0.13);
+
+  h6 {
+    font-size: 1em;
+    line-height: 1em;
+    margin-top: 6.2499692308em;
+    margin-left: 0em;
+    margin-right: 0em;
+    margin-bottom: 0em;
+    font-weight: 800;
+  }
+}
+
+@mixin logo-stacked() {
+  background-image: url('/svg/logo-stacked.svg');
+}
+
+// Compute all the stacked logo colours
+@each $colour, $value in $logoColours {
+  .logo-stacked-#{$colour} {
+    @include logo-stacked();
+    display: inline-block;
+    background-repeat: no-repeat;
+    text-align: center;
+    color: $value;
+  }
+
+  .logo-stacked-#{$colour} h6 {
+    color: inherit;
+  }
+}
+
+//Compute all the stacked logo sizes
+@each $width, $widthpx in $logoSizes {
+  .logo-stacked-w#{$width} {
+    @include logo-stacked-size($widthpx);
+  }
+}
+
+// SCSS for .logo-assembly structure
+
+.logo-assembly {
+  display: inline-flex; 
+  flex-direction: column;
+  align-items: center; // Default alignment for the content blocks (image, text)
+  text-decoration: none; 
+  position: relative; 
+}
+
+.logo-assembly__image {
+  display: block; 
+  max-width: 100%; 
+  height: auto;   
+}
+
+.logo-assembly__text {
+  line-height: 1em; 
+  font-weight: 800;
+  text-align: left; // Default to left, will be overridden for stacked if needed
+}
+
+// Mixin for inline logo assembly sizing
+@mixin logo-assembly-inline-size($width) {
+  width: $width;
+  font-size: ($width * 0.08076923077); 
+  align-items: flex-start;
+
+  .logo-assembly__image {
+    // Image will take its natural width based on the container and its aspect ratio
+  }
+
+  .logo-assembly__text {
+    font-size: 1em; 
+    margin-top: -0.07142857em; 
+    margin-left: -0.04560461905em; 
+    margin-bottom: 0;
+  }
+}
+
+// Mixin for stacked logo assembly sizing
+@mixin logo-assembly-stacked-size($width) {
+  width: $width;
+  font-size: ($width * 0.13); 
+  align-items: center; // Ensure content (image, text block) is centered for stacked version
+
+  .logo-assembly__image {
+    // Image will take its natural width
+  }
+
+  .logo-assembly__text {
+    font-size: 1em;
+    margin-top: 0.2em; // Generic small gap for stacked
+    margin-left: 0; // Ensure no carry-over from inline style
+    margin-bottom: 0;
+    text-align: center; // Explicitly center text for stacked logo
+  }
+}
+
+// Color classes (apply to .logo-assembly)
+@each $colour, $value in $logoColours {
+  .logo-inline-#{$colour},
+  .logo-stacked-#{$colour} {
+    color: $value; 
+
+    &:hover,
+    &:focus {
+        // color: var(--bs-link-hover-color, darken($value, 10%)); 
+    }
+  }
+}
+
+// Inline size classes (apply to .logo-assembly)
+@each $width, $widthpx in $logoSizes {
+  .logo-inline-w#{$width} { 
+    @include logo-assembly-inline-size($widthpx);
+  }
+}
+
+// Stacked size classes (apply to .logo-assembly)
+@each $width, $widthpx in $logoSizes {
+  .logo-stacked-w#{$width} { 
+    @include logo-assembly-stacked-size($widthpx);
+  }
+}
+
+// Cleanup: Remove old mixins and direct h6 styling if they are no longer needed
+// The old @mixin logo-inline-size and @mixin logo-stacked-size contained direct h6 styling.
+// That h6 styling is now incorporated into .logo-assembly__text within the new mixins.

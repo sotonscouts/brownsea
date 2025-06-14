@@ -1,0 +1,42 @@
+.footer {
+    background-color: $purple;
+    color: $light;
+    padding: 3rem 0 1.5rem;
+
+    h5 {
+        color: $white;
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+    }
+
+    ul {
+        li {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    a {
+        color: $light;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: $white;
+            text-decoration: none;
+        }
+    }
+
+    .social-icons {
+        a {
+            font-size: 1.5rem;
+            
+            &:hover {
+                color: $primary;
+            }
+        }
+    }
+
+    .border-top {
+        border-color: rgba($white, 0.1) !important;
+    }
+}

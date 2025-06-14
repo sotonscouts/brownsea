@@ -1,0 +1,51 @@
+.breadcrumb-wrapper {
+    background-color: var(--bs-dark-bg-subtle);
+    padding: 0.75rem 0;
+
+    .breadcrumb {
+        @extend .breadcrumb;
+        margin-bottom: 0;
+    }
+
+    .breadcrumb-item {
+        @extend .breadcrumb-item;
+        font-weight: 600;
+        
+        a {
+            color: var(--bs-body-color);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        &.active {
+            color: var(--bs-body-color);
+            font-weight: 800;
+        }
+
+        // Override Bootstrap's default divider
+        & + .breadcrumb-item {
+            &::before {
+                content: var(--bs-breadcrumb-divider, ">");
+                font-weight: 800;
+                color: var(--bs-body-color);
+            }
+        }
+    }
+
+    .share-link {
+        color: var(--bs-body-color);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+            color: var(--bs-primary);
+        }
+
+        i {
+            margin-right: 0.5rem;
+        }
+    }
+}
