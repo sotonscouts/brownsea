@@ -8,6 +8,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
+    "brownsea.accounts",
     "brownsea.home",
     "brownsea.navigation",
     "brownsea.standard_pages",
@@ -102,6 +103,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Authentication
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/accounts/login/"
+WAGTAIL_FRONTEND_LOGIN_URL = LOGIN_URL
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

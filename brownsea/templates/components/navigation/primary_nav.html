@@ -27,7 +27,7 @@
             {% if request.user.is_authenticated %}
                 <div class="navbar-nav">
                     {% include "components/navigation/includes/search_bar.html" %}
-                    <form action="{% url 'wagtailadmin_logout' %}" method="POST">
+                    <form action="{% url 'accounts:logout' %}" method="POST">
                         {% csrf_token %}
                         <button class="nav-link py-0" type="submit" title="Logout">
                             <i class="bi bi-box-arrow-right fs-4 d-none d-lg-inline"></i>
@@ -37,7 +37,7 @@
                 </div>
             {% else %}
                 <div class="navbar-nav">
-                    <a class="nav-link" href="{% url 'wagtailadmin_login' %}">
+                    <a class="nav-link" href="{% url 'accounts:login' %}">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Login
                     </a>
                 </div>
