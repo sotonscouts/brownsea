@@ -11,6 +11,9 @@ from wagtail.search import index
 class BasePage(Page):
     show_in_menus_default = True
 
+    promote_panels = Page.promote_panels
+    settings_panels = Page.settings_panels
+
     def serve_password_required_response(self, request, form, action_url):
         form.helper = FormHelper()
         form.helper.form_action = action_url

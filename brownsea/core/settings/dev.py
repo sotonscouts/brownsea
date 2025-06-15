@@ -19,13 +19,13 @@ DJANGO_VITE = {
     }
 }
 
-INSTALLED_APPS += [  # noqa: F405
+INSTALLED_APPS = INSTALLED_APPS + [  # noqa: F405
     "debug_toolbar",
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-] + MIDDLEWARE  # noqa: F405
+]
 
 INTERNAL_IPS = [
     "127.0.0.1",
