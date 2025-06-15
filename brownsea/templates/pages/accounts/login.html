@@ -1,35 +1,44 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags wagtailcore_tags %}
+
+{% block title %}
+    {% wagtail_site as current_site %}
+    Login{% if current_site.site_name %} to {{ current_site.site_name }}{% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% wagtail_site as current_site %}
+    <h1 class="text-center mb-4">
+        Login{% if current_site.site_name %} to {{ current_site.site_name }}{% endif %}
+    </h1>
+{% endblock %}
 
 {% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <p class="lead text-center mb-4">
+                            {% wagtail_site as current_site %}
+                            Welcome to {{ current_site.site_name }}. Please login to continue.
+                        </p>
 
-    {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
-    {% endif %}
+                        {% if user.is_authenticated and next %}
+                            <div class="alert alert-warning">
+                                <p class="mb-0">
+                                    Your account doesn't have access to this page. To proceed,
+                                    please login with an account that has access.
+                                </p>
+                            </div>
+                        {% endif %}
 
-    {% if next %}
-        {% if user.is_authenticated %}
-            <p>Your account doesn't have access to this page. To proceed,
-                please login with an account that has access.</p>
-        {% else %}
-            <p>Please login to see this page.</p>
-        {% endif %}
-    {% endif %}
-
-    <form method="post" action="{% url 'accounts:login' %}">
-        {% csrf_token %}
-        <table>
-            <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.password.label_tag }}</td>
-                <td>{{ form.password }}</td>
-            </tr>
-        </table>
-
-        <input type="submit" value="login">
-        <input type="hidden" name="next" value="{{ next }}">
-    </form>
-
+                        <div class="mt-4">
+                            {% crispy form %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
