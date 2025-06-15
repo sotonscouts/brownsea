@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags %}
+
+{% block title %}Search{% endblock %}
+{% block page_title %}
+    <h1>Search</h1>
+{% endblock %}
+
+{% block content %}
+    <p class="lead">
+        {% wagtail_site as site %}
+        Enter a search term below to find pages on {{ site.site_name }}.
+    </p>
+    <form method="get" action="{% url 'search' %}" class="mb-4">
+        <div class="input-group">
+            <input type="text"
+                   name="query"
+                   class="form-control form-control-lg"
+                   placeholder="Search..."
+                   value="{{ search_query|default:'' }}"
+                   aria-label="Search">
+            <button class="btn btn-primary" type="submit" aria-label="Search">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </form>
+
+    {% if search_query %}
+        <div class="row">
+            <div class="col-12 col-md-8">
+                {% if search_results %}
+                    <h2 class="h4 mb-3">Search Results</h2>
+                    {% with count=search_results.paginator.count %}
+                        <p class="mb-3">
+                            {{ count }} result{{ count|pluralize }} found.
+                        </p>
+                    {% endwith %}
+                    <div class="list-group">
+                        {% for result in search_results %}
+                            <a href="{{ result.specific.url }}" class="list-group-item list-group-item-action">
+                                <h3 class="h5 mb-1">{{ result.specific.title }}</h3>
+                                {% if result.specific.introduction %}
+                                    <p class="mb-1 text-muted">{{ result.specific.introduction }}</p>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        No results found for "{{ search_query }}"
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
