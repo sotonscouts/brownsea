@@ -11,29 +11,21 @@
         <div class="col-12 col-md-8">
             <p class="lead">{{ page.introduction }}</p>
 
-            {% if page.featured_sections %}
-                {% include_block page.featured_sections %}
-            {% endif %}
-
             {% if sub_pages %}
                 {% if sub_pages.object_list.exists %}
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-4">
                         {% for sub_page in sub_pages.object_list.specific %}
                             <div class="col">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ sub_page.title }}</h5>
-                                        <p class="card-text">{{ sub_page.introduction }}</p>
-                                        <a href="{% pageurl sub_page %}" class="btn btn-primary">Read more</a>
-                                    </div>
-                                </div>
+                                {% pageurl sub_page as url %}
+                                {% include "components/link_card.html" with title=sub_page.title description=sub_page.introduction url=url %}
                             </div>
                         {% endfor %}
                     </div>
                 {% else %}
-                {# This page is empty #}
+                    {# This page is empty #}
                 {% endif %}
             {% endif %}
+            {% include "components/navigation/pagination.html" with page=sub_pages %}
         </div>
         <div class="col-12 col-md-4">
         {# Sidebar #}

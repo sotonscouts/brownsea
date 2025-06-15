@@ -10,7 +10,7 @@ from brownsea.core.utils import StreamField
 class IndexPage(AbstractIndexPage):
     template = "pages/standard_pages/index_page.html"
 
-    content_panels = [
+    content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
         # FieldPanel('featured_pages'),
     ]

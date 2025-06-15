@@ -5,7 +5,7 @@ GROUP_TEXT = "1. Text and Headings"
 GROUP_CALLOUTS = "2. Callouts"
 
 
-class FeaturedItemValue(blocks.StructValue):
+class LinkItemValue(blocks.StructValue):
     @property
     def url(self):
         if self.get("page"):
@@ -40,45 +40,68 @@ class AccordionBlock(blocks.StructBlock):
         group = GROUP_CALLOUTS
 
 
-class FeaturedExternalLinkBlock(blocks.StructBlock):
+class ExternalLinkBlock(blocks.StructBlock):
     url = blocks.URLBlock()
     title = blocks.CharBlock()
     description = blocks.RichTextBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/link_card_block.html"
+        icon = "link"
+        label = "External Link"
+        value_class = LinkItemValue
+
+
+class FeaturedExternalLinkBlock(ExternalLinkBlock):
     image = ImageChooserBlock()
 
     class Meta:
         template = "components/streamfield/blocks/featured_item_block.html"
         icon = "link"
         label = "External Link"
-        value_class = FeaturedItemValue
+        value_class = LinkItemValue
 
 
-class FeaturedPageBlock(blocks.StructBlock):
+class PageLinkBlock(blocks.StructBlock):
     page = blocks.PageChooserBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/link_card_block.html"
+        icon = "folder-open-inverse"
+        label = "Page Link"
+        value_class = LinkItemValue
+
+
+class FeaturedPageBlock(PageLinkBlock):
     image = ImageChooserBlock()
 
     class Meta:
         template = "components/streamfield/blocks/featured_item_block.html"
         icon = "folder-open-inverse"
         label = "Featured Page"
-        value_class = FeaturedItemValue
+        value_class = LinkItemValue
 
 
-class FeaturedSectionBlock(blocks.StructBlock):
-    items = blocks.StreamBlock(
-        [
-            ("page", FeaturedPageBlock()),
-            ("external_link", FeaturedExternalLinkBlock()),
-        ],
-        max_num=2,
-    )
+class FeaturedSectionBlock(blocks.StreamBlock):
+    page = FeaturedPageBlock()
+    external_link = FeaturedExternalLinkBlock()
 
     class Meta:
-        template = "components/streamfield/blocks/featured_page_section_block.html"
+        template = "components/streamfield/blocks/featured_section_block.html"
         icon = "folder-open-inverse"
-        label = "Featured Page Section"
-        group = GROUP_CALLOUTS
-        # max_num = 2
+        label = "Featured Section"
+        max_num = 2
+
+
+class LinkSectionBlock(blocks.StreamBlock):
+    page = PageLinkBlock()
+    external_link = ExternalLinkBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/link_section_block.html"
+        icon = "link"
+        label = "Link Section"
+        min_num = 1
 
 
 class HeadingBlock(blocks.StructBlock):
@@ -133,3 +156,8 @@ class StoryBlock(blocks.StreamBlock):
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+
+
+class HomePageBlock(blocks.StreamBlock):
+    featured_sections = FeaturedSectionBlock()
+    link_sections = LinkSectionBlock()

@@ -1,1 +1,22 @@
-{% extends "pages/standard_pages/index_page.html" %}
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <p class="lead">{{ page.introduction }}</p>
+
+            {% for block in page.body %}
+                {% include_block block %}
+            {% endfor %}
+        </div>
+        <div class="col-12 col-md-4">
+        {# Sidebar #}
+        </div>
+    </div>
+{% endblock %}

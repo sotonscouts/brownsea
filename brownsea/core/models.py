@@ -1,5 +1,6 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
 from wagtail.admin.panels import FieldPanel, HelpPanel
@@ -37,7 +38,10 @@ class AbstractIndexPage(BasePage):
         child_pages = self.get_children().live().filter(show_in_menus=True)
 
         page_number = request.GET.get("page")
-        paginator = context["sub_pages"] = Paginator(child_pages, per_page=10)
+        paginator = context["sub_pages"] = Paginator(
+            child_pages,
+            per_page=settings.APP_SEARCH_RESULTS_PER_PAGE,
+        )
 
         return {
             **context,
