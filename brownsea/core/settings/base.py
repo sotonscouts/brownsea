@@ -200,3 +200,8 @@ WAGTAIL_PASSWORD_REQUIRED_TEMPLATE = "pages/wagtail/password_required.html"  # n
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# App Specific Settings
+
+APP_LOGO_UNIT_NAME = "Southampton City"
+APP_SHOW_MENU_WHEN_UNAUTHENTICATED = False
