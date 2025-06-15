@@ -3,6 +3,7 @@ from wagtail.images.blocks import ImageChooserBlock
 
 GROUP_TEXT = "1. Text and Headings"
 GROUP_CALLOUTS = "2. Callouts"
+GROUP_MEDIA = "3. Media & Embeds"
 
 
 class LinkItemValue(blocks.StructValue):
@@ -150,12 +151,35 @@ class WarningCalloutBlock(blocks.StructBlock):
         group = GROUP_CALLOUTS
 
 
+class ImageBlock(blocks.StructBlock):
+    image = ImageChooserBlock(required=True)
+    size = blocks.ChoiceBlock(
+        choices=[
+            ("small", "Small (400px)"),
+            ("medium", "Medium (600px)"),
+            ("large", "Large (800px)"),
+        ],
+        default="medium",
+        required=True,
+        help_text="Choose the size that best fits your content. Small for inline images, medium for standard content, large for featured images.",  # noqa: E501
+    )
+    caption = blocks.CharBlock(required=False)
+
+    class Meta:
+        template = "components/streamfield/blocks/image_block.html"
+        icon = "image"
+        label = "Image"
+        group = GROUP_MEDIA
+
+
 class StoryBlock(blocks.StreamBlock):
     accordion = AccordionBlock()
     heading = HeadingBlock()
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+    links = LinkSectionBlock()
+    image = ImageBlock()
 
 
 class HomePageBlock(blocks.StreamBlock):

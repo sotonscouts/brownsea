@@ -1,0 +1,14 @@
+{% load wagtailimages_tags %}
+
+<figure class="my-4 text-center" role="group" aria-labelledby="caption-{{ value.image.id }}">
+    {% if value.size == 'small' %}
+        {% image value.image width-400 class="img-fluid" alt=value.image.title %}
+    {% elif value.size == 'medium' %}
+        {% image value.image width-600 class="img-fluid" alt=value.image.title %}
+    {% else %}
+        {% image value.image width-800 class="img-fluid" alt=value.image.title %}
+    {% endif %}
+    {% if value.caption %}
+        <figcaption id="caption-{{ value.image.id }}" class="mt-2 text-muted">{{ value.caption }}</figcaption>
+    {% endif %}
+</figure>
