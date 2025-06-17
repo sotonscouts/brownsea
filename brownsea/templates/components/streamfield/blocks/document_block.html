@@ -1,0 +1,11 @@
+<div class="card my-3">
+    <div class="card-body">
+        <h5 class="card-title">
+            <i class="bi bi-file-earmark-text me-2"></i>
+            <a href="{{ value.url }}">{{ value.title }}</a>
+        </h5>
+        {% if value.file_size %}
+            <p class="card-text text-muted small">{{ value.file_extension|upper }} &middot; {{ value.file_size|filesizeformat }}</p>
+        {% endif %}
+    </div>
+</div>

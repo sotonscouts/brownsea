@@ -20,14 +20,15 @@
                 {% endfor %}
 
                 <!-- Call to Action Block -->
-                <!-- <div class="col-lg-3">
-                    <div class="bg-primary text-white p-4">
-                        <h4 class="fw-bold mb-2">Get Help</h4>
-                        <h6 class="fw-bold mb-3">Need Help?</h6>
-                        <p class="mb-3">Our support team is here to help you with any questions.</p>
-                        <a href="#" class="btn btn-light">Contact Support</a>
+                {% if call_to_action %}
+                    <div class="col-lg-3 ms-auto">
+                        <div class="bg-primary text-white p-4">
+                            <h4 class="fw-bold mb-2">{{ call_to_action.title }}</h4>
+                            <p class="mb-3">{{ call_to_action.summary }}</p>
+                            <a href="{{ call_to_action.url }}" class="btn btn-light">{{ call_to_action.link_text }}</a>
+                        </div>
                     </div>
-                </div> -->
+                {% endif %}
             </div>
         </div>
     </div>

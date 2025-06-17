@@ -6,7 +6,9 @@ from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.blocks.struct_block import StructBlockValidationError
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+from wagtail.snippets.blocks import SnippetChooserBlock
 
+from brownsea.core.models import CallToAction
 from brownsea.core.utils import StreamField
 
 from .struct_values import LinkStructValue
@@ -58,6 +60,7 @@ class PrimaryNavigationLinkBlock(blocks.StructBlock):
             "Add up to 3 columns of links for the mega menu. Leave blank if this link doesn't need a mega menu.",
         ),
     )
+    call_to_action = SnippetChooserBlock(CallToAction, required=False)
 
     class Meta:
         template = "components/navigation/includes/primary_nav_item.html"

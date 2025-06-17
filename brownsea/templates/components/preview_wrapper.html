@@ -1,0 +1,25 @@
+{% load static django_vite %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Preview</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        {% if request.in_preview_panel %}
+            <base target="_blank">
+        {% endif %}
+        {% vite_hmr_client %}
+        {% vite_asset 'brownsea/static_src/scss/main.scss' %}
+    </head>
+    <body>
+        <main>
+            <div style="margin: 1rem;">
+                {% block content %}
+                    {% include template_name with value=value %}
+                {% endblock %}
+            </div>
+        </main>
+        {% vite_asset 'brownsea/static_src/main.ts' %}
+    </body>
+</html>

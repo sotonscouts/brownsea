@@ -1,5 +1,7 @@
 from wagtail import blocks
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
 
 GROUP_TEXT = "1. Text and Headings"
 GROUP_CALLOUTS = "2. Callouts"
@@ -91,6 +93,7 @@ class FeaturedSectionBlock(blocks.StreamBlock):
         template = "components/streamfield/blocks/featured_section_block.html"
         icon = "folder-open-inverse"
         label = "Featured Section"
+        group = GROUP_CALLOUTS
         max_num = 2
 
 
@@ -102,6 +105,7 @@ class LinkSectionBlock(blocks.StreamBlock):
         template = "components/streamfield/blocks/link_section_block.html"
         icon = "link"
         label = "Link Section"
+        group = GROUP_CALLOUTS
         min_num = 1
 
 
@@ -178,10 +182,27 @@ class StoryBlock(blocks.StreamBlock):
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        group=GROUP_CALLOUTS,
+        template="components/streamfield/blocks/call_to_action_block.html",
+    )
     links = LinkSectionBlock()
     image = ImageBlock()
+    document = DocumentChooserBlock(
+        icon="doc-full-inverse",
+        group=GROUP_MEDIA,
+        template="components/streamfield/blocks/document_block.html",
+    )
 
 
 class HomePageBlock(blocks.StreamBlock):
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        group=GROUP_CALLOUTS,
+        template="components/streamfield/blocks/call_to_action_block.html",
+    )
