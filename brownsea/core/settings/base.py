@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 INSTALLED_APPS = [
     "brownsea.accounts",
+    "brownsea.core",
     "brownsea.home",
     "brownsea.navigation",
     "brownsea.standard_pages",
