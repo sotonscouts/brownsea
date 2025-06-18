@@ -1,4 +1,5 @@
 from wagtail import blocks
+from wagtail.contrib.table_block.blocks import TableBlock as BaseTableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -176,6 +177,15 @@ class ImageBlock(blocks.StructBlock):
         group = GROUP_MEDIA
 
 
+class TableBlock(BaseTableBlock):
+    class Meta:
+        template = "components/streamfield/blocks/table_block.html"
+        icon = "table"
+        label = "Table"
+        help_text = "Create a table with rows and columns of data."
+        group = GROUP_MEDIA
+
+
 class StoryBlock(blocks.StreamBlock):
     accordion = AccordionBlock()
     heading = HeadingBlock()
@@ -190,6 +200,7 @@ class StoryBlock(blocks.StreamBlock):
     )
     links = LinkSectionBlock()
     image = ImageBlock()
+    table = TableBlock()
     document = DocumentChooserBlock(
         icon="doc-full-inverse",
         group=GROUP_MEDIA,
