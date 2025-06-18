@@ -15,12 +15,19 @@ wagtail = "~7.0"
 
 crispy-bootstrap5 = "^2025.6"
 django-crispy-forms = "^2.4"
+dj-database-url = "^3.0.0"
+django-environ = "^0.12.0"
 django-vite = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
 djhtml = "^3.0.8"
 django-debug-toolbar = "^5.2.0"
 ruff = "^0.11.13"
+
+
+[tool.poetry.group.prod.dependencies]
+psycopg = "^3.2.9"
+granian = "^2.3.4"
 
 [build-system]
 requires = ["poetry-core"]

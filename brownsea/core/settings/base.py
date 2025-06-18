@@ -2,8 +2,32 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    ALLOWED_HOSTS=(list, []),
+    SECRET_KEY=(str, ""),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+    DATABASE_URL=(str, "sqlite:///db.sqlite3"),
+    WAGTAILADMIN_BASE_URL=(str, ""),
+    WAGTAIL_SITE_NAME=(str, "Brownsea Intranet CMS"),
+    APP_LOGO_UNIT_NAME=(str, "Brownsea CMS"),
+    APP_SHOW_MENU_WHEN_UNAUTHENTICATED=(bool, False),
+    APP_SEARCH_RESULTS_PER_PAGE=(int, 10),
+)
+
 PROJECT_DIR = Path(__file__).resolve().parent.parent.parent
 BASE_DIR = os.path.dirname(PROJECT_DIR)
+
+# Read .env file
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+DEBUG = False
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+SECRET_KEY = env("SECRET_KEY")
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # Application definition
 
@@ -79,13 +103,7 @@ WSGI_APPLICATION = "brownsea.core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
-
+DATABASES = {"default": dj_database_url.config(conn_max_age=600, default=env("DATABASE_URL"))}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -162,10 +180,6 @@ STORAGES = {
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 
 
-# Wagtail settings
-
-WAGTAIL_SITE_NAME = "Brownsea CMS - Southampton Scouts"
-
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
 WAGTAILSEARCH_BACKENDS = {
@@ -211,7 +225,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # App Specific Settings
-
-APP_LOGO_UNIT_NAME = "Southampton City"
-APP_SHOW_MENU_WHEN_UNAUTHENTICATED = False
-APP_SEARCH_RESULTS_PER_PAGE = 10
+WAGTAIL_SITE_NAME = env("WAGTAIL_SITE_NAME")
+APP_LOGO_UNIT_NAME = env("APP_LOGO_UNIT_NAME")
+APP_SHOW_MENU_WHEN_UNAUTHENTICATED = env("APP_SHOW_MENU_WHEN_UNAUTHENTICATED")
+APP_SEARCH_RESULTS_PER_PAGE = env("APP_SEARCH_RESULTS_PER_PAGE")

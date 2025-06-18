@@ -1,35 +1,30 @@
 from .base import *  # noqa: F403
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SECRET_KEY = "foo"  # noqa: S105
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-zt&7ug$++-r-6*xl588a7eyye7z702z5((r_+oru73mc^m+35v"  # noqa: S105
+# Disable HTTPS redirect and HSTS header in development
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0
 
-# SECURITY WARNING: define the correct hosts in production!
-ALLOWED_HOSTS = ["*"]
-
+# Send emails to console in development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 DJANGO_VITE = {
     "default": {
-        "dev_mode": DEBUG,
+        "dev_mode": DEBUG,  # noqa: F405 # type: ignore
         "dev_server_port": 5173,
         "static_url_prefix": "dist",
     }
 }
 
-INSTALLED_APPS = INSTALLED_APPS + [  # noqa: F405
-    "debug_toolbar",
-]
+# Set up debug toolbar
+INSTALLED_APPS.append("debug_toolbar")  # noqa
+MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")  # noqa
+INTERNAL_IPS = ["127.0.0.1"]
 
-MIDDLEWARE = MIDDLEWARE + [  # noqa: F405
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-]
-
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
+# https://github.com/django-crispy-forms/django-crispy-forms
+CRISPY_FAIL_SILENTLY = False
 
 try:
     from .local import *  # noqa: F403
