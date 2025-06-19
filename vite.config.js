@@ -8,8 +8,7 @@ export default defineConfig({
     outDir: resolve('./brownsea/static/dist'),
     rollupOptions: {
       input: {
-        main: resolve('./brownsea/static_src/main.ts'),
-        css: resolve('./brownsea/static_src/scss/main.scss')
+        main: resolve('./brownsea/static_src/main.ts')
       },
     }
   },
