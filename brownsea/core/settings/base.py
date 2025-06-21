@@ -177,6 +177,17 @@ STORAGES = {
     },
 }
 
+if env("AZURE_STORAGE_CONNECTION_STRING", default=None) is not None:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.azure_storage.AzureStorage",
+        "OPTIONS": {
+            "connection_string": env("AZURE_STORAGE_CONNECTION_STRING"),
+            "azure_container": env("AZURE_STORAGE_CONTAINER_NAME"),
+            "location": "",  # Store in root of container
+            "expiration_secs": 3600,
+        },
+    }
+
 
 # http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
 def immutable_file_test(path, url):

@@ -29,6 +29,7 @@ ruff = "^0.11.13"
 [tool.poetry.group.prod.dependencies]
 psycopg = "^3.2.9"
 granian = "^2.3.4"
+django-storages = {extras = ["azure"], version = "^1.14.6"}
 
 [build-system]
 requires = ["poetry-core"]
