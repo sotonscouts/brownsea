@@ -55,6 +55,9 @@ class LoginView(DjangoLoginView):
 
 class GoogleLoginCallbackView(View):
     def get(self, request: http.HttpRequest) -> http.HttpResponseRedirect:
+        if not settings.SSO_GOOGLE_ENABLED:
+            return http.HttpResponseBadRequest("SSO is not enabled.")
+
         token = oauth.google.authorize_access_token(request)
         userinfo = token.get("userinfo", {})
 
