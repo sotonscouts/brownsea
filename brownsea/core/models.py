@@ -6,6 +6,7 @@ from django.db import models
 from django.forms import ValidationError
 from django.shortcuts import render
 from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Page, PreviewableMixin
 from wagtail.search import index
 
@@ -136,3 +137,75 @@ class CallToAction(BrownseaPreviewableMixin, models.Model):
 
     def get_preview_template(self, request, mode_name):
         return "components/streamfield/blocks/call_to_action_block.html"
+
+
+@register_setting(icon="warning")
+class AlertBannerSettings(BaseSiteSetting):
+    enabled = models.BooleanField(
+        default=False,
+        help_text="Enable or disable the alert banner across the site",
+    )
+    message = models.TextField(
+        blank=True,
+        help_text="The message to display in the alert banner",
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=[
+            ("info", "Information"),
+            ("warning", "Warning"),
+            ("danger", "Error"),
+            ("success", "Success"),
+        ],
+        default="info",
+        help_text="The type of alert to display",
+    )
+    button_text = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Optional text for the call-to-action button",
+    )
+    button_page = models.ForeignKey(
+        "wagtailcore.Page",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Optional internal page to link to",
+    )
+    button_external_url = models.URLField(
+        blank=True,
+        help_text="Optional external URL to link to",
+    )
+
+    panels = [
+        FieldPanel("enabled"),
+        FieldPanel("message"),
+        FieldPanel("type"),
+        MultiFieldPanel(
+            [
+                FieldPanel("button_text"),
+                FieldPanel("button_page"),
+                FieldPanel("button_external_url"),
+            ],
+            heading="Call to Action Button (Optional)",
+        ),
+    ]
+
+    def clean(self):
+        super().clean()
+        if self.button_text:
+            if self.button_page and self.button_external_url:
+                raise ValidationError(
+                    "Please choose either an internal page OR an external URL for the button, not both."
+                )
+            if not self.button_page and not self.button_external_url:
+                raise ValidationError(
+                    "If providing button text, please choose either an internal page OR an external URL."
+                )
+        elif self.button_page or self.button_external_url:
+            raise ValidationError("Button text is required if specifying a button link.")
+
+    @property
+    def button_url(self):
+        return self.button_page.url if self.button_page else self.button_external_url

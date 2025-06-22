@@ -1,0 +1,23 @@
+{% load wagtailsettings_tags %}
+{% get_settings %}
+
+{% with settings.core.AlertBannerSettings as banner %}
+    {% if banner.enabled and banner.message %}
+        <div class="bg-{{ banner.type }} bg-opacity-10">
+            <div class="container text-center">
+                <div class="alert alert-{{ banner.type }} fade show mb-0 border-0 rounded-0 bg-transparent" role="alert">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-grow-1">
+                            {{ banner.message }}
+                            {% if banner.button_text and banner.button_url %}
+                                <a href="{{ banner.button_url }}" class="btn btn-{{ banner.type }} btn-sm ms-3">
+                                    {{ banner.button_text }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}

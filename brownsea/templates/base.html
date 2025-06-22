@@ -29,6 +29,7 @@
     </head>
 
     <body class="{% block body_class %}{% endblock %}">
+        {% include "components/alert_banner.html" %}
         {% wagtailuserbar %}
 
         {% primary_nav %}
