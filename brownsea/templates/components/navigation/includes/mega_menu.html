@@ -3,7 +3,11 @@
     <div class="dropdown-menu megamenu shadow-sm border-0 w-100" role="menu">
         <div class="container py-4">
             <h5 class="h2 fw-bold mb-4">
-                <a href="{{ parent_link }}" class="link-primary text-decoration-none">{{ parent_link_text }}</a>
+                {% if parent_link %}
+                    <a href="{{ parent_link }}" class="link-primary text-decoration-none">{{ parent_link_text }}</a>
+                {% else %}
+                    {{ parent_link_text }}
+                {% endif %}
             </h5>
             <div class="row g-4">
                 {% for column in columns %}

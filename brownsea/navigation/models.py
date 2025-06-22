@@ -26,17 +26,21 @@ class LinkBlock(blocks.StructBlock):
         template = ("components/navigation/menu_item.html",)
         value_class = LinkStructValue
 
+    def __init__(self, *args, link_required: bool = True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.link_required = link_required
+
     def clean(self, value):
         value = super().clean(value)
         errors = defaultdict(ErrorList)
 
         # Either a page or an external URL is required.
-        if bool(value["page"]) == bool(value["external_url"]):
+        if self.link_required and bool(value["page"]) == bool(value["external_url"]):
             errors["page"].append("Select either a page or enter an external URL.")
 
         # Make sure that title is required if using an external URL.
-        if value["external_url"] and not value["title"]:
-            errors["title"].append("A title is required if using an external URL.")
+        if (not value["page"]) and (not value["title"]):
+            errors["title"].append("A title is required unless linking to an internal page.")
 
         if errors:
             raise StructBlockValidationError(errors)
@@ -45,7 +49,7 @@ class LinkBlock(blocks.StructBlock):
 
 
 class PrimaryNavigationLinkBlock(blocks.StructBlock):
-    link = LinkBlock()
+    link = LinkBlock(link_required=False)
     secondary_level_links = blocks.ListBlock(
         blocks.StructBlock(
             [
@@ -64,6 +68,16 @@ class PrimaryNavigationLinkBlock(blocks.StructBlock):
 
     class Meta:
         template = "components/navigation/includes/primary_nav_item.html"
+
+    def clean(self, value):
+        value = super().clean(value)
+        errors = defaultdict(ErrorList)
+        if not value["link"].get_url() and not value["secondary_level_links"]:
+            errors["link"].append("A link or secondary level links are required.")
+
+        if errors:
+            raise StructBlockValidationError(errors)
+        return value
 
 
 @register_setting(icon="list-ul")
