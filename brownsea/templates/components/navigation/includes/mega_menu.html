@@ -4,7 +4,7 @@
         <div class="container py-4">
             <h5 class="h2 fw-bold mb-4">
                 {% if parent_link %}
-                    <a href="{{ parent_link }}" class="link-primary text-decoration-none">{{ parent_link_text }}</a>
+                    <a href="{{ parent_link }}" class="link-primary text-decoration-none">{{ parent_link_text }}<i class="h4 bi bi-chevron-right"></i></a>
                 {% else %}
                     {{ parent_link_text }}
                 {% endif %}
