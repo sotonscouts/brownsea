@@ -16,6 +16,9 @@ SESSION_COOKIE_SECURE = True
 # https://github.com/django-crispy-forms/django-crispy-forms
 CRISPY_FAIL_SILENTLY = True
 
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Django Vite configuration
 DJANGO_VITE = {
     "default": {
