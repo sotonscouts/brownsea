@@ -5,6 +5,7 @@ from pathlib import Path
 
 import dj_database_url
 import environ
+import sentry_sdk
 
 env = environ.Env(
     # set casting, default value
@@ -253,6 +254,25 @@ if SSO_GOOGLE_ENABLED:
     SSO_GOOGLE_CLIENT_ID = env("SSO_GOOGLE_CLIENT_ID")
     SSO_GOOGLE_CLIENT_SECRET = env("SSO_GOOGLE_CLIENT_SECRET")
     SSO_GOOGLE_CONFIGURATION_URL = env("SSO_GOOGLE_CONFIGURATION_URL")
+
+# Sentry
+SENTRY_DSN = env("SENTRY_DSN", default=None)
+
+if SENTRY_DSN:
+    SENTRY_ENVIRONMENT = env("SENTRY_ENVIRONMENT")
+    SENTRY_TRACES_SAMPLE_RATE = env("SENTRY_TRACES_SAMPLE_RATE", default=0.1)
+    SENTRY_SEND_DEFAULT_PII = env("SENTRY_SEND_DEFAULT_PII", default=True)
+    SENTRY_AUTO_SESSION_TRACKING = env("SENTRY_AUTO_SESSION_TRACKING", default=True)
+    SENTRY_AUTO_TRANSACTION_TRACKING = env("SENTRY_AUTO_TRANSACTION_TRACKING", default=True)
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=SENTRY_ENVIRONMENT,
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=SENTRY_SEND_DEFAULT_PII,
+        auto_session_tracking=SENTRY_AUTO_SESSION_TRACKING,
+        auto_transaction_tracking=SENTRY_AUTO_TRANSACTION_TRACKING,
+    )
 
 # App Specific Settings
 LOGOUT_REDIRECT_URL = env("LOGOUT_REDIRECT_URL")
