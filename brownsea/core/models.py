@@ -10,6 +10,8 @@ from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Page, PreviewableMixin
 from wagtail.search import index
 
+from brownsea.core.blocks import HeadingBlock
+
 
 class BasePage(Page):
     show_in_menus_default = True
@@ -85,6 +87,37 @@ class BrownseaPreviewableMixin(PreviewableMixin):
             "label": "Preview in tablet size",
         },
     ]
+
+
+class Author(BrownseaPreviewableMixin, models.Model):
+    """A reusable Author snippet."""
+
+    name = models.CharField(max_length=255, help_text="The author's name")
+    role = models.TextField(blank=True, help_text="The author's role or title")
+    profile_picture = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="An optional profile picture for the author",
+    )
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("role"),
+        FieldPanel("profile_picture"),
+    ]
+
+    class Meta:
+        verbose_name = "Author"
+        verbose_name_plural = "Authors"
+
+    def __str__(self):
+        return self.name
+
+    def get_preview_template(self, request, mode_name):
+        return "components/author_card.html"
 
 
 class CallToAction(BrownseaPreviewableMixin, models.Model):
@@ -209,3 +242,22 @@ class AlertBannerSettings(BaseSiteSetting):
     @property
     def button_url(self):
         return self.button_page.url if self.button_page else self.button_external_url
+
+
+class InPageNavMixin:
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        headings = []
+        for block in self.body:
+            if isinstance(block.block, HeadingBlock):
+                headings.append(block.value["heading"])
+
+        # If there are 3 or more heading blocks, add them to the context, so
+        # that the in-page navigation is shown
+        if len(headings) >= 3:
+            context["in_page_nav"] = headings
+        else:
+            context["in_page_nav"] = None
+
+        return context

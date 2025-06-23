@@ -1,0 +1,6 @@
+<nav id="page-nav" class="nav nav-pills flex-column align-items-stretch p-3 position-sticky border" style="top: 2em;">
+    <h3 class="h5 mb-3">On this page</h3>
+    {% for heading in headings %}
+        <a class="nav-link" href="#{{ heading|slugify }}">{{ heading }}</a>
+    {% endfor %}
+</nav>

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "brownsea.core",
     "brownsea.home",
     "brownsea.navigation",
+    "brownsea.news",
     "brownsea.standard_pages",
     "brownsea.search",
     "crispy_forms",

@@ -9,6 +9,16 @@
 {% block content %}
     <div class="row">
         <div class="col-12 col-md-8">
+            <p class="text-muted small">
+                {% if page.display_date %}
+                    {{ page.display_date|date:"j F Y" }}
+                {% endif %}
+                {% if page.news_type %}
+                    <span class="mx-2">&bull;</span>
+                    {{ page.news_type }}
+                {% endif %}
+            </p>
+
             <div class="main-content" data-bs-spy="scroll" data-bs-target="#page-nav" data-bs-offset="0" tabindex="0" style="scroll-padding-top: 100px;">
                 <section id="introduction">
                     <p class="lead">{{ page.introduction }}</p>
@@ -22,6 +32,12 @@
             </div>
         </div>
         <div class="col-12 col-md-4">
+            {% if page.author %}
+                <div class="mb-4">
+                    {% include "components/author_card.html" with value=page.author only %}
+                </div>
+            {% endif %}
+
             {% if in_page_nav %}
                 {% include "components/in_page_nav.html" with headings=in_page_nav only %}
             {% endif %}

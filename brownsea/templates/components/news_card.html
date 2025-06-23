@@ -1,0 +1,28 @@
+{% load wagtailimages_tags %}
+
+<div class="card h-100">
+    {% if article.image %}
+        <div class="d-block d-md-none">
+            {% image article.image width-800 class="img-fluid" %}
+        </div>
+    {% endif %}
+    <div class="card-body d-flex flex-column flex-md-row gap-md-4">
+        <div class="flex-grow-1">
+            <h3 class="card-title h5"><a href="{{ url }}" class="text-decoration-none text-body">{{ article.title }}</a></h3>
+            <p class="card-text text-muted small mb-2">
+                {% if article.display_date %}
+                    {{ article.display_date|date:"j F Y" }}
+                {% endif %}
+                <span class="mx-2">&bull;</span>
+                {{ article.news_type.name }}
+            </p>
+            <p class="card-text">{{ article.introduction }}</p>
+            <a href="{{ url }}" class="btn btn-outline-primary mt-auto">Read {{ article.news_type.name }}</a>
+        </div>
+        {% if article.image %}
+            <div class="d-none d-md-block" style="width: 200px; flex-shrink: 0;">
+                {% image article.image width-200 class="img-fluid" style="max-width: 100%; height: auto;" %}
+            </div>
+        {% endif %}
+    </div>
+</div>
