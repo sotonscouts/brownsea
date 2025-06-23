@@ -1,0 +1,19 @@
+{% load wagtailimages_tags %}
+
+<div class="card h-100">
+    <div class="card-body d-flex flex-column align-items-center">
+        <div class="mb-3">
+            {% if value.profile_picture %}
+                {% image value.profile_picture fill-120x120 class="rounded-circle img-fluid" %}
+            {% else %}
+                <div class="author-card__image rounded-circle bg-primary d-flex align-items-center justify-content-center" aria-hidden="true">
+                    <span class="author-card__placeholder text-white">
+                        {{ value.name|first|upper }}
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+        <h3 class="card-title h5 mb-2">{{ value.name }}</h3>
+        <p class="card-text text-muted mb-0">{{ value.role }}</p>
+    </div>
+</div>
