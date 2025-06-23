@@ -2,8 +2,8 @@ from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.search import index
 
-from brownsea.core.blocks import HeadingBlock, StoryBlock
-from brownsea.core.models import AbstractIndexPage, BasePage
+from brownsea.core.blocks import StoryBlock
+from brownsea.core.models import AbstractIndexPage, BasePage, InPageNavMixin
 from brownsea.core.utils import StreamField
 
 
@@ -16,7 +16,7 @@ class IndexPage(AbstractIndexPage):
     ]
 
 
-class InfoPage(BasePage):
+class InfoPage(InPageNavMixin, BasePage):
     template = "pages/standard_pages/info_page.html"
 
     introduction = models.TextField()
@@ -31,20 +31,3 @@ class InfoPage(BasePage):
         index.SearchField("introduction"),
         index.SearchField("body"),
     ]
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-
-        headings = []
-        for block in self.body:
-            if isinstance(block.block, HeadingBlock):
-                headings.append(block.value["heading"])
-
-        # If there are 3 or more heading blocks, add them to the context, so
-        # that the in-page navigation is shown
-        if len(headings) >= 3:
-            context["in_page_nav"] = headings
-        else:
-            context["in_page_nav"] = None
-
-        return context

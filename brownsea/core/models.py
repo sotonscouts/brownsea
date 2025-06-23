@@ -10,6 +10,8 @@ from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Page, PreviewableMixin
 from wagtail.search import index
 
+from brownsea.core.blocks import HeadingBlock
+
 
 class BasePage(Page):
     show_in_menus_default = True
@@ -240,3 +242,22 @@ class AlertBannerSettings(BaseSiteSetting):
     @property
     def button_url(self):
         return self.button_page.url if self.button_page else self.button_external_url
+
+
+class InPageNavMixin:
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        headings = []
+        for block in self.body:
+            if isinstance(block.block, HeadingBlock):
+                headings.append(block.value["heading"])
+
+        # If there are 3 or more heading blocks, add them to the context, so
+        # that the in-page navigation is shown
+        if len(headings) >= 3:
+            context["in_page_nav"] = headings
+        else:
+            context["in_page_nav"] = None
+
+        return context

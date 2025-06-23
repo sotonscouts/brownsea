@@ -9,10 +9,10 @@ from wagtail.fields import StreamField
 from wagtail.search import index
 
 from brownsea.core.blocks import StoryBlock
-from brownsea.core.models import BasePage
+from brownsea.core.models import BasePage, InPageNavMixin
 
 
-class ArticlePage(BasePage):
+class ArticlePage(InPageNavMixin, BasePage):
     template = "pages/news/article_page.html"
     parent_page_types = ["news.NewsIndexPage"]
     subpage_types = []
