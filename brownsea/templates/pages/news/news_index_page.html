@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <p class="lead">{{ page.introduction }}</p>
+            <h2 class="visually-hidden">News articles</h2>
+
+            {% if sub_pages %}
+                {% if sub_pages.object_list.exists %}
+                    <div class="d-grid gap-4">
+                        {% for article in sub_pages.object_list %}
+                            {% pageurl article as url %}
+                            {% include "components/news_card.html" with article=article url=url %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-4">
+                        {% include "components/navigation/pagination.html" with page=sub_pages %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No articles have been published yet.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="col-12 col-lg-4"></div>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <div class="main-content" data-bs-spy="scroll" data-bs-target="#page-nav" data-bs-offset="0" tabindex="0" style="scroll-padding-top: 100px;">
+                <section id="introduction">
+                    <p class="lead">{{ page.introduction }}</p>
+                </section>
+
+                <section id="main-content">
+                    {% for block in page.body %}
+                        {% include_block block %}
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            {% if in_page_nav %}
+                <nav id="page-nav" class="nav nav-pills flex-column align-items-stretch p-3 position-sticky border" style="top: 2em;">
+                    <h3 class="h5 mb-3">On this page</h3>
+                    {% for heading in in_page_nav %}
+                        <a class="nav-link" href="#{{ heading|slugify }}">{{ heading }}</a>
+                    {% endfor %}
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
