@@ -1,0 +1,28 @@
+{% load wagtailcore_tags %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Recent News</h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for article in recent_news %}
+                <div class="list-group-item">
+                    <h3 class="h6 mb-1">
+                        <a href="{% pageurl article %}" class="text-decoration-none text-body">{{ article.title }}</a>
+                    </h3>
+                    <p class="text-muted small mb-2">
+                        {{ article.display_date|date:"j F Y" }}
+                        {% if article.news_type %}
+                            <span class="mx-2">&bull;</span>
+                            {{ article.news_type.name }}
+                        {% endif %}
+                    </p>
+                    <a href="{% pageurl article %}" class="btn btn-sm btn-outline-primary">Read more</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <a href="{% pageurl news_index_page %}" class="text-decoration-none">View all news &rarr;</a>
+    </div>
+</div>
