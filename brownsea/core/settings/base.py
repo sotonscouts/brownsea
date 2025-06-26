@@ -13,6 +13,13 @@ env = environ.Env(
     SECRET_KEY=(str, ""),
     CSRF_TRUSTED_ORIGINS=(list, []),
     DATABASE_URL=(str, "sqlite:///db.sqlite3"),
+    EMAIL_HOST=(str, ""),
+    EMAIL_HOST_USER=(str, ""),
+    EMAIL_HOST_PASSWORD=(str, ""),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_PORT=(int, 587),
+    EMAIL_SUBJECT_PREFIX=(str, "[Brownsea CMS] "),
+    SERVER_EMAIL=(str, "brownsea@example.com"),
     WAGTAILADMIN_BASE_URL=(str, ""),
     WAGTAIL_SITE_NAME=(str, "Brownsea Intranet CMS"),
     APP_LOGO_UNIT_NAME=(str, "Brownsea CMS"),
@@ -204,6 +211,19 @@ WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 # can exceed this limit within Wagtail's page editor.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 
+# Email settings
+# https://docs.djangoproject.com/en/5.2/topics/email/
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX")
+SERVER_EMAIL = env("SERVER_EMAIL")
+DEFAULT_FROM_EMAIL = SERVER_EMAIL
+WAGTAILADMIN_NOTIFICATION_FROM_EMAIL = SERVER_EMAIL
+WAGTAILADMIN_NOTIFICATION_INCLUDE_SUPERUSERS = False
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
