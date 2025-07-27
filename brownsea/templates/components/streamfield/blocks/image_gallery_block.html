@@ -1,0 +1,27 @@
+{% load wagtailimages_tags %}
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mb-4 gallery">
+    {% for item in value %}
+        <div class="col d-flex flex-column">
+            {% image item.value.image original as full_img %}
+            {% image item.value.image fill-800x600 as thumb_img %}
+            <a
+                href="{{ full_img.url }}"
+                data-pswp-width="{{ full_img.width }}"
+                data-pswp-height="{{ full_img.height }}"
+                target="_blank"
+            >
+                <img
+                    src="{{ thumb_img.url }}"
+                    alt="{{ thumb_img.alt }}"
+                    class="img-fluid shadow-sm"
+                    style="width: 100%; aspect-ratio: 4/3; object-fit: cover;"
+                >
+            </a>
+            {% if item.value.caption %}
+                <div class="mt-2 text-center">
+                    <small class="text-muted">{{ item.value.caption }}</small>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>

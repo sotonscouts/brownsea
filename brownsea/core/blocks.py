@@ -156,8 +156,12 @@ class WarningCalloutBlock(blocks.StructBlock):
         group = GROUP_CALLOUTS
 
 
-class ImageBlock(blocks.StructBlock):
+class _BaseImageBlock(blocks.StructBlock):
     image = ImageChooserBlock(required=True)
+    caption = blocks.CharBlock(required=False)
+
+
+class ImageBlock(_BaseImageBlock):
     size = blocks.ChoiceBlock(
         choices=[
             ("small", "Small (400px)"),
@@ -168,12 +172,21 @@ class ImageBlock(blocks.StructBlock):
         required=True,
         help_text="Choose the size that best fits your content. Small for inline images, medium for standard content, large for featured images.",  # noqa: E501
     )
-    caption = blocks.CharBlock(required=False)
 
     class Meta:
         template = "components/streamfield/blocks/image_block.html"
         icon = "image"
         label = "Image"
+        group = GROUP_MEDIA
+
+
+class ImageGalleryBlock(blocks.StreamBlock):
+    image = _BaseImageBlock(min_num=1)
+
+    class Meta:
+        template = "components/streamfield/blocks/image_gallery_block.html"
+        icon = "image"
+        label = "Image Gallery"
         group = GROUP_MEDIA
 
 
@@ -200,6 +213,7 @@ class StoryBlock(blocks.StreamBlock):
     )
     links = LinkSectionBlock()
     image = ImageBlock()
+    image_gallery = ImageGalleryBlock()
     table = TableBlock()
     document = DocumentChooserBlock(
         icon="doc-full-inverse",
