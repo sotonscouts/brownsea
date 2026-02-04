@@ -5,11 +5,11 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.db.models.functions import Coalesce
 from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
-from wagtail.fields import StreamField
 from wagtail.search import index
 
 from brownsea.core.blocks import StoryBlock
 from brownsea.core.models import BasePage, InPageNavMixin
+from brownsea.core.utils import StreamField
 
 
 class ArticlePage(InPageNavMixin, BasePage):
