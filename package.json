@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
+    "mermaid": "^10.9.1",
     "photoswipe": "^5.4.4"
   },
   "devDependencies": {

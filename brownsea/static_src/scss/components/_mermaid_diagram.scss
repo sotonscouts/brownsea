@@ -1,0 +1,89 @@
+// Custom CSS variables for Mermaid theme (fallbacks only)
+// Bootstrap CSS variables (--bs-primary, --bs-body-color, etc.) are preferred
+// These are only used if Bootstrap variables aren't available
+:root {
+    --scout-purple: #{$scoutpurple};
+    --scout-purple-dark: #7413dc;
+    --body-text: #{$body-color};
+    --light-grey: #{$light};
+    --dark-grey: #e0e0e0;
+    --white: #fff;
+}
+
+.mermaid-diagram-block {
+    &__container {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    &__loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &__diagram {
+        max-width: 800px;
+        max-height: 500px;
+        overflow: auto;
+    }
+
+    &__zoom-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 20;
+        // border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        background: white;
+        border: 1px solid #dee2e6;
+    }
+
+    &__error {
+        border: 2px solid #dc3545;
+        border-radius: 4px;
+        padding: 1rem;
+        background-color: #f8d7da;
+    }
+
+    &__error-message {
+        display: none;
+    }
+}
+
+.mermaid-modal {
+    &__body {
+        overflow: auto;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        height: calc(100vh - 120px);
+        min-height: 600px;
+    }
+
+    &__container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+

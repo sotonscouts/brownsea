@@ -199,8 +199,21 @@ class TableBlock(BaseTableBlock):
         group = GROUP_MEDIA
 
 
+class MermaidDiagramBlock(blocks.StructBlock):
+    diagram = blocks.TextBlock(required=True)
+    title = blocks.CharBlock(required=False, help_text="Optional title/caption for the diagram")
+
+    class Meta:
+        template = "components/streamfield/blocks/mermaid_diagram_block.html"
+        icon = "code"
+        label = "Mermaid Diagram"
+        help_text = "Create a Mermaid diagram."
+        group = GROUP_MEDIA
+
+
 class StoryBlock(blocks.StreamBlock):
     accordion = AccordionBlock()
+    mermaid_diagram = MermaidDiagramBlock()
     heading = HeadingBlock()
     text = RichTextBlock()
     quote = QuoteBlock()

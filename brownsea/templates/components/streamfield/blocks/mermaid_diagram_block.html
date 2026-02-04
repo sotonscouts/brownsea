@@ -1,0 +1,43 @@
+<figure class="mermaid-diagram-block my-4">
+    <div class="d-flex justify-content-center">
+        <div class="mermaid-diagram-block__container">
+            <div class="mermaid-diagram-block__loading text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading diagram...</span>
+                </div>
+                <div class="mt-2 text-muted">Loading diagram...</div>
+            </div>
+            <div class="mermaid mermaid-diagram-block__diagram" id="mermaid-diagram-{{ block.id }}">{{ value.diagram|safe }}</div>
+            <button
+                type="button"
+                class="btn btn-sm btn-light mermaid-diagram-block__zoom-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#mermaid-modal-{{ block.id }}"
+                aria-label="View larger diagram"
+                title="View larger diagram">
+                <i class="bi bi-zoom-in fs-5"></i>
+            </button>
+        </div>
+    </div>
+    {% if value.title %}
+        <figcaption class="text-center mt-2 text-muted">{{ value.title }}</figcaption>
+    {% endif %}
+</figure>
+
+<!-- Modal for full-size diagram -->
+<div class="modal fade mermaid-modal" id="mermaid-modal-{{ block.id }}" tabindex="-1" aria-labelledby="mermaid-modal-label-{{ block.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mermaid-modal-label-{{ block.id }}">
+                    {% if value.title %}{{ value.title }}{% else %}Diagram{% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body mermaid-modal__body">
+                <div id="mermaid-modal-container-{{ block.id }}" class="mermaid-modal__container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
