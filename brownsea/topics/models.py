@@ -16,7 +16,12 @@ class TopicPage(BasePage):
 
     introduction = models.TextField()
     body = StreamField(TopicPageBlock())
-    quick_links = StreamField(LinkSectionBlock(), blank=True, help_text="Quick links to display in the sidebar")
+    quick_links = StreamField(
+        LinkSectionBlock(min_num=0),
+        blank=True,
+        help_text="Quick links to display in the sidebar",
+        use_json_field=True,
+    )
 
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
