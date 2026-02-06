@@ -12,7 +12,7 @@ from brownsea.core.utils import StreamField
 
 class TopicPage(BasePage):
     template = "pages/topics/topic_page.html"
-    parent_page_types = ["wagtailcore.Page", "home.HomePage", "topics.TopicPage"]
+    parent_page_types = ["wagtailcore.Page", "home.HomePage", "topics.TopicPage", "standard_pages.IndexPage"]
 
     introduction = models.TextField()
     body = StreamField(TopicPageBlock())
