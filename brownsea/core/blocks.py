@@ -244,3 +244,10 @@ class HomePageBlock(blocks.StreamBlock):
         group=GROUP_CALLOUTS,
         template="components/streamfield/blocks/call_to_action_block.html",
     )
+
+
+class TopicPageBlock(HomePageBlock):
+    heading = HeadingBlock()
+    text = RichTextBlock()
+    quote = QuoteBlock()
+    warning_callout = WarningCalloutBlock()

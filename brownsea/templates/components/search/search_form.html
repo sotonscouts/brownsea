@@ -1,0 +1,31 @@
+{% comment %}
+    Reusable search form component.
+    
+    Parameters:
+    - action_url: The URL to submit the form to (required)
+    - search_query: The current search query value (optional)
+    - placeholder: Placeholder text for the input (default: "Search...")
+    - show_clear: Whether to show the clear button when there's a query (default: False)
+    - clear_url: URL to navigate to when clearing (default: action_url)
+    - input_group_size: Size class for input group - "lg" or empty (default: empty)
+    - input_size: Size class for input - "lg" or empty (default: "lg")
+{% endcomment %}
+<form method="get" action="{{ action_url }}" class="mb-4">
+    <div class="input-group{% if input_group_size == 'lg' %} input-group-lg{% endif %}">
+        <input type="search"
+               name="query"
+               class="form-control{% if input_size == 'lg' %} form-control-lg{% endif %}"
+               placeholder="{{ placeholder|default:'Search...' }}"
+               value="{{ search_query|default:'' }}"
+               aria-label="{{ placeholder|default:'Search' }}">
+        <button class="btn btn-primary" type="submit" aria-label="Search">
+            <i class="bi bi-search"></i>
+        </button>
+        {% if show_clear and search_query %}
+            <a href="{{ clear_url|default:action_url }}" class="btn btn-outline-primary" aria-label="Clear search">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        {% endif %}
+    </div>
+</form>
+

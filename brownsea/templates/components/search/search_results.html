@@ -1,0 +1,33 @@
+{% comment %}
+    Reusable search results component.
+    
+    Parameters:
+    - search_query: The search query string (required)
+    - search_results: Paginated search results (required)
+    - show_query_in_count: Whether to show the query in the count message (default: True)
+{% endcomment %}
+{% if search_results %}
+    <h2 class="h4 mb-3">Search Results</h2>
+    {% with count=search_results.paginator.count %}
+        <p class="mb-3">
+            {{ count }} result{{ count|pluralize }} found{% if show_query_in_count %} for "{{ search_query }}"{% endif %}.
+        </p>
+    {% endwith %}
+    <div class="list-group{% if not no_margin %} mb-4{% endif %}">
+        {% for result in search_results %}
+            <a href="{{ result.specific.url }}" class="list-group-item list-group-item-action">
+                <h3 class="h5 mb-1">{{ result.specific.title }}</h3>
+                {% if result.specific.introduction %}
+                    <p class="mb-1 text-muted">{{ result.specific.introduction }}</p>
+                {% endif %}
+            </a>
+        {% endfor %}
+    </div>
+    {% include "components/navigation/pagination.html" with page=search_results %}
+{% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No results found for "{{ search_query }}"
+    </div>
+{% endif %}
+

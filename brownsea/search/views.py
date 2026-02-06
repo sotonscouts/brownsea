@@ -36,11 +36,14 @@ def search(request):
     except EmptyPage:
         search_results = paginator.page(paginator.num_pages)
 
+    from django.urls import reverse
+
     return TemplateResponse(
         request,
         "pages/search/search.html",
         {
             "search_query": search_query,
             "search_results": search_results,
+            "search_url": reverse("search"),
         },
     )

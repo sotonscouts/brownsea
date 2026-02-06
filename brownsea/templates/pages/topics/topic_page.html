@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <p class="lead">{{ page.introduction }}</p>
+
+            {% include "components/search/search_form.html" with action_url=page.url search_query=search_query placeholder="Search within this topic..." show_clear=True clear_url=page.url input_group_size="lg" input_size="" %}
+
+            {% if search_query %}
+                {% include "components/search/search_results.html" with search_query=search_query search_results=search_results %}
+            {% else %}
+                <h2 class="visually-hidden">Topic page content</h2>
+
+                {% for block in page.body %}
+                    <div class="mb-4">
+                        {% include_block block %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-12 col-md-4 mt-4 mt-md-0">
+            {% include "components/quick_links.html" with quick_links=page.quick_links %}
+        </div>
+    </div>
+{% endblock %}
