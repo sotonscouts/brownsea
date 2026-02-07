@@ -17,43 +17,28 @@
     <div class="process-section__steps">
         {% for step in value.steps %}
             {% with step_letter=forloop.counter0|int_to_letter %}
-                {% if step.block_type == 'screenshot_step' %}
-                    <div class="process-step process-step--screenshot card mb-4">
-                        <div class="card-body d-flex flex-column gap-4">
-                            <div class="process-step__content">
-                                <h3 class="process-step__title fs-4 fw-semibold mb-3">
-                                    <span class="process-step__letter fw-bold me-2">{{ step_letter }}.</span>
-                                    {{ step.value.title }}
-                                </h3>
-                                <div class="process-step__description">
-                                    {{ step.value.description }}
-                                </div>
+                <div class="process-step{% if step.block_type == 'screenshot_step' %} process-step--screenshot{% endif %} card mb-4">
+                    <div class="card-body d-flex flex-column gap-4{% if step.block_type != 'screenshot_step' %} flex-md-row align-items-md-start{% endif %}">
+                        <div class="process-step__content">
+                            <h3 class="process-step__title fs-4 fw-semibold mb-3">
+                                <span class="process-step__letter fw-bold me-2">{{ step_letter }}.</span>
+                                {{ step.value.title }}
+                            </h3>
+                            <div class="process-step__description">
+                                {{ step.value.description }}
                             </div>
+                        </div>
+                        {% if step.block_type == 'screenshot_step' %}
                             <div class="process-step__screenshot w-100 mt-4">
                                 {% image step.value.screenshot width-1200 class="img-fluid rounded shadow" %}
                             </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="process-step card mb-4">
-                        <div class="card-body d-flex flex-column gap-4 flex-md-row align-items-md-start">
-                            <div class="process-step__content">
-                                <h3 class="process-step__title fs-4 fw-semibold mb-3">
-                                    <span class="process-step__letter fw-bold me-2">{{ step_letter }}.</span>
-                                    {{ step.value.title }}
-                                </h3>
-                                <div class="process-step__description">
-                                    {{ step.value.description }}
-                                </div>
+                        {% elif step.value.picture %}
+                            <div class="process-step__image flex-shrink-0">
+                                {% image step.value.picture width-600 class="img-fluid rounded shadow" %}
                             </div>
-                            {% if step.value.picture %}
-                                <div class="process-step__image flex-shrink-0">
-                                    {% image step.value.picture width-600 class="img-fluid rounded" %}
-                                </div>
-                            {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
             {% endwith %}
         {% endfor %}
     </div>
