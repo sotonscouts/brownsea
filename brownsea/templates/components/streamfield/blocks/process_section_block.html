@@ -24,9 +24,11 @@
                                 <span class="process-step__letter fw-bold me-2">{{ step_letter }}.</span>
                                 {{ step.value.title }}
                             </h3>
-                            <div class="process-step__description">
-                                {{ step.value.description }}
-                            </div>
+                            {% if step.value.description %}
+                                <div class="process-step__description">
+                                    {{ step.value.description }}
+                                </div>
+                            {% endif %}
                         </div>
                         {% if step.block_type == 'screenshot_step' %}
                             <div class="process-step__screenshot w-100 mt-4">

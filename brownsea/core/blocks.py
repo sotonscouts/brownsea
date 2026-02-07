@@ -226,7 +226,7 @@ class ProcessStepBlock(blocks.StructBlock):
 
 class ProcessScreenshotStepBlock(blocks.StructBlock):
     title = blocks.CharBlock(required=True, help_text="The title of this step")
-    description = blocks.RichTextBlock(required=True, help_text="A detailed description of this step")
+    description = blocks.RichTextBlock(required=False, help_text="A detailed description of this step")
     screenshot = ImageChooserBlock(required=True, help_text="A screenshot image for this step")
 
     class Meta:
