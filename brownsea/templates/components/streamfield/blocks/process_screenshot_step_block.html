@@ -1,0 +1,17 @@
+{% load wagtailimages_tags %}
+
+<div class="process-step process-step--screenshot mb-4">
+    <div class="process-step__content">
+        <h3 class="process-step__title">
+            <span class="process-step__letter">{{ step_letter }}.</span>
+            {{ value.title }}
+        </h3>
+        <div class="process-step__description">
+            {{ value.description }}
+        </div>
+    </div>
+    <div class="process-step__screenshot">
+        {% image value.screenshot width-1200 class="img-fluid rounded shadow" %}
+    </div>
+</div>
+

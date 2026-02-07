@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="process-page">
+                <section class="process-page__introduction mb-5">
+                    <p class="lead">{{ page.introduction }}</p>
+                </section>
+
+                <section class="process-page__body">
+                    {% for block in page.body %}
+                        {% with section_number=forloop.counter %}
+                            {% include_block block %}
+                        {% endwith %}
+                    {% endfor %}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

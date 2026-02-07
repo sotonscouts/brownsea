@@ -211,6 +211,58 @@ class MermaidDiagramBlock(blocks.StructBlock):
         group = GROUP_MEDIA
 
 
+class ProcessStepBlock(blocks.StructBlock):
+    title = blocks.CharBlock(required=True, help_text="The title of this step")
+    description = blocks.RichTextBlock(required=True, help_text="A detailed description of this step")
+    picture = ImageChooserBlock(required=False, help_text="An optional image to illustrate this step")
+
+    class Meta:
+        template = "components/streamfield/blocks/process_step_block.html"
+        icon = "list-ol"
+        label = "Process Step"
+        help_text = "A single step in a process"
+        group = GROUP_CALLOUTS
+
+
+class ProcessScreenshotStepBlock(blocks.StructBlock):
+    title = blocks.CharBlock(required=True, help_text="The title of this step")
+    description = blocks.RichTextBlock(required=True, help_text="A detailed description of this step")
+    screenshot = ImageChooserBlock(required=True, help_text="A screenshot image for this step")
+
+    class Meta:
+        template = "components/streamfield/blocks/process_screenshot_step_block.html"
+        icon = "image"
+        label = "Process Step (Screenshot)"
+        help_text = "A step that prominently displays a screenshot"
+        group = GROUP_CALLOUTS
+
+
+class ProcessStepStreamBlock(blocks.StreamBlock):
+    step = ProcessStepBlock()
+    screenshot_step = ProcessScreenshotStepBlock()
+
+
+class ProcessSectionBlock(blocks.StructBlock):
+    heading = blocks.CharBlock(required=True, help_text="The heading for this section of steps")
+    description = blocks.RichTextBlock(required=False, help_text="An optional description for this section")
+    steps = ProcessStepStreamBlock(required=True, help_text="The steps in this section")
+
+    class Meta:
+        template = "components/streamfield/blocks/process_section_block.html"
+        icon = "list-ul"
+        label = "Process Section"
+        help_text = "A section containing process steps"
+        group = GROUP_CALLOUTS
+
+
+class ProcessPageBlock(blocks.StreamBlock):
+    section = ProcessSectionBlock()
+
+    class Meta:
+        icon = "list-ul"
+        label = "Process Page"
+
+
 class StoryBlock(blocks.StreamBlock):
     accordion = AccordionBlock()
     mermaid_diagram = MermaidDiagramBlock()
