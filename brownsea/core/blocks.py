@@ -263,6 +263,37 @@ class ProcessPageBlock(blocks.StreamBlock):
         label = "Process Page"
 
 
+class DosAndDontsItemBlock(blocks.StructBlock):
+    item = blocks.CharBlock(required=True, help_text="The main item or heading")
+    description = blocks.RichTextBlock(required=False, help_text="Optional detailed description or explanation")
+
+
+class DosAndDontsBlock(blocks.StructBlock):
+    heading = blocks.CharBlock(required=False, help_text="Optional heading for the dos and don'ts section")
+    dos_title = blocks.CharBlock(required=False, help_text="Custom title for the 'dos' section (defaults to 'Do')")
+    donts_title = blocks.CharBlock(
+        required=False, help_text="Custom title for the 'don'ts' section (defaults to 'Don't')"
+    )
+    dos = blocks.ListBlock(
+        DosAndDontsItemBlock(),
+        required=False,
+        help_text="List of things to do",
+    )
+    donts = blocks.ListBlock(
+        DosAndDontsItemBlock(),
+        required=False,
+        label="Don'ts",
+        help_text="List of things not to do",
+    )
+
+    class Meta:
+        template = "components/streamfield/blocks/dos_and_donts_block.html"
+        icon = "list-ul"
+        label = "Dos and Don'ts"
+        help_text = "A list of recommended practices (dos) and things to avoid (don'ts)"
+        group = GROUP_CALLOUTS
+
+
 class StoryBlock(blocks.StreamBlock):
     accordion = AccordionBlock()
     mermaid_diagram = MermaidDiagramBlock()
@@ -270,6 +301,7 @@ class StoryBlock(blocks.StreamBlock):
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+    dos_and_donts = DosAndDontsBlock()
     call_to_action = SnippetChooserBlock(
         "core.CallToAction",
         icon="megaphone",
