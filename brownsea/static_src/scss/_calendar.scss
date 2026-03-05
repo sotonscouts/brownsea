@@ -1,0 +1,27 @@
+// FullCalendar base styles
+.fc {
+    font-family: inherit;
+    
+    .fc-button-primary {
+        background-color: var(--bs-primary);
+        
+        &:hover {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+            opacity: 0.9;
+        }
+        
+        &:not(:disabled).fc-button-active,
+        &:not(:disabled):active {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+            opacity: 0.8;
+        }
+        
+    }
+    
+    // Today highlight
+    .fc-day-today {
+        background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+    }
+}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-md-8">
+            <div class="main-content" data-bs-spy="scroll" data-bs-target="#page-nav" data-bs-offset="0" tabindex="0" style="scroll-padding-top: 100px;">
+                <section id="introduction">
+                    <p class="lead">{{ page.introduction }}</p>
+                </section>
+
+                {% if page.body %}
+                    <section id="main-content">
+                        {% for block in page.body %}
+                            {% include_block block %}
+                        {% endfor %}
+                    </section>
+                {% endif %}
+
+                {% if page.external_calendar %}
+                    <section id="calendar" class="mt-4">
+                        <calendar-widget events-url="{% url 'events:calendar_events_json' slug=page.external_calendar.slug %}"></calendar-widget>
+                    </section>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            {% if in_page_nav %}
+                {% include "components/in_page_nav.html" with headings=in_page_nav only %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

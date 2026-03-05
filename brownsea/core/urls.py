@@ -12,6 +12,7 @@ urlpatterns = [
     path("accounts/", include("brownsea.accounts.urls", namespace="accounts")),
     path("admin/", include(wagtailadmin_urls)),
     path("documents/", include(wagtaildocs_urls)),
+    path("events/", include("brownsea.events.urls", namespace="events")),
     path("search/", search_views.search, name="search"),
 ]
 
