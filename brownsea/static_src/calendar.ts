@@ -32,6 +32,8 @@ class CalendarWidget extends HTMLElement {
         this.calendar = new Calendar(calendarEl, {
             plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
             initialView: 'dayGridMonth',
+            locale: 'en-GB',
+            firstDay: 1, // Monday
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
