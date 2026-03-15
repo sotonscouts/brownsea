@@ -64,7 +64,9 @@ class CalendarWidget extends HTMLElement {
     }
 }
 
-// Register the custom element
-customElements.define('calendar-widget', CalendarWidget);
+// Register the custom element only if not already registered
+if (!customElements.get('calendar-widget')) {
+    customElements.define('calendar-widget', CalendarWidget);
+}
 
 export default CalendarWidget;
