@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <p class="lead">{{ page.introduction }}</p>
+
+            {# Filter controls #}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-12">
+                            <label for="search" class="form-label">Search by supplier name</label>
+                            <input type="text" name="search" id="search" class="form-control" placeholder="Enter supplier name..." value="{{ search_query|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Filter by category</label>
+                            <select name="category" id="category" class="form-select">
+                                <option value="">All categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.slug }}" {% if selected_category.slug == category.slug %}selected{% endif %}>
+                                        {% if category.icon %}{{ category.icon }} {% endif %}{{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="recommendation" class="form-label">Filter by recommendation</label>
+                            <select name="recommendation" id="recommendation" class="form-select">
+                                <option value="">All recommendations</option>
+                                {% for value, label in recommendation_choices %}
+                                    <option value="{{ value }}" {% if selected_recommendation == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <a href="{% pageurl page %}" class="btn btn-outline-secondary">Clear Filters</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {# Suppliers list #}
+            {% if suppliers_page %}
+                {% if suppliers_page.object_list %}
+                    <h2 class="visually-hidden">Suppliers</h2>
+                    <div class="d-grid gap-4">
+                        {% for supplier in suppliers_page.object_list %}
+                            {% include "components/suppliers/supplier_card.html" with supplier=supplier %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-4">
+                        {% include "components/navigation/pagination.html" with paginator_page=suppliers_page %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h3 class="h5 alert-heading">No suppliers found</h3>
+                        <p class="mb-0">
+                            {% if search_query or selected_category or selected_recommendation %}
+                                No suppliers match your search criteria. Try adjusting your filters or <a href="{% pageurl page %}" class="alert-link">clear all filters</a>.
+                            {% else %}
+                                No suppliers have been added yet.
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

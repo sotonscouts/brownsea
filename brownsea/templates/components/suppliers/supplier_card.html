@@ -1,0 +1,73 @@
+{% load wagtailimages_tags %}
+{% load wagtailcore_tags %}
+
+<div class="card h-100">
+    <div class="card-body d-flex flex-column flex-md-row gap-md-4">
+        <div class="flex-grow-1">
+            {# Supplier name and recommendation badge #}
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <h3 class="card-title h5 mb-0">
+                    <a href="{% pageurl page %}supplier/{{ supplier.slug }}/" class="text-decoration-none text-body">
+                        {{ supplier.name }}
+                    </a>
+                </h3>
+                {% if supplier.recommendation_status == 'preferred' %}
+                    <span class="badge bg-success">⭐ Preferred</span>
+                {% elif supplier.recommendation_status == 'approved' %}
+                    <span class="badge bg-primary">Approved</span>
+                {% elif supplier.recommendation_status == 'not_recommended' %}
+                    <span class="badge bg-warning text-dark">⚠️ Not Recommended</span>
+                {% endif %}
+            </div>
+
+            {# Category #}
+            <p class="card-text text-muted small mb-2">
+                {% if supplier.category.icon %}{{ supplier.category.icon }} {% endif %}
+                {{ supplier.category.name }}
+            </p>
+
+            {# Description #}
+            <p class="card-text">{{ supplier.description|truncatewords:30 }}</p>
+
+            {# Special terms #}
+            {% if supplier.special_terms %}
+                <div class="alert alert-info small mb-3">
+                    <i class="bi bi-tag-fill"></i> <strong>Special terms:</strong> {{ supplier.special_terms|truncatewords:15 }}
+                </div>
+            {% endif %}
+
+            {# Review stats #}
+            {% if supplier.review_count > 0 %}
+                <p class="card-text small text-muted mb-2">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    {% if supplier.avg_rating %}
+                        {{ supplier.avg_rating|floatformat:1 }}/5
+                    {% else %}
+                        No ratings yet
+                    {% endif %}
+                    ({{ supplier.review_count }} review{{ supplier.review_count|pluralize }})
+                    {% if supplier.positive_review_count > 0 %}
+                        <span class="ms-2">👍 {{ supplier.positive_review_count }}</span>
+                    {% endif %}
+                    {% if supplier.negative_review_count > 0 %}
+                        <span class="ms-2">👎 {{ supplier.negative_review_count }}</span>
+                    {% endif %}
+                </p>
+                {% if supplier.last_review_date %}
+                    <p class="card-text small text-muted mb-2">
+                        <i class="bi bi-clock"></i> Last reviewed: {{ supplier.last_review_date|date:"M Y" }}
+                    </p>
+                {% endif %}
+            {% endif %}
+
+            <a href="{% pageurl page %}supplier/{{ supplier.slug }}/" class="btn btn-outline-primary mt-auto">View Details</a>
+        </div>
+
+        {# Logo #}
+        {% if supplier.logo %}
+            <div class="d-none d-md-block" style="width: 120px; flex-shrink: 0;">
+                {% image supplier.logo width-120 class="img-fluid" style="max-width: 100%; height: auto;" %}
+            </div>
+        {% endif %}
+    </div>
+</div>

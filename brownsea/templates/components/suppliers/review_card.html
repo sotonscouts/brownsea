@@ -1,0 +1,97 @@
+<div class="card">
+    <div class="card-body">
+        {# Review header #}
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h5 class="card-title h6 mb-1">{{ review.reviewing_group }}</h5>
+                <p class="text-muted small mb-0">
+                    {{ review.review_date|date:"F Y" }}
+                    {% if review.service_used %}
+                        &bull; {{ review.service_used }}
+                    {% endif %}
+                </p>
+            </div>
+            {% if review.would_use_again %}
+                <span class="badge bg-success">Would use again</span>
+            {% elif review.would_use_again == False %}
+                <span class="badge bg-warning text-dark">Would not use again</span>
+            {% endif %}
+        </div>
+
+        {# Ratings #}
+        {% if review.value_for_money or review.quality_rating or review.service_rating %}
+            <div class="mb-3">
+                <div class="d-flex gap-3 flex-wrap small">
+                    {% if review.value_for_money %}
+                        <span>
+                            <strong>Value:</strong>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.value_for_money %}
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    {% endif %}
+                    {% if review.quality_rating %}
+                        <span>
+                            <strong>Quality:</strong>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.quality_rating %}
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    {% endif %}
+                    {% if review.service_rating %}
+                        <span>
+                            <strong>Service:</strong>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.service_rating %}
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {# Experience summary #}
+        <p class="card-text">{{ review.experience_summary }}</p>
+
+        {# What went well #}
+        {% if review.what_went_well %}
+            <div class="mb-2">
+                <strong>What went well:</strong>
+                <p class="mb-0">{{ review.what_went_well }}</p>
+            </div>
+        {% endif %}
+
+        {# What could improve #}
+        {% if review.what_could_improve %}
+            <div class="mb-2">
+                <strong>What could be improved:</strong>
+                <p class="mb-0">{{ review.what_could_improve }}</p>
+            </div>
+        {% endif %}
+
+        {# Delivery times #}
+        {% if review.delivery_time_promised or review.delivery_time_actual %}
+            <div class="small text-muted mt-3">
+                {% if review.delivery_time_promised %}
+                    <span><strong>Promised:</strong> {{ review.delivery_time_promised }}</span>
+                {% endif %}
+                {% if review.delivery_time_actual %}
+                    {% if review.delivery_time_promised %} &bull; {% endif %}
+                    <span><strong>Actual:</strong> {{ review.delivery_time_actual }}</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>

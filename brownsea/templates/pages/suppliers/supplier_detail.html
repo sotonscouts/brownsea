@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ supplier.name }} - {{ page.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            {# Back button #}
+            <a href="{% pageurl page %}" class="btn btn-link ps-0 mb-3">
+                <i class="bi bi-arrow-left"></i> Back to all suppliers
+            </a>
+
+            {# Supplier header #}
+            <div class="mb-4">
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    {% if supplier.logo %}
+                        <div style="width: 80px; flex-shrink: 0;">
+                            {% image supplier.logo width-160 class="img-fluid" %}
+                        </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h2 class="h3 mb-2">{{ supplier.name }}</h2>
+                        <p class="text-muted mb-2">
+                            {% if supplier.category.icon %}{{ supplier.category.icon }} {% endif %}
+                            {{ supplier.category.name }}
+                        </p>
+                        {# Recommendation badge #}
+                        {% if supplier.recommendation_status == 'preferred' %}
+                            <span class="badge bg-success">⭐ Preferred Supplier</span>
+                        {% elif supplier.recommendation_status == 'approved' %}
+                            <span class="badge bg-primary">Approved Supplier</span>
+                        {% elif supplier.recommendation_status == 'not_recommended' %}
+                            <span class="badge bg-warning text-dark">⚠️ Not Recommended</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Special terms callout #}
+                {% if supplier.special_terms %}
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading h6"><i class="bi bi-tag-fill"></i> Special Terms for Scouts</h4>
+                        <p class="mb-0">{{ supplier.special_terms }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Description #}
+            <section class="mb-4">
+                <h3 class="h5">About this supplier</h3>
+                <p>{{ supplier.description }}</p>
+                {% if supplier.services %}
+                    <div class="mt-3">
+                        {{ supplier.services|richtext }}
+                    </div>
+                {% endif %}
+            </section>
+
+            {# Trust & Safety #}
+            {% if supplier.has_public_liability_insurance or supplier.insurance_details or supplier.certifications %}
+                <section class="mb-4">
+                    <h3 class="h5">Trust & Safety</h3>
+                    {% if supplier.has_public_liability_insurance %}
+                        <p class="mb-1"><i class="bi bi-shield-check"></i> Has public liability insurance</p>
+                    {% endif %}
+                    {% if supplier.insurance_details %}
+                        <p class="text-muted small">{{ supplier.insurance_details }}</p>
+                    {% endif %}
+                    {% if supplier.certifications %}
+                        <div class="mt-2">
+                            <strong>Certifications:</strong>
+                            <p class="mb-0">{{ supplier.certifications }}</p>
+                        </div>
+                    {% endif %}
+                </section>
+            {% endif %}
+
+            {# Reviews section #}
+            <section class="mb-4">
+                <h3 class="h5">Reviews from Groups</h3>
+
+                {% if review_stats.count > 0 %}
+                    {# Review statistics #}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6 col-md-3">
+                                    <div class="h2 mb-0">
+                                        {% if review_stats.avg_overall %}
+                                            {{ review_stats.avg_overall|floatformat:1 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">Overall</small>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="h2 mb-0">
+                                        {% if review_stats.avg_value %}
+                                            {{ review_stats.avg_value|floatformat:1 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">Value</small>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="h2 mb-0">
+                                        {% if review_stats.avg_quality %}
+                                            {{ review_stats.avg_quality|floatformat:1 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">Quality</small>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="h2 mb-0">
+                                        {% if review_stats.avg_service %}
+                                            {{ review_stats.avg_service|floatformat:1 }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">Service</small>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <p class="mb-0 text-muted small">
+                                    Based on {{ review_stats.count }} review{{ review_stats.count|pluralize }}
+                                    {% if review_stats.positive_count > 0 %}
+                                        (👍 {{ review_stats.positive_count }} positive)
+                                    {% endif %}
+                                    {% if review_stats.negative_count > 0 %}
+                                        (👎 {{ review_stats.negative_count }} negative)
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Positive reviews #}
+                    {% if positive_reviews %}
+                        <h4 class="h6 mb-3">👍 Positive Experiences</h4>
+                        <div class="d-grid gap-3 mb-4">
+                            {% for review in positive_reviews %}
+                                {% include "components/suppliers/review_card.html" with review=review %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {# Negative reviews #}
+                    {% if negative_reviews %}
+                        <h4 class="h6 mb-3">⚠️ Concerns & Issues</h4>
+                        <div class="d-grid gap-3 mb-4">
+                            {% for review in negative_reviews %}
+                                {% include "components/suppliers/review_card.html" with review=review %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">No reviews yet for this supplier.</p>
+                {% endif %}
+            </section>
+        </div>
+
+        {# Sidebar #}
+        <div class="col-12 col-lg-4">
+            {# Contact details #}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h6 card-title">Contact Details</h3>
+                    {% if supplier.website %}
+                        <p class="mb-2">
+                            <i class="bi bi-globe"></i>
+                            <a href="{{ supplier.website }}" target="_blank" rel="noopener">Website</a>
+                        </p>
+                    {% endif %}
+                    {% if supplier.email %}
+                        <p class="mb-2">
+                            <i class="bi bi-envelope"></i>
+                            <a href="mailto:{{ supplier.email }}">{{ supplier.email }}</a>
+                        </p>
+                    {% endif %}
+                    {% if supplier.phone %}
+                        <p class="mb-2">
+                            <i class="bi bi-telephone"></i>
+                            <a href="tel:{{ supplier.phone }}">{{ supplier.phone }}</a>
+                        </p>
+                    {% endif %}
+                    {% if supplier.primary_contact_name %}
+                        <p class="mb-2">
+                            <i class="bi bi-person"></i>
+                            {{ supplier.primary_contact_name }}
+                        </p>
+                    {% endif %}
+                    {% if supplier.address %}
+                        <p class="mb-0">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ supplier.address|linebreaksbr }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Official recommendation #}
+            {% if supplier.recommendation_notes %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="h6 card-title">Official Recommendation</h3>
+                        <p class="mb-0">{{ supplier.recommendation_notes }}</p>
+                        {% if supplier.approved_by %}
+                            <p class="text-muted small mb-0 mt-2">— {{ supplier.approved_by.name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
