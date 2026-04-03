@@ -126,15 +126,11 @@ class Migration(migrations.Migration):
                 ("primary_contact_name", models.CharField(blank=True, max_length=255)),
                 (
                     "description",
-                    models.TextField(
-                        help_text="Brief overview of what this supplier provides and why they're listed"
-                    ),
+                    models.TextField(help_text="Brief overview of what this supplier provides and why they're listed"),
                 ),
                 (
                     "services",
-                    wagtail.fields.RichTextField(
-                        blank=True, help_text="Detailed services/products offered"
-                    ),
+                    wagtail.fields.RichTextField(blank=True, help_text="Detailed services/products offered"),
                 ),
                 (
                     "special_terms",
@@ -161,9 +157,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "last_updated",
-                    models.DateField(
-                        auto_now=True, help_text="Last time any field was updated"
-                    ),
+                    models.DateField(auto_now=True, help_text="Last time any field was updated"),
                 ),
                 (
                     "approved_by",
@@ -223,9 +217,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "reviewer_name",
-                    models.CharField(
-                        help_text="Person who submitted this review", max_length=255
-                    ),
+                    models.CharField(help_text="Person who submitted this review", max_length=255),
                 ),
                 (
                     "reviewer_email",
@@ -329,18 +321,12 @@ class Migration(migrations.Migration):
                             django.db.models.functions.comparison.Cast(
                                 django.db.models.expressions.CombinedExpression(
                                     django.db.models.expressions.CombinedExpression(
-                                        django.db.models.functions.comparison.Coalesce(
-                                            "value_for_money", 0
-                                        ),
+                                        django.db.models.functions.comparison.Coalesce("value_for_money", 0),
                                         "+",
-                                        django.db.models.functions.comparison.Coalesce(
-                                            "quality_rating", 0
-                                        ),
+                                        django.db.models.functions.comparison.Coalesce("quality_rating", 0),
                                     ),
                                     "+",
-                                    django.db.models.functions.comparison.Coalesce(
-                                        "service_rating", 0
-                                    ),
+                                    django.db.models.functions.comparison.Coalesce("service_rating", 0),
                                 ),
                                 models.FloatField(),
                             ),
@@ -348,16 +334,12 @@ class Migration(migrations.Migration):
                             django.db.models.expressions.CombinedExpression(
                                 django.db.models.expressions.CombinedExpression(
                                     models.Case(
-                                        models.When(
-                                            then=1.0, value_for_money__isnull=False
-                                        ),
+                                        models.When(then=1.0, value_for_money__isnull=False),
                                         default=0.0,
                                     ),
                                     "+",
                                     models.Case(
-                                        models.When(
-                                            quality_rating__isnull=False, then=1.0
-                                        ),
+                                        models.When(quality_rating__isnull=False, then=1.0),
                                         default=0.0,
                                     ),
                                 ),
@@ -381,9 +363,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "delivery_time_promised",
-                    models.CharField(
-                        blank=True, help_text="What was promised?", max_length=100
-                    ),
+                    models.CharField(blank=True, help_text="What was promised?", max_length=100),
                 ),
                 (
                     "approved_for_display",
@@ -394,9 +374,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "admin_notes",
-                    models.TextField(
-                        blank=True, help_text="Internal notes (not displayed publicly)"
-                    ),
+                    models.TextField(blank=True, help_text="Internal notes (not displayed publicly)"),
                 ),
                 (
                     "supplier",
