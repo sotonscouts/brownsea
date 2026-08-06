@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get --quiet -y autoremove
 EOF
 
-# Add user, group and create venv in home directory
+# Add user, group and create venv
 ARG USERNAME=brownsea
 ARG UID=1001
 ARG GID=1001
@@ -32,13 +32,13 @@ EOF
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Set env for python
 ENV \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    VIRTUAL_ENV=$VIRTUAL_ENV \
-    PATH=$VIRTUAL_ENV/bin:$PATH
+    UV_PROJECT_ENVIRONMENT=/venv \
+    VIRTUAL_ENV=/venv \
+    PATH=/venv/bin:$PATH
 
 USER $USERNAME
 
