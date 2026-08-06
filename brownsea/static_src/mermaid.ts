@@ -131,7 +131,7 @@ class MermaidInitialiser {
                 this.hideLoadingIndicators();
                 this.setupMutationObserver();
                 this.setupModalListeners();
-                this.triggerRender();
+                void this.triggerRender();
                 return;
             } catch (error) {
                 this.loading = false;
@@ -141,11 +141,9 @@ class MermaidInitialiser {
         }
 
         // Dynamically import Mermaid (loaded on-demand, code-split into separate chunk)
-        // Vite bundles Mermaid v10 as ESM with default export
         import('mermaid')
-            .then((mermaidModule: unknown) => {
+            .then(async (mermaidModule: unknown) => {
                 try {
-                    // Vite bundles ESM modules with default export
                     const mermaid = (mermaidModule as { default: MermaidAPI }).default;
 
                     if (!mermaid || typeof mermaid.initialize !== 'function') {
@@ -158,14 +156,10 @@ class MermaidInitialiser {
                     this.initialised = true;
                     this.loading = false;
 
-                    // Set up MutationObserver to watch for rendered diagrams (persistent for SPA)
                     this.setupMutationObserver();
-
-                    // Set up modal event listeners
                     this.setupModalListeners();
 
-                    // Trigger rendering with explicit error handling
-                    this.triggerRender();
+                    await this.triggerRender();
                 } catch (error) {
                     this.loading = false;
                     this.handleInitialisationError(error);
@@ -180,13 +174,20 @@ class MermaidInitialiser {
     /**
      * Trigger Mermaid rendering with explicit error handling
      */
-    private triggerRender(): void {
+    private async triggerRender(): Promise<void> {
         if (!this.mermaidAPI) {
             return;
         }
 
-        // Try contentLoaded() first (Mermaid v10+ preferred method)
-        if (typeof this.mermaidAPI.contentLoaded === 'function') {
+        if (typeof this.mermaidAPI.run === 'function') {
+            try {
+                await this.mermaidAPI.run({ suppressErrors: false });
+                this.checkAndHideLoadingIndicators();
+            } catch (error) {
+                console.warn('Mermaid run() failed:', error);
+                this.handleRenderError(error);
+            }
+        } else if (typeof this.mermaidAPI.contentLoaded === 'function') {
             try {
                 this.mermaidAPI.contentLoaded();
             } catch (error) {
@@ -194,21 +195,7 @@ class MermaidInitialiser {
                 this.handleRenderError(error);
             }
         }
-        // Fallback to run() if available
-        else if (typeof this.mermaidAPI.run === 'function') {
-            this.mermaidAPI
-                .run({ suppressErrors: false })
-                .then(() => {
-                    // Check for any diagrams that rendered
-                    this.checkAndHideLoadingIndicators();
-                })
-                .catch((error) => {
-                    console.warn('Mermaid run() failed:', error);
-                    this.handleRenderError(error);
-                });
-        }
 
-        // Also check for any immediate renders
         setTimeout(() => {
             this.checkAndHideLoadingIndicators();
         }, 100);
