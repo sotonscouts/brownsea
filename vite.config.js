@@ -18,4 +18,4 @@ export default defineConfig({
     host: true,
   },
   base: '/static/dist/',
-}) 
+})

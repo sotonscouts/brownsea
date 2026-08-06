@@ -1,0 +1,26 @@
+repos:
+  - repo: builtin
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        files: ^brownsea/.*\.py$
+      - id: ruff-format
+        files: ^brownsea/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: djhtml
+        name: djhtml
+        entry: uv run djhtml
+        language: system
+        types: [html]
+        files: ^brownsea/

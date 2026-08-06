@@ -13,7 +13,7 @@ class CalendarWidget extends HTMLElement {
 
     connectedCallback() {
         const eventsUrl = this.getAttribute('events-url');
-        
+
         if (!eventsUrl) {
             console.error('No events-url attribute provided for calendar-widget');
             return;
@@ -64,7 +64,7 @@ class CalendarWidget extends HTMLElement {
         });
 
         this.calendar.render();
-        
+
         console.log('Calendar initialized with events URL:', eventsUrl);
     }
 }
