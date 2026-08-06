@@ -13,15 +13,10 @@
       font-weight: 800;
     }
   }
-  
-@mixin logo-inline() {
-    background-image: url('/svg/logo-inline.svg');
-}
 
 // Compute all the inline logo colours
 @each $colour, $value in $logoColours {
   .logo-inline-#{$colour} {
-    @include logo-inline();
     display: inline-block;
     background-repeat: no-repeat;
     color: $value;
@@ -56,14 +51,9 @@
   }
 }
 
-@mixin logo-stacked() {
-  background-image: url('/svg/logo-stacked.svg');
-}
-
 // Compute all the stacked logo colours
 @each $colour, $value in $logoColours {
   .logo-stacked-#{$colour} {
-    @include logo-stacked();
     display: inline-block;
     background-repeat: no-repeat;
     text-align: center;
@@ -167,7 +157,3 @@
     @include logo-assembly-stacked-size($widthpx);
   }
 }
-
-// Cleanup: Remove old mixins and direct h6 styling if they are no longer needed
-// The old @mixin logo-inline-size and @mixin logo-stacked-size contained direct h6 styling.
-// That h6 styling is now incorporated into .logo-assembly__text within the new mixins.

@@ -5,9 +5,15 @@ interface MermaidConfig {
     themeVariables: Record<string, string>;
 }
 
+interface MermaidRunOptions {
+    querySelector?: string;
+    nodes?: ArrayLike<HTMLElement>;
+    suppressErrors?: boolean;
+}
+
 interface MermaidAPI {
     initialize: (config: MermaidConfig) => void;
-    run?: (options?: { suppressErrors?: boolean }) => Promise<void>;
+    run?: (options?: MermaidRunOptions) => Promise<void>;
     contentLoaded?: () => void;
     render?: (id: string, text: string) => Promise<{ svg: string }>;
 }
@@ -63,7 +69,7 @@ class MermaidInitialiser {
         // Use Bootstrap CSS variables with fallbacks to ensure theme sync
         // Bootstrap 5 exposes CSS variables like --bs-primary, --bs-body-color, etc.
         return {
-            startOnLoad: true,
+            startOnLoad: false,
             theme: 'base',
             themeVariables: {
                 // Primary colors from Bootstrap theme
@@ -171,17 +177,32 @@ class MermaidInitialiser {
             });
     }
 
+    private getPendingDiagrams(nodes?: HTMLElement[]): HTMLElement[] {
+        const candidates = nodes ?? Array.from(document.querySelectorAll<HTMLElement>('.mermaid'));
+
+        return candidates.filter((element) => !element.querySelector('svg'));
+    }
+
     /**
      * Trigger Mermaid rendering with explicit error handling
      */
-    private async triggerRender(): Promise<void> {
+    private async triggerRender(nodes?: HTMLElement[]): Promise<void> {
         if (!this.mermaidAPI) {
+            return;
+        }
+
+        const pendingDiagrams = this.getPendingDiagrams(nodes);
+        if (pendingDiagrams.length === 0) {
+            this.checkAndHideLoadingIndicators();
             return;
         }
 
         if (typeof this.mermaidAPI.run === 'function') {
             try {
-                await this.mermaidAPI.run({ suppressErrors: false });
+                await this.mermaidAPI.run({
+                    nodes: pendingDiagrams,
+                    suppressErrors: false,
+                });
                 this.checkAndHideLoadingIndicators();
             } catch (error) {
                 console.warn('Mermaid run() failed:', error);
@@ -248,7 +269,7 @@ class MermaidInitialiser {
                                     // New diagram, trigger render if API is ready
                                     this.processedDiagrams.add(mermaidEl);
                                     if (this.mermaidAPI) {
-                                        this.triggerRender();
+                                        void this.triggerRender([mermaidEl]);
                                     }
                                 }
                             }
