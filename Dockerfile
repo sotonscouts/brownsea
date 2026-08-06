@@ -30,26 +30,22 @@ RUN <<EOF
     chown -R $UID:$GID /app $VIRTUAL_ENV
 EOF
 
-# Install poetry
-ARG POETRY_HOME=/opt/poetry
-ARG POETRY_VERSION=2.1.3
-RUN --mount=type=cache,target=/root/.cache/pip <<EOF
-    python -m venv --upgrade-deps $POETRY_HOME
-    $POETRY_HOME/bin/pip install poetry==$POETRY_VERSION
-EOF
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set env for python
 ENV \
     PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
     VIRTUAL_ENV=$VIRTUAL_ENV \
-    PATH=$VIRTUAL_ENV/bin:$POETRY_HOME/bin:$PATH
+    PATH=$VIRTUAL_ENV/bin:$PATH
 
 USER $USERNAME
 
-COPY pyproject.toml poetry.lock ./
-RUN --mount=type=cache,target=/home/$USERNAME/.cache/,uid=$UID,gid=$GID \
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/home/$USERNAME/.cache/uv,uid=$UID,gid=$GID \
     <<EOF
-    poetry install --without dev --with prod --no-root
+    uv sync --frozen --no-dev --group prod
 EOF
 
 FROM node:22-slim AS node-deps

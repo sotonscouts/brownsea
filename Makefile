@@ -1,6 +1,6 @@
 .PHONY: all clean fix lint type test test-cov
 
-CMD:=poetry run
+CMD:=uv run
 PYMODULE:=brownsea
 MANAGEPY:=$(CMD) ./manage.py
 SETTINGS_MODULE:=brownsea.core.settings.dev
