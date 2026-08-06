@@ -25,4 +25,3 @@ document.addEventListener('DOMContentLoaded', () => {
         MermaidInitialiser.getInstance().initialise();
     }
 });
-

@@ -7,7 +7,7 @@
 
 .accordion-button {
     font-weight: 700;
-    
+
     &:not(.collapsed) {
         &::after {
             // background-image: var(--bs-accordion-btn-active-icon);
@@ -17,6 +17,6 @@
     }
 }
 
-.accordion-body { 
+.accordion-body {
     font-weight: 400;
-} 
+}

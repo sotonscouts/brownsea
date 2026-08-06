@@ -1,14 +1,19 @@
-import { Calendar } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
+import { Calendar } from 'fullcalendar';
+import dayGridPlugin from 'fullcalendar/daygrid';
+import timeGridPlugin from 'fullcalendar/timegrid';
+import listPlugin from 'fullcalendar/list';
+import themePlugin from 'fullcalendar/themes/classic';
+
+import 'fullcalendar/skeleton.css';
+import 'fullcalendar/themes/classic/theme.css';
+import 'fullcalendar/themes/classic/palette.css';
 
 class CalendarWidget extends HTMLElement {
     private calendar: Calendar | null = null;
 
     connectedCallback() {
         const eventsUrl = this.getAttribute('events-url');
-        
+
         if (!eventsUrl) {
             console.error('No events-url attribute provided for calendar-widget');
             return;
@@ -30,7 +35,7 @@ class CalendarWidget extends HTMLElement {
         this.appendChild(calendarEl);
 
         this.calendar = new Calendar(calendarEl, {
-            plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
+            plugins: [themePlugin, dayGridPlugin, timeGridPlugin, listPlugin],
             initialView: 'dayGridMonth',
             locale: 'en-GB',
             firstDay: 1, // Monday
@@ -59,7 +64,7 @@ class CalendarWidget extends HTMLElement {
         });
 
         this.calendar.render();
-        
+
         console.log('Calendar initialized with events URL:', eventsUrl);
     }
 }

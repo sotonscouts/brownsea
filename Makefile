@@ -1,6 +1,6 @@
-.PHONY: all clean fix lint type test test-cov
+.PHONY: all clean fix hooks lint type test test-cov
 
-CMD:=poetry run
+CMD:=uv run
 PYMODULE:=brownsea
 MANAGEPY:=$(CMD) ./manage.py
 SETTINGS_MODULE:=brownsea.core.settings.dev
@@ -8,10 +8,10 @@ SETTINGS_MODULE:=brownsea.core.settings.dev
 all: format lint
 fix: lint-fix format
 
-lint: 
+lint:
 	$(CMD) ruff check $(PYMODULE)
 
-lint-fix: 
+lint-fix:
 	$(CMD) ruff check --fix $(PYMODULE)
 
 check:
@@ -28,7 +28,7 @@ format-check:
 	find $(PYMODULE) -name "*.html" | xargs $(CMD) djhtml --check
 	$(CMD) ruff format --check $(PYMODULE)
 
-type: 
+type:
 	$(CMD) mypy $(PYMODULE)
 
 test: | $(PYMODULE)
@@ -39,3 +39,6 @@ test-cov:
 
 clean:
 	git clean -Xdf # Delete all files in .gitignore
+
+hooks:
+	$(CMD) prek install -f
