@@ -28,6 +28,11 @@ dev = [
     "ruff>=0.16.1",
     "django-stubs>=6.0.8",
     "prek>=0.4.12",
+    "pytest>=9.1.1",
+    "pytest-django>=4.13.0",
+    "pytest-cov>=7.1.0",
+    "factory-boy>=3.3.3",
+    "wagtail-factories>=4.5.0",
 ]
 prod = [
     "psycopg>=3.3.4",
@@ -37,6 +42,14 @@ prod = [
 
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "brownsea.core.settings.dev"
+python_files = ["test_*.py"]
+testpaths = ["brownsea"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
 
 [tool.ruff]
 target-version = "py312"

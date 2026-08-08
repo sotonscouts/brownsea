@@ -31,3 +31,5 @@ jobs:
         run: make format-check
       - name: Django Static Checks
         run: cp .env.example .env && make check
+      - name: Tests
+        run: cp .env.example .env && make test
