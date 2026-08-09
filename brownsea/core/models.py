@@ -1,11 +1,13 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
 from django.db import models
 from django.forms import ValidationError
 from django.shortcuts import render
-from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
+from django.utils.translation import gettext_lazy as _
+from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Page, PreviewableMixin
 from wagtail.search import index
@@ -13,11 +15,74 @@ from wagtail.search import index
 from brownsea.core.blocks import HeadingBlock
 
 
+class PageAccessLevel(models.TextChoices):
+    INHERIT = "inherit", _("Inherit")
+    LOGGED_IN = "logged_in", _("Logged in only")
+    MAGIC_LINK = "magic_link", _("Magic link")
+    PUBLIC = "public", _("Public")
+
+
 class BasePage(Page):
     show_in_menus_default = True
 
+    access_level = models.CharField(
+        max_length=20,
+        choices=PageAccessLevel.choices,
+        default=PageAccessLevel.INHERIT,
+    )
+
     promote_panels = Page.promote_panels
     settings_panels = Page.settings_panels
+    security_panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("access_level"),
+            ],
+            heading=_("Page access"),
+            help_text=_(
+                "Child pages set to Inherit will use the nearest ancestor's setting. "
+                "Pages above the site home default to logged in only. "
+                "Magic link access is not available yet; those pages currently require login."
+            ),
+        ),
+    ]
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        meta = cls.__dict__.get("Meta")
+        if meta is not None and getattr(meta, "abstract", False):
+            return
+        if "edit_handler" in cls.__dict__:
+            return
+
+        tabs = []
+        if cls.content_panels:
+            tabs.append(ObjectList(cls.content_panels, heading=_("Content")))
+        if cls.security_panels:
+            tabs.append(ObjectList(cls.security_panels, heading=_("Security")))
+        if cls.promote_panels:
+            tabs.append(ObjectList(cls.promote_panels, heading=_("Promote")))
+        if cls.settings_panels:
+            tabs.append(ObjectList(cls.settings_panels, heading=_("Settings")))
+
+        cls.edit_handler = TabbedInterface(tabs, base_form_class=getattr(cls, "base_form_class", None))
+
+    def get_effective_access_level(self):
+        for page in reversed(self.specific.get_ancestors(inclusive=True)):
+            if page.is_root():
+                continue
+            specific_page = page.specific
+            if specific_page.access_level != PageAccessLevel.INHERIT:
+                return specific_page.access_level
+        return PageAccessLevel.LOGGED_IN
+
+    def allow_anonymous_access(self, request):
+        return self.get_effective_access_level() == PageAccessLevel.PUBLIC
+
+    def serve(self, request, *args, **kwargs):
+        if not request.user.is_authenticated and not self.allow_anonymous_access(request):
+            return redirect_to_login(request.get_full_path(), settings.LOGIN_URL)
+        return super().serve(request, *args, **kwargs)
 
     def serve_password_required_response(self, request, form, action_url):
         form.helper = FormHelper()
