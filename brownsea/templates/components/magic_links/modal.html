@@ -1,0 +1,58 @@
+{% load page_tags %}
+<div class="modal-header">
+    <h2 class="modal-title h5" id="magic-link-modal-label">Share magic links</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <p class="text-muted">
+        Anyone with a link can view this page and its sub-pages that inherit magic link access.
+        Links can be revoked or will stop working after they expire.
+    </p>
+
+    <form
+        method="post"
+        action="{% url 'core:magic_links_create' page.id %}"
+        data-magic-link-form="create"
+        class="mb-4"
+    >
+        {% csrf_token %}
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="magic-link-label">Label (optional)</label>
+                <input class="form-control" id="magic-link-label" name="label" maxlength="255">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label" for="magic-link-expires-at">Expires (optional)</label>
+                <input class="form-control" id="magic-link-expires-at" name="expires_at" type="datetime-local">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Create</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="magic-link-list">
+        {% for link in active_links %}
+            {% magic_link_share_url link as share_url %}
+            {% include "components/magic_links/link_row.html" with link=link share_url=share_url page=page %}
+        {% empty %}
+            <p class="text-muted mb-0" id="magic-link-empty">No active magic links yet.</p>
+        {% endfor %}
+    </div>
+
+    {% for link in inactive_links %}
+        <div class="mt-3 text-muted small">
+            {% if forloop.first %}
+                <h3 class="h6 mt-4">Inactive links</h3>
+            {% endif %}
+            <div>
+                {{ link.label|default:"Untitled link" }}
+                {% if link.revoked_at %}
+                    (revoked)
+                {% elif link.expires_at %}
+                    (expired {{ link.expires_at|date:"j M Y, H:i" }})
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

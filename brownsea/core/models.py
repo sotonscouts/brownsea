@@ -1,3 +1,5 @@
+import uuid
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.conf import settings
@@ -5,7 +7,8 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.paginator import Paginator
 from django.db import models
 from django.forms import ValidationError
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
@@ -20,6 +23,54 @@ class PageAccessLevel(models.TextChoices):
     LOGGED_IN = "logged_in", _("Logged in only")
     MAGIC_LINK = "magic_link", _("Magic link")
     PUBLIC = "public", _("Public")
+
+
+class PageMagicLinkQuerySet(models.QuerySet):
+    def active(self):
+        now = timezone.now()
+        return self.filter(revoked_at__isnull=True).filter(
+            models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=now)
+        )
+
+
+class PageMagicLink(models.Model):
+    page = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.CASCADE,
+        related_name="magic_links",
+    )
+    token_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    label = models.CharField(max_length=255, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    objects = PageMagicLinkQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.label or f"Magic link for {self.page.title}"
+
+    @property
+    def is_active(self):
+        if self.revoked_at is not None:
+            return False
+        if self.expires_at is not None and timezone.now() >= self.expires_at:
+            return False
+        return True
+
+    def revoke(self):
+        self.revoked_at = timezone.now()
+        self.save(update_fields=["revoked_at"])
 
 
 class BasePage(Page):
@@ -42,7 +93,7 @@ class BasePage(Page):
             help_text=_(
                 "Child pages set to Inherit will use the nearest ancestor's setting. "
                 "Pages above the site home default to logged in only. "
-                "Magic link access is not available yet; those pages currently require login."
+                "Magic link pages can be shared using the Share button when viewing the page."
             ),
         ),
     ]
@@ -77,11 +128,26 @@ class BasePage(Page):
         return PageAccessLevel.LOGGED_IN
 
     def allow_anonymous_access(self, request):
-        return self.get_effective_access_level() == PageAccessLevel.PUBLIC
+        effective_access = self.get_effective_access_level()
+        if effective_access == PageAccessLevel.PUBLIC:
+            return True
+        if effective_access == PageAccessLevel.MAGIC_LINK:
+            from brownsea.core.magic_links import has_magic_link_access
+
+            return has_magic_link_access(request, self)
+        return False
 
     def serve(self, request, *args, **kwargs):
-        if not request.user.is_authenticated and not self.allow_anonymous_access(request):
-            return redirect_to_login(request.get_full_path(), settings.LOGIN_URL)
+        if not request.user.is_authenticated:
+            access_token = request.GET.get("access")
+            if access_token:
+                from brownsea.core.magic_links import redeem_magic_link_token
+
+                if redeem_magic_link_token(request, access_token, self):
+                    return redirect(self.get_url(request) or self.url)
+
+            if not self.allow_anonymous_access(request):
+                return redirect_to_login(request.get_full_path(), settings.LOGIN_URL)
         return super().serve(request, *args, **kwargs)
 
     def serve_password_required_response(self, request, form, action_url):

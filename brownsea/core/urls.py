@@ -14,6 +14,7 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("events/", include("brownsea.events.urls", namespace="events")),
     path("search/", search_views.search, name="search"),
+    path("", include("brownsea.core.page_urls", namespace="core")),
 ]
 
 try:
