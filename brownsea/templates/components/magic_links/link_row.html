@@ -1,0 +1,33 @@
+<div class="border rounded p-3 mb-3" data-magic-link-row>
+    <div class="d-flex justify-content-between align-items-start gap-3">
+        <div class="flex-grow-1">
+            <div class="fw-semibold">{{ link.label|default:"Untitled link" }}</div>
+            <div class="small text-muted">
+                Created {{ link.created_at|date:"j M Y, H:i" }}
+                {% if link.expires_at %}
+                    · Expires {{ link.expires_at|date:"j M Y, H:i" }}
+                {% else %}
+                    · No expiry
+                {% endif %}
+            </div>
+            <div class="input-group input-group-sm mt-2">
+                <input class="form-control font-monospace" type="text" value="{{ share_url }}" readonly>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="navigator.clipboard.writeText('{{ share_url|escapejs }}')"
+                >
+                    Copy
+                </button>
+            </div>
+        </div>
+        <form
+            method="post"
+            action="{% url 'core:magic_links_revoke' page.id link.token_id %}"
+            data-magic-link-form="revoke"
+        >
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">Revoke</button>
+        </form>
+    </div>
+</div>

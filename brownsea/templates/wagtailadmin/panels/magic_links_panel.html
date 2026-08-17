@@ -1,0 +1,158 @@
+{% load i18n wagtailadmin_tags %}
+
+<fieldset class="magic-links-panel" data-magic-links-panel data-create-url="{{ create_url }}">
+    {% if self.help_text %}
+        {% help_block status="info" %}{{ self.help_text }}{% endhelp_block %}
+    {% endif %}
+
+    <p class="help">
+        {% trans "Anyone with a link can view this page and sub-pages that inherit magic link access. Links can be revoked or expire automatically." %}
+    </p>
+
+    <div class="w-mb-6">
+        <ul class="fields">
+            <li class="char_field">
+                <div class="field">
+                    <label for="{{ self.prefix }}-label">{% trans "Label (optional)" %}</label>
+                    <div class="field-content">
+                        <input
+                            id="{{ self.prefix }}-label"
+                            type="text"
+                            maxlength="255"
+                            data-magic-link-label
+                        >
+                    </div>
+                </div>
+            </li>
+            <li class="date_time_field">
+                <div class="field">
+                    <label for="{{ self.prefix }}-expires-at">{% trans "Expires (optional)" %}</label>
+                    <div class="field-content">
+                        <input
+                            id="{{ self.prefix }}-expires-at"
+                            type="datetime-local"
+                            data-magic-link-expires-at
+                        >
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <button type="button" class="button" data-magic-link-create>{% trans "Create magic link" %}</button>
+    </div>
+
+    {% if active_links %}
+        <h3 class="w-label-3">{% trans "Active links" %}</h3>
+        <ul class="listing">
+            {% for item in active_links %}
+                <li class="magic-link-row">
+                    <div class="title-wrapper">
+                        <span class="title">{{ item.link.label|default:_("Untitled link") }}</span>
+                        <span class="meta">
+                            {% trans "Created" %} {{ item.link.created_at|date:"j M Y, H:i" }}
+                            {% if item.link.expires_at %}
+                                · {% trans "Expires" %} {{ item.link.expires_at|date:"j M Y, H:i" }}
+                            {% else %}
+                                · {% trans "No expiry" %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="field-content w-mt-2">
+                        <input type="text" value="{{ item.share_url }}" readonly class="copy-url-input">
+                    </div>
+                    <button
+                        type="button"
+                        class="button button-small no w-mt-2"
+                        data-magic-link-revoke
+                        data-revoke-url="{% url 'core:magic_links_revoke' page.id item.link.token_id %}"
+                    >
+                        {% trans "Revoke" %}
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="help">{% trans "No active magic links yet." %}</p>
+    {% endif %}
+
+    {% if inactive_links %}
+        <h3 class="w-label-3 w-mt-6">{% trans "Inactive links" %}</h3>
+        <ul class="listing">
+            {% for link in inactive_links %}
+                <li>
+                    {{ link.label|default:_("Untitled link") }}
+                    {% if link.revoked_at %}
+                        ({% trans "revoked" %})
+                    {% elif link.expires_at %}
+                        ({% trans "expired" %} {{ link.expires_at|date:"j M Y, H:i" }})
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</fieldset>
+
+<script>
+    (function () {
+        const panel = document.currentScript?.previousElementSibling;
+        if (!panel || !panel.matches("[data-magic-links-panel]")) {
+            return;
+        }
+
+        function getCsrfToken() {
+            const input = document.querySelector("input[name=csrfmiddlewaretoken]");
+            if (input && input.value) {
+                return input.value;
+            }
+            const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : "";
+        }
+
+        function postAction(url, body) {
+            body.set("csrfmiddlewaretoken", getCsrfToken());
+            body.set("next", "admin");
+
+            return fetch(url, {
+                method: "POST",
+                body,
+                credentials: "same-origin",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+            });
+        }
+
+        panel.querySelector("[data-magic-link-create]")?.addEventListener("click", () => {
+            const body = new FormData();
+            const label = panel.querySelector("[data-magic-link-label]")?.value ?? "";
+            const expiresAt = panel.querySelector("[data-magic-link-expires-at]")?.value ?? "";
+            if (label) {
+                body.set("label", label);
+            }
+            if (expiresAt) {
+                body.set("expires_at", expiresAt);
+            }
+
+            postAction(panel.dataset.createUrl, body).then((response) => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        });
+
+        panel.querySelectorAll("[data-magic-link-revoke]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const revokeUrl = button.dataset.revokeUrl;
+                if (!revokeUrl) {
+                    return;
+                }
+
+                postAction(revokeUrl, new FormData()).then((response) => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
+    })();
+</script>

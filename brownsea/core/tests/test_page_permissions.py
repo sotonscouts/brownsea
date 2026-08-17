@@ -1,8 +1,12 @@
+from datetime import timedelta
+
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from wagtail.models import PageViewRestriction
 
-from brownsea.core.models import PageAccessLevel
+from brownsea.core.magic_links import build_magic_link_url, sign_magic_link
+from brownsea.core.models import PageAccessLevel, PageMagicLink
 from brownsea.factories import GroupFactory, InfoPageFactory, UserFactory, publish
 
 
@@ -15,6 +19,18 @@ def info_page(site_tree):
             slug="test-info-page",
         )
     )
+
+
+@pytest.fixture
+def magic_link_page(info_page):
+    info_page.access_level = PageAccessLevel.MAGIC_LINK
+    info_page.save_revision().publish()
+    return info_page
+
+
+@pytest.fixture
+def active_magic_link(magic_link_page, user):
+    return PageMagicLink.objects.create(page=magic_link_page, label="Camp invite", created_by=user)
 
 
 @pytest.mark.django_db
@@ -182,11 +198,144 @@ def test_explicit_public_child_overrides_logged_in_parent(client, site_tree):
 
 
 @pytest.mark.django_db
-def test_magic_link_setting_requires_login_for_now(client, info_page):
-    info_page.access_level = PageAccessLevel.MAGIC_LINK
-    info_page.save_revision().publish()
-
-    response = client.get(info_page.url)
+def test_magic_link_setting_requires_login_without_token(client, magic_link_page):
+    response = client.get(magic_link_page.url)
 
     assert response.status_code == 302
     assert response.url.startswith(reverse("accounts:login"))
+
+
+@pytest.mark.django_db
+def test_valid_magic_link_token_grants_access(client, magic_link_page, active_magic_link):
+    share_url = build_magic_link_url(active_magic_link)
+    token = share_url.split("access=")[1]
+
+    response = client.get(magic_link_page.url, {"access": token})
+
+    assert response.status_code == 302
+    assert response.url == magic_link_page.url
+
+    follow_up = client.get(magic_link_page.url)
+    assert follow_up.status_code == 200
+    assert magic_link_page.title.encode() in follow_up.content
+
+
+@pytest.mark.django_db
+def test_inherited_magic_link_access(client, site_tree, user):
+    section = publish(
+        InfoPageFactory(
+            parent=site_tree["home"],
+            title="Shared section",
+            slug="shared-section",
+            access_level=PageAccessLevel.MAGIC_LINK,
+        )
+    )
+    child = publish(
+        InfoPageFactory(
+            parent=section,
+            title="Shared child page",
+            slug="shared-child-page",
+        )
+    )
+    magic_link = PageMagicLink.objects.create(page=section, created_by=user)
+    share_url = build_magic_link_url(magic_link)
+    token = share_url.split("access=")[1]
+
+    response = client.get(child.url, {"access": token})
+    assert response.status_code == 302
+
+    follow_up = client.get(child.url)
+    assert follow_up.status_code == 200
+    assert child.title.encode() in follow_up.content
+
+
+@pytest.mark.django_db
+def test_revoked_magic_link_denies_access(client, magic_link_page, active_magic_link):
+    share_url = build_magic_link_url(active_magic_link)
+    token = share_url.split("access=")[1]
+
+    active_magic_link.revoke()
+
+    response = client.get(magic_link_page.url, {"access": token})
+    assert response.status_code == 302
+    assert response.url.startswith(reverse("accounts:login"))
+
+
+@pytest.mark.django_db
+def test_expired_magic_link_denies_access(client, magic_link_page, user):
+    magic_link = PageMagicLink.objects.create(
+        page=magic_link_page,
+        expires_at=timezone.now() - timedelta(minutes=1),
+        created_by=user,
+    )
+    token = sign_magic_link(magic_link)
+
+    response = client.get(magic_link_page.url, {"access": token})
+    assert response.status_code == 302
+    assert response.url.startswith(reverse("accounts:login"))
+
+
+@pytest.mark.django_db
+def test_session_access_is_removed_when_link_is_revoked(client, magic_link_page, active_magic_link):
+    share_url = build_magic_link_url(active_magic_link)
+    token = share_url.split("access=")[1]
+    client.get(magic_link_page.url, {"access": token})
+
+    active_magic_link.revoke()
+
+    response = client.get(magic_link_page.url)
+    assert response.status_code == 302
+
+
+@pytest.mark.django_db
+def test_create_magic_link_view(client, magic_link_page):
+    user = UserFactory(is_staff=True, is_superuser=True)
+    client.force_login(user)
+
+    response = client.post(
+        reverse("core:magic_links_create", args=[magic_link_page.id]),
+        {"label": "Volunteers"},
+        HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+    )
+
+    assert response.status_code == 200
+    assert PageMagicLink.objects.filter(page=magic_link_page, label="Volunteers").exists()
+    assert b"Volunteers" in response.content
+
+
+@pytest.mark.django_db
+def test_revoke_magic_link_view(client, magic_link_page, active_magic_link):
+    user = UserFactory(is_staff=True, is_superuser=True)
+    client.force_login(user)
+
+    response = client.post(
+        reverse("core:magic_links_revoke", args=[magic_link_page.id, active_magic_link.token_id]),
+        HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+    )
+
+    assert response.status_code == 204
+    active_magic_link.refresh_from_db()
+    assert active_magic_link.revoked_at is not None
+
+
+@pytest.mark.django_db
+def test_magic_link_url_includes_site_domain(magic_link_page, active_magic_link):
+    share_url = build_magic_link_url(active_magic_link)
+
+    assert share_url.startswith("http://testserver/")
+    assert f"access={sign_magic_link(active_magic_link)}" in share_url
+
+
+@pytest.mark.django_db
+def test_create_magic_link_from_admin_redirects_to_edit(client, magic_link_page):
+    user = UserFactory(is_staff=True, is_superuser=True)
+    client.force_login(user)
+
+    response = client.post(
+        reverse("core:magic_links_create", args=[magic_link_page.id]),
+        {"label": "Admin link", "next": "admin"},
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("wagtailadmin_pages:edit", args=[magic_link_page.id])
+    assert PageMagicLink.objects.filter(page=magic_link_page, label="Admin link").exists()

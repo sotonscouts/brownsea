@@ -1,4 +1,4 @@
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags page_tags %}
 
 {% with ancestors=page.get_ancestors %}
     {% if page.always_show_breadcrumbs or ancestors|length > 1 %}
@@ -33,11 +33,7 @@
                             </ol>
                         </nav>
                     </div>
-                    <div class="col-auto d-none d-lg-block">
-                        <a href="#" class="share-link">
-                            <i class="bi bi-share"></i>Share
-                        </a>
-                    </div>
+                    {% magic_link_share page %}
                 </div>
             </div>
         </div>
