@@ -1,6 +1,8 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from wagtail.models import Page
 
 # To enable logging of search queries for use with the "Promoted search results" module
@@ -11,6 +13,7 @@ from wagtail.models import Page
 # from wagtail.contrib.search_promotions.models import Query
 
 
+@login_required
 def search(request):
     search_query = request.GET.get("query", None)
     page = request.GET.get("page", 1)
@@ -35,8 +38,6 @@ def search(request):
         search_results = paginator.page(1)
     except EmptyPage:
         search_results = paginator.page(paginator.num_pages)
-
-    from django.urls import reverse
 
     return TemplateResponse(
         request,
