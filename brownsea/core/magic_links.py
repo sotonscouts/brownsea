@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.core.signing import BadSignature, Signer
 
 from brownsea.core.models import PageAccessLevel, PageMagicLink
@@ -35,8 +36,25 @@ def get_magic_link_for_token(token: str) -> PageMagicLink | None:
 
 
 def build_magic_link_url(magic_link: PageMagicLink, request=None) -> str:
-    page_url = magic_link.page.get_url(request) if request else magic_link.page.url
-    return f"{page_url}?access={sign_magic_link(magic_link)}"
+    page = magic_link.page
+    page_url = page.get_full_url(request)
+
+    if not page_url and request is not None:
+        relative_url = page.get_url(request) or page.url
+        if relative_url:
+            page_url = request.build_absolute_uri(relative_url)
+
+    if not page_url:
+        relative_url = page.url
+        if relative_url:
+            page_url = f"{settings.WAGTAILADMIN_BASE_URL.rstrip('/')}{relative_url}"
+
+    token = sign_magic_link(magic_link)
+    if not page_url:
+        return f"?access={token}"
+
+    separator = "&" if "?" in page_url else "?"
+    return f"{page_url}{separator}access={token}"
 
 
 def get_session_magic_link_ids(request) -> list[str]:

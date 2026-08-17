@@ -319,6 +319,14 @@ def test_revoke_magic_link_view(client, magic_link_page, active_magic_link):
 
 
 @pytest.mark.django_db
+def test_magic_link_url_includes_site_domain(magic_link_page, active_magic_link):
+    share_url = build_magic_link_url(active_magic_link)
+
+    assert share_url.startswith("http://testserver/")
+    assert f"access={sign_magic_link(active_magic_link)}" in share_url
+
+
+@pytest.mark.django_db
 def test_create_magic_link_from_admin_redirects_to_edit(client, magic_link_page):
     user = UserFactory(is_staff=True, is_superuser=True)
     client.force_login(user)
