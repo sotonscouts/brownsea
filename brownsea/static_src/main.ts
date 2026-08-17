@@ -8,7 +8,7 @@ import 'photoswipe/style.css';
 
 import './scss/main.scss';
 import MermaidInitialiser from './mermaid';
-import './magic_links';
+import './magic_link_share';
 import './calendar'; // Import web component (auto-registers)
 
 // Initialise PhotoSwipe
