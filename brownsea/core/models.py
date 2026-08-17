@@ -16,6 +16,7 @@ from wagtail.models import Page, PreviewableMixin
 from wagtail.search import index
 
 from brownsea.core.blocks import HeadingBlock
+from brownsea.core.panels import MagicLinksPanel
 
 
 class PageAccessLevel(models.TextChoices):
@@ -93,9 +94,10 @@ class BasePage(Page):
             help_text=_(
                 "Child pages set to Inherit will use the nearest ancestor's setting. "
                 "Pages above the site home default to logged in only. "
-                "Magic link pages can be shared using the Share button when viewing the page."
+                "Magic link pages can also be shared from the section below or the Share button on the site."
             ),
         ),
+        MagicLinksPanel(),
     ]
 
     def __init_subclass__(cls, **kwargs):

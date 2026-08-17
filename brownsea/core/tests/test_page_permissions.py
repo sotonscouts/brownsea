@@ -316,3 +316,18 @@ def test_revoke_magic_link_view(client, magic_link_page, active_magic_link):
     assert response.status_code == 204
     active_magic_link.refresh_from_db()
     assert active_magic_link.revoked_at is not None
+
+
+@pytest.mark.django_db
+def test_create_magic_link_from_admin_redirects_to_edit(client, magic_link_page):
+    user = UserFactory(is_staff=True, is_superuser=True)
+    client.force_login(user)
+
+    response = client.post(
+        reverse("core:magic_links_create", args=[magic_link_page.id]),
+        {"label": "Admin link", "next": "admin"},
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("wagtailadmin_pages:edit", args=[magic_link_page.id])
+    assert PageMagicLink.objects.filter(page=magic_link_page, label="Admin link").exists()

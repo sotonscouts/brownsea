@@ -1,8 +1,25 @@
 import Modal from 'bootstrap/js/dist/modal';
 
-function getCsrfToken(form: HTMLFormElement): string {
-    const input = form.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]');
-    return input?.value ?? '';
+function getCsrfToken(form?: HTMLFormElement): string {
+    const fromForm = form?.querySelector<HTMLInputElement>('[name=csrfmiddlewaretoken]')?.value;
+    if (fromForm) {
+        return fromForm;
+    }
+
+    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+function postMagicLinkAction(url: string, form: HTMLFormElement): Promise<Response> {
+    return fetch(url, {
+        method: 'POST',
+        body: new FormData(form),
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrfToken(form),
+        },
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,7 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     shareButton.addEventListener('click', (event) => {
         event.preventDefault();
-        fetch(panelUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        fetch(panelUrl, {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
             .then((response) => response.text())
             .then((html) => {
                 modalContent.innerHTML = html;
@@ -38,14 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         event.preventDefault();
 
-        fetch(target.action, {
-            method: target.method,
-            body: new FormData(target),
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCsrfToken(target),
-            },
-        }).then((response) => {
+        postMagicLinkAction(target.action, target).then((response) => {
             if (target.dataset.magicLinkForm === 'create' && response.ok) {
                 response.text().then((rowHtml) => {
                     document.getElementById('magic-link-empty')?.remove();
