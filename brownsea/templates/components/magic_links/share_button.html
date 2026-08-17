@@ -1,13 +1,5 @@
 {% if show %}
     <div class="col-auto d-none d-lg-block">
-        <a
-            href="#"
-            class="share-link"
-            data-magic-link-share
-            data-magic-link-panel-url="{{ panel_url }}"
-        >
-            <i class="bi bi-share"></i>Share
-        </a>
+        <magic-link-share panel-url="{{ panel_url }}"></magic-link-share>
     </div>
-    {% include "components/magic_links/share_widget.html" %}
 {% endif %}
