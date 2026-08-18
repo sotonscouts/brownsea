@@ -1,0 +1,118 @@
+// Runtime theme tokens. Values are overridden on <html> after CSS is compiled.
+:root {
+    --theme-primary: #{$scoutpurple};
+    --theme-on-primary: #{$white};
+    --theme-primary-rgb: 73, 4, 153;
+    --theme-navbar-bg: var(--bs-tertiary-bg);
+    --theme-navbar-color: #{$dark};
+    --theme-primary-hover: color-mix(in srgb, var(--theme-primary) 88%, black);
+
+    --bs-primary: var(--theme-primary);
+    --bs-primary-rgb: var(--theme-primary-rgb);
+    --bs-primary-text-emphasis: color-mix(in srgb, var(--theme-primary) 80%, black);
+    --bs-primary-bg-subtle: color-mix(in srgb, var(--theme-primary) 10%, white);
+    --bs-primary-border-subtle: color-mix(in srgb, var(--theme-primary) 25%, white);
+}
+
+.btn-primary {
+    --bs-btn-color: var(--theme-on-primary);
+    --bs-btn-bg: var(--theme-primary);
+    --bs-btn-border-color: var(--theme-primary);
+    --bs-btn-hover-color: var(--theme-on-primary);
+    --bs-btn-hover-bg: var(--theme-primary-hover);
+    --bs-btn-hover-border-color: var(--theme-primary-hover);
+    --bs-btn-focus-shadow-rgb: var(--theme-primary-rgb);
+    --bs-btn-active-color: var(--theme-on-primary);
+    --bs-btn-active-bg: var(--theme-primary-hover);
+    --bs-btn-active-border-color: var(--theme-primary-hover);
+    --bs-btn-disabled-color: var(--theme-on-primary);
+    --bs-btn-disabled-bg: var(--theme-primary);
+    --bs-btn-disabled-border-color: var(--theme-primary);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--theme-primary);
+    --bs-btn-border-color: var(--theme-primary);
+    --bs-btn-hover-color: var(--theme-on-primary);
+    --bs-btn-hover-bg: var(--theme-primary);
+    --bs-btn-hover-border-color: var(--theme-primary);
+    --bs-btn-focus-shadow-rgb: var(--theme-primary-rgb);
+    --bs-btn-active-color: var(--theme-on-primary);
+    --bs-btn-active-bg: var(--theme-primary);
+    --bs-btn-active-border-color: var(--theme-primary);
+    --bs-btn-disabled-color: var(--theme-primary);
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--theme-primary);
+}
+
+.text-bg-primary {
+    color: var(--theme-on-primary) !important;
+    background-color: RGBA(var(--theme-primary-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+
+.form-control:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--theme-primary-rgb), 0.25);
+}
+
+.navbar {
+    background-color: var(--theme-navbar-bg);
+    --bs-navbar-color: var(--theme-navbar-color);
+    --bs-navbar-hover-color: var(--theme-navbar-color);
+    --bs-navbar-active-color: var(--theme-navbar-color);
+    --bs-navbar-brand-color: var(--theme-navbar-color);
+    --bs-navbar-brand-hover-color: var(--theme-navbar-color);
+    --bs-navbar-toggler-border-color: color-mix(in srgb, var(--theme-navbar-color) 50%, transparent);
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+    }
+
+    .navbar-logo {
+        display: block;
+        height: 3rem;
+        width: auto;
+        max-width: 12rem;
+        object-fit: contain;
+    }
+
+    .logo-assembly {
+        color: var(--theme-navbar-color);
+    }
+
+    .navbar-text a {
+        color: var(--theme-navbar-color);
+    }
+
+    .border-start {
+        border-color: color-mix(in srgb, var(--theme-navbar-color) 25%, transparent) !important;
+    }
+
+    .navbar-toggler-icon {
+        background-image: none;
+        background-color: var(--theme-navbar-color);
+        mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        mask-size: 100%;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='black' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        -webkit-mask-size: 100%;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+    }
+
+    .btn-outline-primary {
+        --bs-btn-color: var(--theme-navbar-color);
+        --bs-btn-border-color: var(--theme-navbar-color);
+        --bs-btn-hover-color: var(--theme-navbar-bg);
+        --bs-btn-hover-bg: var(--theme-navbar-color);
+        --bs-btn-hover-border-color: var(--theme-navbar-color);
+        --bs-btn-active-color: var(--theme-navbar-bg);
+        --bs-btn-active-bg: var(--theme-navbar-color);
+        --bs-btn-active-border-color: var(--theme-navbar-color);
+        --bs-btn-disabled-color: var(--theme-navbar-color);
+        --bs-btn-disabled-bg: transparent;
+        --bs-btn-disabled-border-color: var(--theme-navbar-color);
+    }
+}

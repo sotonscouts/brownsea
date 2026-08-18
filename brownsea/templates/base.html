@@ -1,7 +1,7 @@
 {% load django_vite static wagtailcore_tags wagtailuserbar nav_tags %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ site_theme.slug }}" style="{% for name, value in site_theme.css_properties.items %}{{ name }}: {{ value }};{% endfor %}">
     <head>
         <meta charset="utf-8" />
         <title>

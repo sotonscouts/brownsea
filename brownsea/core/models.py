@@ -17,6 +17,7 @@ from wagtail.search import index
 
 from brownsea.core.blocks import HeadingBlock
 from brownsea.core.panels import MagicLinksPanel
+from brownsea.core.themes import THEMES, get_theme
 
 
 class PageAccessLevel(models.TextChoices):
@@ -196,6 +197,8 @@ class AbstractIndexPage(BasePage):
 class BrownseaPreviewableMixin(PreviewableMixin):
     """A custom PreviewableMixin that renders previews with proper styling."""
 
+    preview_full_bleed = False
+
     def serve_preview(self, request, mode_name):
         template = self.get_preview_template(request, mode_name)
         context = {
@@ -203,6 +206,7 @@ class BrownseaPreviewableMixin(PreviewableMixin):
             "request": request,
             "is_preview": True,
             "template_name": template,
+            "preview_full_bleed": self.preview_full_bleed,
         }
         return render(request, "components/preview_wrapper.html", context)
 
@@ -303,6 +307,57 @@ class CallToAction(BrownseaPreviewableMixin, models.Model):
 
     def get_preview_template(self, request, mode_name):
         return "components/streamfield/blocks/call_to_action_block.html"
+
+
+@register_setting(icon="cog")
+class ThemeSettings(BrownseaPreviewableMixin, BaseSiteSetting):
+    colour = models.CharField(
+        max_length=20,
+        choices=[(theme.slug, theme.label) for theme in THEMES.values()],
+        default="white",
+        help_text=_(
+            "Scout brand colour for the navigation bar and primary buttons. "
+            "White keeps a light navigation bar with purple buttons."
+        ),
+    )
+    unit_name = models.CharField(
+        max_length=255,
+        default="Brownsea CMS",
+        verbose_name=_("Unit name"),
+        help_text=_("Shown under the Scout logo in the navigation bar. Not used if a custom logo is uploaded."),
+    )
+    logo = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=_("Optional. Replaces the default Scout logo and unit name in the navigation bar."),
+    )
+
+    panels = [
+        FieldPanel("unit_name"),
+        FieldPanel("logo"),
+        FieldPanel("colour"),
+    ]
+
+    preview_full_bleed = True
+    preview_sizes = PreviewableMixin.DEFAULT_PREVIEW_SIZES
+
+    @property
+    def default_preview_size(self):
+        return "desktop"
+
+    @property
+    def theme(self):
+        return get_theme(self.colour)
+
+    def get_preview_template(self, request, mode_name):
+        return "components/theme_preview.html"
+
+    def serve_preview(self, request, mode_name):
+        request.preview_theme_settings = self
+        return super().serve_preview(request, mode_name)
 
 
 @register_setting(icon="warning")

@@ -1,6 +1,6 @@
 {% load static django_vite %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ site_theme.slug }}" style="{% for name, value in site_theme.css_properties.items %}{{ name }}: {{ value }};{% endfor %}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,12 +13,14 @@
         {% vite_asset 'brownsea/static_src/main.ts' %}
     </head>
     <body>
-        <main>
-            <div style="margin: 1rem;">
-                {% block content %}
+        {% if preview_full_bleed %}
+            {% include template_name with value=value %}
+        {% else %}
+            <main>
+                <div style="margin: 1rem;">
                     {% include template_name with value=value %}
-                {% endblock %}
-            </div>
-        </main>
+                </div>
+            </main>
+        {% endif %}
     </body>
 </html>

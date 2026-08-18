@@ -22,7 +22,6 @@ env = environ.Env(
     SERVER_EMAIL=(str, "brownsea@example.com"),
     WAGTAILADMIN_BASE_URL=(str, ""),
     WAGTAIL_SITE_NAME=(str, "Brownsea Intranet CMS"),
-    APP_LOGO_UNIT_NAME=(str, "Brownsea CMS"),
     APP_SHOW_MENU_WHEN_UNAUTHENTICATED=(bool, False),
     APP_SEARCH_RESULTS_PER_PAGE=(int, 10),
     SSO_GOOGLE_ENABLED=(bool, False),
@@ -107,6 +106,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
+                "brownsea.core.context_processors.site_theme",
             ],
         },
     },
@@ -305,6 +305,5 @@ if SENTRY_DSN:
 # App Specific Settings
 LOGOUT_REDIRECT_URL = env("LOGOUT_REDIRECT_URL")
 WAGTAIL_SITE_NAME = env("WAGTAIL_SITE_NAME")
-APP_LOGO_UNIT_NAME = env("APP_LOGO_UNIT_NAME")
 APP_SHOW_MENU_WHEN_UNAUTHENTICATED = env("APP_SHOW_MENU_WHEN_UNAUTHENTICATED")
 APP_SEARCH_RESULTS_PER_PAGE = env("APP_SEARCH_RESULTS_PER_PAGE")

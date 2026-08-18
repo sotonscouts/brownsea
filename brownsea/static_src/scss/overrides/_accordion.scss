@@ -1,8 +1,8 @@
 .accordion {
-    --bs-accordion-btn-focus-border-color: #{$primary};
-    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba($primary, 0.25);
-    --bs-accordion-active-color: #{$primary};
-    --bs-accordion-active-bg: rgba($primary, 0.1);
+    --bs-accordion-btn-focus-border-color: var(--theme-primary);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(var(--theme-primary-rgb), 0.25);
+    --bs-accordion-active-color: var(--theme-primary);
+    --bs-accordion-active-bg: rgba(var(--theme-primary-rgb), 0.1);
 }
 
 .accordion-button {
