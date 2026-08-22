@@ -24,7 +24,7 @@
         </div>
         <div class="col-12 col-md-4 mt-4 mt-md-0">
             {% if recent_news %}
-                {% include "components/recent_news_card.html" with recent_news=recent_news news_index_page=news_index_page article_type_plural="news" show_featured_image=True only %}
+                {% include "components/recent_news_card.html" with recent_news=recent_news news_index_page=news_index_page article_type_plural="news" feature_lead_article=True only %}
             {% endif %}
         </div>
     </div>

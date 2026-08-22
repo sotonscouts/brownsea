@@ -8,7 +8,7 @@
         <div class="list-group list-group-flush">
             {% for article in recent_news %}
                 <div class="list-group-item">
-                    {% if show_featured_image and forloop.first and article.image %}
+                    {% if feature_lead_article and forloop.first and article.image %}
                         <a href="{% pageurl article %}" class="d-block mb-3">
                             {% image article.image fill-400x200 class="img-fluid" %}
                         </a>
@@ -23,6 +23,9 @@
                             {{ article.news_type.name }}
                         {% endif %}
                     </p>
+                    {% if feature_lead_article and forloop.first and article.introduction %}
+                        <p class="mb-3">{{ article.introduction }}</p>
+                    {% endif %}
                     <a href="{% pageurl article %}" class="btn btn-sm btn-outline-primary">Read more</a>
                 </div>
             {% endfor %}
