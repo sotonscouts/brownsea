@@ -43,7 +43,7 @@ class RecentNewsMixin(models.Model):
                     output_field=models.DateField(),
                 )
             )
-            .select_related("news_type")
+            .select_related("news_type", "image")
             .order_by("-date", "-first_published_at")
         )
         return child_pages[:3]

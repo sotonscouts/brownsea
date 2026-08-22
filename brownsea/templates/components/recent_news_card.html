@@ -1,4 +1,5 @@
 {% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
 <div class="card">
     <div class="card-header">
         <h2 class="h5 mb-0">Recent {{ article_type_plural|title }}</h2>
@@ -7,6 +8,11 @@
         <div class="list-group list-group-flush">
             {% for article in recent_news %}
                 <div class="list-group-item">
+                    {% if show_featured_image and forloop.first and article.image %}
+                        <a href="{% pageurl article %}" class="d-block mb-3">
+                            {% image article.image fill-400x200 class="img-fluid" %}
+                        </a>
+                    {% endif %}
                     <h3 class="h6 mb-1">
                         <a href="{% pageurl article %}" class="text-decoration-none text-body">{{ article.title }}</a>
                     </h3>
