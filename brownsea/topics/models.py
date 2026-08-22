@@ -1,16 +1,17 @@
 from django.conf import settings
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import models
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.models import Page
 from wagtail.search import index
 
 from brownsea.core.blocks import LinkSectionBlock, TopicPageBlock
 from brownsea.core.models import BasePage
 from brownsea.core.utils import StreamField
+from brownsea.news.mixins import RecentNewsMixin
 
 
-class TopicPage(BasePage):
+class TopicPage(RecentNewsMixin, BasePage):
     template = "pages/topics/topic_page.html"
     parent_page_types = ["wagtailcore.Page", "home.HomePage", "topics.TopicPage", "standard_pages.IndexPage"]
 
@@ -22,11 +23,24 @@ class TopicPage(BasePage):
         help_text="Quick links to display in the sidebar",
         use_json_field=True,
     )
+    news_content_type_plural = models.CharField(
+        max_length=255,
+        blank=False,
+        help_text="The plural name of the news content type to display in the recent news section.",
+        default="news",
+    )
 
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
         FieldPanel("body"),
         FieldPanel("quick_links"),
+        MultiFieldPanel(
+            [
+                FieldPanel("news_index_page"),
+                FieldPanel("news_content_type_plural"),
+            ],
+            "Recent News Section",
+        ),
     ]
 
     search_fields = BasePage.search_fields + [

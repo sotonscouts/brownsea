@@ -79,7 +79,6 @@ class ArticlePage(InPageNavMixin, BasePage):
 class NewsIndexPage(BasePage):
     template = "pages/news/news_index_page.html"
     subpage_types = ["news.ArticlePage"]
-    max_count = 1  # Only one news index page
 
     introduction = models.TextField()
 

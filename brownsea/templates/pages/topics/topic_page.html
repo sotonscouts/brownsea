@@ -11,7 +11,7 @@
         <div class="col-12 col-md-8">
             <p class="lead">{{ page.introduction }}</p>
 
-            {% include "components/search/search_form.html" with action_url=page.url search_query=search_query placeholder="Search within this topic..." show_clear=True clear_url=page.url input_group_size="lg" input_size="" %}
+            {% include "components/search/search_form.html" with action_url=page.url search_query=search_query placeholder="Search..." show_clear=True clear_url=page.url input_group_size="lg" input_size="" %}
 
             {% if search_query %}
                 {% include "components/search/search_results.html" with search_query=search_query search_results=search_results %}
@@ -27,6 +27,9 @@
         </div>
         <div class="col-12 col-md-4 mt-4 mt-md-0">
             {% include "components/quick_links.html" with quick_links=page.quick_links %}
+            {% if recent_news %}
+                {% include "components/recent_news_card.html" with recent_news=recent_news news_index_page=news_index_page article_type_plural=page.news_content_type_plural only %}
+            {% endif %}
         </div>
     </div>
 {% endblock %}
