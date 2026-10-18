@@ -17,6 +17,12 @@ class TopicPage(RecentNewsMixin, BasePage):
 
     introduction = models.TextField()
     body = StreamField(TopicPageBlock())
+
+    child_page_index_title = models.CharField(blank=True)
+    display_child_page_index = models.BooleanField(
+        default=False, help_text="Show a list of child pages at the bottom of the topic, similar to an index."
+    )
+
     quick_links = StreamField(
         LinkSectionBlock(min_num=0),
         blank=True,
@@ -33,6 +39,13 @@ class TopicPage(RecentNewsMixin, BasePage):
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
         FieldPanel("body"),
+        MultiFieldPanel(
+            [
+                FieldPanel("child_page_index_title"),
+                FieldPanel("display_child_page_index"),
+            ],
+            "Extra Links",
+        ),
         FieldPanel("quick_links"),
         MultiFieldPanel(
             [
@@ -47,6 +60,30 @@ class TopicPage(RecentNewsMixin, BasePage):
         index.SearchField("introduction"),
         index.SearchField("body"),
     ]
+
+    def get_featured_page_ids(self):
+        """
+        Recursively/nestedly extract page IDs from LinkSectionBlock,
+        FeaturedSectionBlock, PageLinkBlock, and FeaturedPageBlock.
+        """
+        featured_ids = []
+
+        for block in self.body:
+            # 1. Direct PageLinkBlock or FeaturedPageBlock
+            if block.block_type in ("page", "featured_page"):
+                if block.value and block.value.get("page"):
+                    featured_ids.append(block.value["page"].id)
+
+            # 2. Nested inside LinkSectionBlock or FeaturedSectionBlock (StreamBlocks)
+            elif block.block_type in ("link_sections", "featured_sections"):
+                for child_block in block.value:
+                    # Look for page or featured_page blocks inside the stream section
+                    if child_block.block_type in ("page", "featured_page"):
+                        page_obj = child_block.value.get("page")
+                        if page_obj:
+                            featured_ids.append(page_obj.id)
+
+        return featured_ids
 
     def get_context(self, request):
         context = super().get_context(request)
@@ -70,6 +107,13 @@ class TopicPage(RecentNewsMixin, BasePage):
         else:
             context["search_query"] = None
             context["search_results"] = None
+
+        if self.display_child_page_index:
+            context["remaining_pages"] = (
+                self.get_children().live().public().exclude(id__in=self.get_featured_page_ids()).specific()
+            )
+        else:
+            context["remaining_pages"] = self.get_children().none()
 
         return context
 

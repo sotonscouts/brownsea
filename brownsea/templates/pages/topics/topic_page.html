@@ -24,6 +24,18 @@
                     </div>
                 {% endfor %}
             {% endif %}
+
+            {% if page.display_child_page_index and remaining_pages %}
+                <h2>{{ page.child_page_index_title|default:"Read more" }}</h2>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for sub_page in remaining_pages %}
+                        <div class="col">
+                            {% pageurl sub_page as url %}
+                            {% include "components/link_card.html" with title=sub_page.title description=sub_page.introduction url=url %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         <div class="col-12 col-md-4 mt-4 mt-md-0">
             {% include "components/quick_links.html" with quick_links=page.quick_links %}
