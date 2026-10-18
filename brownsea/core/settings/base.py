@@ -267,6 +267,17 @@ WAGTAILADMIN_RICH_TEXT_EDITORS = {
 
 WAGTAIL_PASSWORD_REQUIRED_TEMPLATE = "pages/wagtail/password_required.html"  # noqa: S105
 
+WAGTAILEMBEDS_FINDERS = [
+    {
+        "class": "brownsea.core.embed_finders.GoogleFormEmbedFinder",
+    },
+    {
+        # Keeps standard video platforms (YouTube, Vimeo, etc.) working perfectly
+        "class": "wagtail.embeds.finders.oembed",
+    },
+]
+
+
 # Crispy forms
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

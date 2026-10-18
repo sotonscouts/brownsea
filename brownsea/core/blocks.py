@@ -1,6 +1,7 @@
 from wagtail import blocks
 from wagtail.contrib.table_block.blocks import TableBlock as BaseTableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 
@@ -317,6 +318,7 @@ class StoryBlock(blocks.StreamBlock):
         group=GROUP_MEDIA,
         template="components/streamfield/blocks/document_block.html",
     )
+    embed = EmbedBlock(group=GROUP_MEDIA, help_text="Add a video, google form, etc.")
 
 
 class HomePageBlock(blocks.StreamBlock):
