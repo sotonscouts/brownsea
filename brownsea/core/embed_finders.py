@@ -13,7 +13,7 @@ class GoogleFormEmbedFinder:
             "author_name": "Google Docs",
             "provider_name": "Google Forms",
             "type": "rich",
-            "html": f'<iframe src="{url}" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="border:none;">Loading…</iframe>',  # noqa: E501
+            "html": f'<iframe src="{url}" title="Google Form" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" style="border:none;">Loading…</iframe>',  # noqa: E501
             "width": 800,
             "height": 800,
         }
