@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <p class="lead">{{ page.introduction }}</p>
+
+    {% for block in page.body %}
+        {% include_block block %}
+    {% endfor %}
+{% endblock %}

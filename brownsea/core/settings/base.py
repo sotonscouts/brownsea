@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "brownsea.home",
     "brownsea.navigation",
     "brownsea.news",
+    "brownsea.people",
     "brownsea.standard_pages",
     "brownsea.topics",
     "brownsea.search",

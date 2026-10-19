@@ -1,0 +1,23 @@
+{% load wagtailimages_tags %}
+
+<div class="card h-100 text-center">
+    {% if self.profile_picture %}
+        {% image self.profile_picture fill-300x300 format-webp as photo %}
+        <img src="{{ photo.url }}"
+             alt="{{ photo.alt|default:self.name }}"
+             class="card-img-top rounded-circle mx-auto mt-4"
+             style="width: 140px; height: 140px; object-fit: cover;">
+    {% else %}
+        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mt-4"
+             style="width: 140px; height: 140px;">
+            <span class="fs-1 fw-bold">{{ self.name|first|upper }}</span>
+        </div>
+    {% endif %}
+
+    <div class="card-body d-flex flex-column">
+        <h3 class="card-title h5 fw-bold mb-1">{{ self.name }}</h3>
+        {% if self.role %}
+            <p class="card-text text-muted small mt-auto">{{ self.role }}</p>
+        {% endif %}
+    </div>
+</div>

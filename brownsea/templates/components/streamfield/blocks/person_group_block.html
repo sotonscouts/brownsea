@@ -1,0 +1,17 @@
+{% load wagtailcore_tags %}
+
+<section class="person-group-block mb-5">
+    {% if self.title %}
+        <div class="mb-4">
+            <h2 class="h3 fw-semibold text-dark">{{ self.title }}</h2>
+        </div>
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for person_block in self.people %}
+            <div class="col">
+                {% include_block person_block %}
+            </div>
+        {% endfor %}
+    </div>
+</section>
