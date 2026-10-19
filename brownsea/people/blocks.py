@@ -5,7 +5,7 @@ from wagtail.images.blocks import ImageChooserBlock
 class PersonBlock(blocks.StructBlock):
     name = blocks.CharBlock()
     role = blocks.CharBlock()
-    profile_picture = ImageChooserBlock()
+    profile_picture = ImageChooserBlock(required=False)
 
     class Meta:
         template = "components/streamfield/blocks/person_block.html"
