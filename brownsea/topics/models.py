@@ -13,7 +13,7 @@ from brownsea.news.mixins import RecentNewsMixin
 
 class TopicPage(RecentNewsMixin, BasePage):
     template = "pages/topics/topic_page.html"
-    parent_page_types = ["wagtailcore.Page", "home.HomePage", "topics.TopicPage", "standard_pages.IndexPage"]
+    parent_page_types = ["wagtailcore.Page", "home.HomePage", "standard_pages.IndexPage"]
 
     introduction = models.TextField()
     body = StreamField(TopicPageBlock())
