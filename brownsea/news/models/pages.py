@@ -78,7 +78,10 @@ class ArticlePage(InPageNavMixin, BasePage):
 
 class NewsIndexPage(BasePage):
     template = "pages/news/news_index_page.html"
+    parent_page_types = ["home.HomePage", "topics.TopicPage"]
     subpage_types = ["news.ArticlePage"]
+
+    max_count_per_parent = 1
 
     introduction = models.TextField()
 
