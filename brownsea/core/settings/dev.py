@@ -13,7 +13,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DJANGO_VITE = {
     "default": {
         "dev_mode": DEBUG,  # noqa: F405 # type: ignore
-        "dev_server_port": 5173,
+        "dev_server_port": 5174,
         "static_url_prefix": "dist",
     }
 }

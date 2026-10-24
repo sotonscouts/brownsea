@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <p class="lead">{{ page.introduction }}</p>
+
+    {% if woodmap_api_url and woodmap_script_url %}
+        <div id="woodmap-container" class="bg-body">
+            <div class="d-flex justify-content-end mb-2">
+                <button type="button" id="woodmap-fullscreen" class="btn btn-outline-secondary btn-sm">Full screen</button>
+            </div>
+            <woodmap-viewer id="woodmap" api-url="{{ woodmap_api_url }}" style="display:block; height: 75vh; min-height: 700px"></woodmap-viewer>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            The GIS map is not configured. Set <code>WOODMAP_API_URL</code> and
+            <code>WOODMAP_VIEWER_SCRIPT_URL</code>.
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% if woodmap_api_url and woodmap_script_url %}
+        <script type="module" src="{{ woodmap_script_url }}"></script>
+        <script>
+            const map = document.getElementById("woodmap");
+
+            async function refreshToken() {
+                const res = await fetch("{% url 'gis:token' %}", {credentials: "same-origin"});
+                map.token = (await res.json()).token;
+            }
+
+            // Get a new token when it expires.
+            map.addEventListener("woodmap-error", (e) => {
+                if (e.detail.status === 401) refreshToken();
+            });
+
+            refreshToken();
+
+            const container = document.getElementById("woodmap-container");
+            const fullscreenButton = document.getElementById("woodmap-fullscreen");
+
+            fullscreenButton.addEventListener("click", () => {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    container.requestFullscreen();
+                }
+            });
+
+            // Fill the screen while in fullscreen, and restore the normal height afterwards.
+            document.addEventListener("fullscreenchange", () => {
+                const isFullscreen = document.fullscreenElement === container;
+                container.classList.toggle("p-3", isFullscreen);
+                container.classList.toggle("d-flex", isFullscreen);
+                container.classList.toggle("flex-column", isFullscreen);
+                map.style.height = isFullscreen ? "100%" : "75vh";
+                map.style.minHeight = isFullscreen ? "0" : "700px";
+                map.style.flex = isFullscreen ? "1" : "";
+                fullscreenButton.textContent = isFullscreen ? "Exit full screen" : "Full screen";
+            });
+        </script>
+    {% endif %}
+{% endblock %}

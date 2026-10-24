@@ -19,6 +19,7 @@ dependencies = [
     "sentry-sdk[django]>=2.66.1",
     "httpx>=0.28.1",
     "icalendar>=7.2.2",
+    "pyjwt>=2.15.1",
 ]
 
 [dependency-groups]
