@@ -39,13 +39,18 @@
             // The viewer is only created once a token is available, so its first request for
             // layers is already authorised and picks up the restricted ones.
             async function createViewer() {
+                // Wait for the element to be registered first: setting `token` on an un-upgraded
+                // element creates a plain property that shadows the component's setter.
+                await customElements.whenDefined("woodmap-viewer");
+                const token = await fetchToken();
+
                 map = document.createElement("woodmap-viewer");
                 map.id = "woodmap";
                 map.setAttribute("api-url", "{{ woodmap_api_url|escapejs }}");
                 map.style.display = "block";
                 map.style.height = "75vh";
                 map.style.minHeight = "700px";
-                map.token = await fetchToken();
+                map.token = token;
 
                 // Get a new token when it expires.
                 map.addEventListener("woodmap-error", async (e) => {
