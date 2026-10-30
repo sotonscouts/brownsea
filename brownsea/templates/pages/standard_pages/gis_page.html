@@ -12,7 +12,7 @@
             <div class="d-flex justify-content-end mb-2">
                 <button type="button" id="woodmap-fullscreen" class="btn btn-outline-secondary btn-sm">Full screen</button>
             </div>
-            <woodmap-viewer id="woodmap" api-url="{{ woodmap_api_url }}" style="display:block; height: 75vh; min-height: 700px"></woodmap-viewer>
+            <div id="woodmap-mount"></div>
         </div>
     {% else %}
         <div class="alert alert-warning">
@@ -27,21 +27,36 @@
     {% if woodmap_api_url and woodmap_script_url %}
         <script type="module" src="{{ woodmap_script_url }}"></script>
         <script>
-            const map = document.getElementById("woodmap");
+            const container = document.getElementById("woodmap-container");
+            const mount = document.getElementById("woodmap-mount");
+            let map;
 
-            async function refreshToken() {
+            async function fetchToken() {
                 const res = await fetch("{% url 'gis:token' %}", {credentials: "same-origin"});
-                map.token = (await res.json()).token;
+                return (await res.json()).token;
             }
 
-            // Get a new token when it expires.
-            map.addEventListener("woodmap-error", (e) => {
-                if (e.detail.status === 401) refreshToken();
-            });
+            // The viewer is only created once a token is available, so its first request for
+            // layers is already authorised and picks up the restricted ones.
+            async function createViewer() {
+                map = document.createElement("woodmap-viewer");
+                map.id = "woodmap";
+                map.setAttribute("api-url", "{{ woodmap_api_url|escapejs }}");
+                map.style.display = "block";
+                map.style.height = "75vh";
+                map.style.minHeight = "700px";
+                map.token = await fetchToken();
 
-            refreshToken();
+                // Get a new token when it expires.
+                map.addEventListener("woodmap-error", async (e) => {
+                    if (e.detail.status === 401) map.token = await fetchToken();
+                });
 
-            const container = document.getElementById("woodmap-container");
+                mount.replaceWith(map);
+            }
+
+            createViewer();
+
             const fullscreenButton = document.getElementById("woodmap-fullscreen");
 
             fullscreenButton.addEventListener("click", () => {
@@ -54,6 +69,7 @@
 
             // Fill the screen while in fullscreen, and restore the normal height afterwards.
             document.addEventListener("fullscreenchange", () => {
+                if (!map) return;
                 const isFullscreen = document.fullscreenElement === container;
                 container.classList.toggle("p-3", isFullscreen);
                 container.classList.toggle("d-flex", isFullscreen);
