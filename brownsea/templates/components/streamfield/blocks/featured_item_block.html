@@ -2,7 +2,11 @@
 
 <div class="card h-100">
     <a href="{{ value.url }}" class="text-decoration-none">
-        {% image value.image fill-400x200 class="card-img-top" %}
+        {% if full_width %}
+            {% image value.image fill-1200x300 class="card-img-top" %}
+        {% else %}
+            {% image value.image fill-400x200 class="card-img-top" %}
+        {% endif %}
         <div class="card-body">
             <h3 class="card-title h5">{{ value.title }}</h3>
             <div class="card-text">

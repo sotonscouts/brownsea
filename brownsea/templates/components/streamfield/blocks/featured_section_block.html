@@ -1,9 +1,18 @@
 {% load wagtailcore_tags %}
 
 <div class="row g-4">
-    {% for block in value %}
-        <div class="col-md-6">
-            {% include_block block %}
-        </div>
-    {% endfor %}
+    {% if value|length == 1 %}
+        {# A lone item gets the full width, with a wider image to suit #}
+        {% for block in value %}
+            <div class="col-12">
+                {% include_block block with full_width=True %}
+            </div>
+        {% endfor %}
+    {% else %}
+        {% for block in value %}
+            <div class="col-md-6">
+                {% include_block block %}
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
