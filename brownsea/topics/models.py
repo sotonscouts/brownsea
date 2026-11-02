@@ -64,7 +64,7 @@ class TopicPage(RecentNewsMixin, BasePage):
     def get_featured_page_ids(self):
         """
         Recursively/nestedly extract page IDs from LinkSectionBlock,
-        FeaturedSectionBlock, PageLinkBlock, and FeaturedPageBlock.
+        FeaturedSectionBlock, LogoGridBlock, PageLinkBlock, and FeaturedPageBlock.
         """
         featured_ids = []
 
@@ -74,8 +74,8 @@ class TopicPage(RecentNewsMixin, BasePage):
                 if block.value and block.value.get("page"):
                     featured_ids.append(block.value["page"].id)
 
-            # 2. Nested inside LinkSectionBlock or FeaturedSectionBlock (StreamBlocks)
-            elif block.block_type in ("link_sections", "featured_sections"):
+            # 2. Nested inside LinkSectionBlock, FeaturedSectionBlock or LogoGridBlock (StreamBlocks)
+            elif block.block_type in ("link_sections", "featured_sections", "logo_grid"):
                 for child_block in block.value:
                     # Look for page or featured_page blocks inside the stream section
                     if child_block.block_type in ("page", "featured_page"):
