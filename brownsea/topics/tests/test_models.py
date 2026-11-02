@@ -11,6 +11,7 @@ def test_featured_page_ids_include_logo_grid_pages(site_tree):
     home = site_tree["home"]
     in_logos = publish(InfoPageFactory(parent=home, title="Logo", slug="logo"))
     in_links = publish(InfoPageFactory(parent=home, title="Link", slug="link"))
+    in_quick = publish(InfoPageFactory(parent=home, title="Quick", slug="quick"))
     other = publish(InfoPageFactory(parent=home, title="Other", slug="other"))
 
     topic = TopicPage(title="Topic", slug="topic", introduction="Intro")
@@ -36,8 +37,13 @@ def test_featured_page_ids_include_logo_grid_pages(site_tree):
         ]
     )
 
+    topic.quick_links = json.dumps(
+        [{"type": "page", "id": "f", "value": {"page": in_quick.id}}],
+    )
+
     ids = topic.get_featured_page_ids()
 
     assert in_logos.id in ids
     assert in_links.id in ids
+    assert in_quick.id in ids
     assert other.id not in ids

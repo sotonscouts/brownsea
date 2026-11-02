@@ -83,6 +83,11 @@ class TopicPage(RecentNewsMixin, BasePage):
                         if page_obj:
                             featured_ids.append(page_obj.id)
 
+        # 3. Pages in the sidebar quick links
+        for block in self.quick_links:
+            if block.block_type == "page" and block.value.get("page"):
+                featured_ids.append(block.value["page"].id)
+
         return featured_ids
 
     def get_context(self, request):
