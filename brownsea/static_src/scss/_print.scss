@@ -1,0 +1,89 @@
+@media print {
+    // Site chrome that is no use on paper
+    .navbar,
+    .footer,
+    .breadcrumb,
+    nav[aria-label="breadcrumb"],
+    wagtail-userbar,
+    .alert-dismissible .btn-close,
+    #page-nav,
+    .btn,
+    form {
+        display: none !important;
+    }
+
+    body {
+        background: $white !important;
+        color: $black !important;
+    }
+
+    main {
+        margin-top: 0 !important;
+    }
+
+    .container {
+        max-width: 100% !important;
+        padding: 0;
+    }
+
+    // Page layouts put the "On this page" nav in a side column; with that hidden, let content use the full width
+    .row > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    // Open every accordion so all of the content is printed
+    .accordion-collapse.collapse {
+        display: block !important;
+        height: auto !important;
+    }
+
+    .accordion-button::after {
+        display: none;
+    }
+
+    // Show where links go
+    main a[href^="http"]:not(.btn)::after,
+    main a[href^="/"]:not(.btn)::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        word-break: break-all;
+    }
+
+    // Keep blocks together where possible
+    h1,
+    h2,
+    h3,
+    h4,
+    img,
+    figure,
+    blockquote,
+    .card,
+    .accordion-item,
+    tr {
+        break-inside: avoid;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        break-after: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    .card,
+    .accordion-item,
+    .table {
+        border-color: $gray-500 !important;
+        box-shadow: none !important;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+}
