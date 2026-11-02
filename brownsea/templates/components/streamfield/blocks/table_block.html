@@ -7,7 +7,7 @@
                 <thead>
                     <tr>
                         {% for cell in value.data.0 %}
-                            <th scope="col">{{ cell|default_if_none:'' }}</th>
+                            <th scope="col">{% if cell %}{{ cell }}{% else %}<span class="visually-hidden">Column {{ forloop.counter }}</span>{% endif %}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -24,7 +24,7 @@
                     <tr>
                         {% for cell in row %}
                             {% if value.first_col_is_header and cell == row.0 %}
-                                <th scope="row">{{ cell|default_if_none:'' }}</th>
+                                <th scope="row">{% if cell %}{{ cell }}{% else %}<span class="visually-hidden">Row {{ forloop.parentloop.counter|add:1 }}</span>{% endif %}</th>
                             {% else %}
                                 <td>{{ cell|default_if_none:'' }}</td>
                             {% endif %}

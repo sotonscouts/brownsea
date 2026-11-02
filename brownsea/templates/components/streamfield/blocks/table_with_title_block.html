@@ -1,0 +1,6 @@
+{% load wagtailcore_tags %}
+
+<div class="table-with-title-block my-4">
+    <h3 id="{{ value.title|slugify }}">{{ value.title }}</h3>
+    {% include_block value.bound_blocks.table %}
+</div>

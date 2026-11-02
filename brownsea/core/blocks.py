@@ -332,8 +332,19 @@ class HomePageBlock(blocks.StreamBlock):
     )
 
 
+class TableWithTitleBlock(blocks.StructBlock):
+    title = blocks.CharBlock(help_text="Shown above the table")
+    table = TableBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/table_with_title_block.html"
+        icon = "table"
+        label = "Table with title"
+
+
 class TopicPageBlock(HomePageBlock):
     heading = HeadingBlock()
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+    table = TableWithTitleBlock(help_text="Use sparingly and consider putting this content in a sub-page.")
