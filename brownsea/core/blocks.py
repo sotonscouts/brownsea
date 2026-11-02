@@ -121,14 +121,27 @@ class LogoPageLinkBlock(PageLinkBlock):
         value_class = LinkItemValue
 
 
+class LogoExternalLinkBlock(blocks.StructBlock):
+    url = blocks.URLBlock()
+    title = blocks.CharBlock(help_text="Used as the logo's alt text.")
+    image = ImageChooserBlock(help_text="Logo to show.")
+
+    class Meta:
+        template = "components/streamfield/blocks/logo_link_block.html"
+        icon = "image"
+        label = "Logo External Link"
+        value_class = LinkItemValue
+
+
 class LogoGridBlock(blocks.StreamBlock):
     page = LogoPageLinkBlock()
+    external_link = LogoExternalLinkBlock()
 
     class Meta:
         template = "components/streamfield/blocks/logo_grid_block.html"
         icon = "image"
         label = "Logo Grid"
-        help_text = "A grid of logos, three per row, that link to pages."
+        help_text = "A grid of logos, three per row, that link to pages or external sites."
         group = GROUP_CALLOUTS
         max_num = 9
 
