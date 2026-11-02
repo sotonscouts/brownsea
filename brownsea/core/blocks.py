@@ -111,6 +111,28 @@ class LinkSectionBlock(blocks.StreamBlock):
         min_num = 1
 
 
+class LogoPageLinkBlock(PageLinkBlock):
+    image = ImageChooserBlock(help_text="Logo to show. The linked page's title is used as the alt text.")
+
+    class Meta:
+        template = "components/streamfield/blocks/logo_link_block.html"
+        icon = "image"
+        label = "Logo Page Link"
+        value_class = LinkItemValue
+
+
+class LogoGridBlock(blocks.StreamBlock):
+    page = LogoPageLinkBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/logo_grid_block.html"
+        icon = "image"
+        label = "Logo Grid"
+        help_text = "A grid of logos, three per row, that link to pages."
+        group = GROUP_CALLOUTS
+        max_num = 9
+
+
 class HeadingBlock(blocks.StructBlock):
     heading = blocks.CharBlock(required=True)
 
@@ -347,4 +369,5 @@ class TopicPageBlock(HomePageBlock):
     text = RichTextBlock()
     quote = QuoteBlock()
     warning_callout = WarningCalloutBlock()
+    logo_grid = LogoGridBlock()
     table = TableWithTitleBlock(help_text="Use sparingly and consider putting this content in a sub-page.")

@@ -1,0 +1,4 @@
+{% load wagtailimages_tags %}
+<a href="{{ value.url }}" class="d-flex align-items-center justify-content-center h-100 p-3 border rounded bg-white">
+    {% image value.image max-300x150 class="img-fluid" alt=value.title %}
+</a>
