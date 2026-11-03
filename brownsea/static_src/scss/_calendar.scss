@@ -1,9 +1,0 @@
-// FullCalendar v7 classic theme — override palette to match Bootstrap
-calendar-widget {
-    --fc-classic-button: var(--bs-primary);
-    --fc-classic-button-border: var(--bs-primary);
-    --fc-classic-button-strong: var(--bs-primary);
-    --fc-classic-button-strong-border: var(--bs-primary);
-    --fc-classic-primary: var(--bs-primary);
-    --fc-classic-today: rgba(var(--bs-primary-rgb), 0.1);
-}
