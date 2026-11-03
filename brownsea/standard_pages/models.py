@@ -56,6 +56,7 @@ class ProcessPage(BasePage):
 
 class GISPage(BasePage):
     template = "pages/standard_pages/gis_page.html"
+    max_count = 1
 
     introduction = models.TextField(
         help_text="An introduction to the process that will be displayed at the top of the page"

@@ -13,6 +13,7 @@ __all__ = ["CalendarPage"]
 
 class CalendarPage(InPageNavMixin, BasePage):
     template = "pages/events/calendar_page.html"
+    max_count = 1
 
     introduction = models.TextField()
     body = StreamField(StoryBlock(), blank=True)
