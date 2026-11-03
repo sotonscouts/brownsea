@@ -12,6 +12,9 @@ from brownsea.news.mixins import RecentNewsMixin
 
 
 class TopicPage(RecentNewsMixin, BasePage):
+    # Existing topic pages stay editable, but new ones are LandingPages.
+    is_creatable = False
+
     template = "pages/topics/topic_page.html"
     parent_page_types = ["wagtailcore.Page", "home.HomePage", "standard_pages.IndexPage"]
 
