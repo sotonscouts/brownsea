@@ -524,12 +524,3 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
 
     class Meta:
         block_counts = {"quick_links": {"max_num": 1}, "call_to_action": {"max_num": 2}}
-
-
-class TopicPageBlock(HomePageBlock):
-    heading = HeadingBlock()
-    text = RichTextBlock()
-    quote = QuoteBlock()
-    warning_callout = WarningCalloutBlock()
-    logo_grid = LogoGridBlock()
-    table = TableWithTitleBlock(help_text="Use sparingly and consider putting this content in a sub-page.")
