@@ -1,1 +1,1 @@
-<h2 id="{{ value.heading|slugify }}">{{ value.heading }}</h2>
+<h2 id="{{ value.heading|slugify }}"{% if value.visually_hidden %} class="visually-hidden"{% endif %}>{{ value.heading }}</h2>

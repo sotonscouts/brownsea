@@ -148,6 +148,12 @@ class LogoGridBlock(blocks.StreamBlock):
 
 class HeadingBlock(blocks.StructBlock):
     heading = blocks.CharBlock(required=True)
+    visually_hidden = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        help_text="Hide the heading on screen. Screen readers still announce it, so use this for headings that "
+        "only describe a group of icons or logos.",
+    )
 
     class Meta:
         template = "components/streamfield/blocks/heading_block.html"
