@@ -1,0 +1,115 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags %}
+
+{% block titletag %}Page types{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Page types" subtitle="Which page to use, and when" icon="doc-full" %}
+
+    <div class="nice-padding">
+        <p>
+            Choose the page type that matches the job the page does. If you are unsure, start with an
+            <strong>Info page</strong>. Page types cannot be changed after a page is created, so it is worth
+            picking the right one first.
+        </p>
+
+        <h2>Pages for content</h2>
+        <dl>
+            <dt><strong>Info page</strong></dt>
+            <dd>
+                The everyday content page: an introduction followed by headings, text, images, tables, accordions and
+                so on. Pages with three or more headings get an "On this page" menu. Use it for guidance, policies
+                and how-to information.
+            </dd>
+
+            <dt><strong>Process page</strong></dt>
+            <dd>
+                A step-by-step process made of sections. Use it when people need to follow things in order, such as
+                "how to book a venue". It cannot have child pages.
+            </dd>
+
+            <dt><strong>Landing page</strong></dt>
+            <dd>
+                A curated page that points people to other pages. It has an introduction and a body built from
+                headings, text, featured sections, link sections, a logo grid, task tiles, tables, a list of child
+                pages and calls to action. It can also have a sidebar with quick links (up to six) and calls to
+                action. Use it for a team or topic home page, a hub for an event, or anywhere the main job is to
+                send people elsewhere. It can sit under the home page, an Index page or another Landing page.
+            </dd>
+
+            <dt><strong>Index page</strong></dt>
+            <dd>
+                An introduction followed by an automatic list of its child pages that are set to show in menus. Use
+                it when a section is just a list of pages and needs no curating. If you want to choose what is shown
+                and in what order, use a Landing page instead.
+            </dd>
+        </dl>
+
+        <h2>News, events and people</h2>
+        <dl>
+            <dt><strong>News index page</strong> (one per site)</dt>
+            <dd>
+                Lists news articles. It can only be created under the home page, and there can only be one.
+            </dd>
+
+            <dt><strong>Article page</strong></dt>
+            <dd>
+                A news article. Articles can only be created under the News index page, and the home page shows the
+                most recent ones.
+            </dd>
+
+            <dt><strong>People listing page</strong> (one per site)</dt>
+            <dd>
+                A directory of people, arranged in groups. There can only be one.
+            </dd>
+
+        </dl>
+
+        <h2>Other</h2>
+        <dl>
+            <dt><strong>Home page</strong></dt>
+            <dd>
+                The front page of the site. It is created once at the top of the page tree and is not something
+                editors normally add.
+            </dd>
+
+            <dt><strong>Topic page</strong> (retired)</dt>
+            <dd>
+                Topic pages can no longer be created. Existing ones can still be edited and will be replaced by
+                Landing pages, or by Info pages where the content is mainly text.
+            </dd>
+        </dl>
+
+        <h2>Choosing quickly</h2>
+        <table class="listing">
+            <thead>
+                <tr>
+                    <th>I want to&hellip;</th>
+                    <th>Use</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Publish guidance or information</td>
+                    <td>Info page</td>
+                </tr>
+                <tr>
+                    <td>Explain steps that happen in order</td>
+                    <td>Process page</td>
+                </tr>
+                <tr>
+                    <td>Create a home page for a team or topic that links to other pages</td>
+                    <td>Landing page</td>
+                </tr>
+                <tr>
+                    <td>List every page in a section automatically</td>
+                    <td>Index page</td>
+                </tr>
+                <tr>
+                    <td>Announce something</td>
+                    <td>Article page, under the News index page</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
