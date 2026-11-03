@@ -47,3 +47,25 @@ def test_featured_page_ids_include_logo_grid_pages(site_tree):
     assert in_links.id in ids
     assert in_quick.id in ids
     assert other.id not in ids
+
+
+@pytest.mark.django_db
+def test_new_topic_pages_cannot_be_created_but_existing_ones_stay_editable(admin_client, admin_user, site_tree):
+    from django.urls import reverse
+
+    home = site_tree["home"]
+    topic = home.add_child(instance=TopicPage(title="Old topic", slug="old-topic", introduction="Intro", body=[]))
+
+    add = admin_client.get(reverse("wagtailadmin_pages:add", args=["topics", "topicpage", home.pk]))
+
+    assert TopicPage.can_create_at(home) is False
+    assert add.status_code == 302
+    assert add.url == reverse("wagtailadmin_home")
+    assert topic.permissions_for_user(admin_user).can_edit()
+
+
+def test_topic_pages_no_longer_have_news_fields():
+    fields = TopicPage.get_edit_handler().get_form_class().base_fields
+
+    assert "news_index_page" not in fields
+    assert "news_content_type_plural" not in fields

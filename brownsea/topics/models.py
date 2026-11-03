@@ -8,10 +8,9 @@ from wagtail.search import index
 from brownsea.core.blocks import LinkSectionBlock, TopicPageBlock
 from brownsea.core.models import BasePage
 from brownsea.core.utils import StreamField
-from brownsea.news.mixins import RecentNewsMixin
 
 
-class TopicPage(RecentNewsMixin, BasePage):
+class TopicPage(BasePage):
     # Existing topic pages stay editable, but new ones are LandingPages.
     is_creatable = False
 
@@ -32,13 +31,6 @@ class TopicPage(RecentNewsMixin, BasePage):
         help_text="Quick links to display in the sidebar",
         use_json_field=True,
     )
-    news_content_type_plural = models.CharField(
-        max_length=255,
-        blank=False,
-        help_text="The plural name of the news content type to display in the recent news section.",
-        default="news",
-    )
-
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
         FieldPanel("body"),
@@ -50,13 +42,6 @@ class TopicPage(RecentNewsMixin, BasePage):
             "Extra Links",
         ),
         FieldPanel("quick_links"),
-        MultiFieldPanel(
-            [
-                FieldPanel("news_index_page"),
-                FieldPanel("news_content_type_plural"),
-            ],
-            "Recent News Section",
-        ),
     ]
 
     search_fields = BasePage.search_fields + [
