@@ -1,20 +1,19 @@
-from django.db import models
-from wagtail.admin.panels import FieldPanel
+from brownsea.core.models import Taxonomy
+
+__all__ = ["NewsTopic", "NewsType"]
 
 
-class NewsType(models.Model):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
+class NewsType(Taxonomy):
+    """What kind of news it is, such as an announcement or a section update. One per article."""
 
-    panels = [
-        FieldPanel("name"),
-        FieldPanel("slug"),
-    ]
-
-    class Meta:
+    class Meta(Taxonomy.Meta):
         verbose_name = "News Type"
         verbose_name_plural = "News Types"
-        ordering = ["name"]
 
-    def __str__(self):
-        return self.name
+
+class NewsTopic(Taxonomy):
+    """What the news is about, such as programme or governance. An article can have several."""
+
+    class Meta(Taxonomy.Meta):
+        verbose_name = "News Topic"
+        verbose_name_plural = "News Topics"

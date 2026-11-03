@@ -9,15 +9,31 @@
 {% block content %}
     <div class="row">
         <div class="col-12 col-md-8">
-            <p class="text-muted small">
-                {% if page.display_date %}
-                    {{ page.display_date|date:"j F Y" }}
-                {% endif %}
-                {% if page.news_type %}
-                    <span class="mx-2">&bull;</span>
-                    {{ page.news_type }}
-                {% endif %}
-            </p>
+            {% with audiences=page.audiences.all topics=page.topics.all %}
+                <div class="d-flex flex-wrap align-items-center gap-2 text-muted small mb-4">
+                    <span>
+                        {% if page.display_date %}
+                            {{ page.display_date|date:"j F Y" }}
+                        {% endif %}
+                        {% if page.news_type %}
+                            <span class="mx-2">&bull;</span>
+                            {{ page.news_type }}
+                        {% endif %}
+                    </span>
+                    {% if audiences or topics %}
+                        <span aria-hidden="true">&bull;</span>
+                        {% pageurl page.get_parent as news_index_url %}
+                        <ul class="list-unstyled d-flex flex-wrap gap-2 mb-0">
+                            {% for audience in audiences %}
+                                <li><a href="{{ news_index_url }}?audience={{ audience.slug }}" class="badge text-bg-primary text-decoration-none"><span class="visually-hidden">Audience: </span>{{ audience.name }}</a></li>
+                            {% endfor %}
+                            {% for topic in topics %}
+                                <li><a href="{{ news_index_url }}?topic={{ topic.slug }}" class="badge text-bg-secondary text-decoration-none"><span class="visually-hidden">Topic: </span>{{ topic.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endwith %}
 
             <div class="main-content" data-bs-spy="scroll" data-bs-target="#page-nav" data-bs-offset="0" tabindex="0" style="scroll-padding-top: 100px;">
                 <section id="introduction">

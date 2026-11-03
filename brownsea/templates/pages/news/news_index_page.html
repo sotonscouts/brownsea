@@ -10,6 +10,11 @@
     <div class="row">
         <div class="col-12 col-lg-8">
             <p class="lead">{{ page.introduction }}</p>
+        </div>
+    </div>
+    <div class="row">
+        {# On phones the filters come first, collapsed; from lg up they sit beside the articles #}
+        <div class="col-12 col-lg-8 order-2 order-lg-1">
             <h2 class="visually-hidden">News articles</h2>
 
             {% if sub_pages %}
@@ -25,10 +30,16 @@
                         {% include "components/navigation/pagination.html" with page=sub_pages %}
                     </div>
                 {% else %}
-                    <p class="text-muted">No articles have been published yet.</p>
+                    <p class="text-muted">
+                        {% if is_filtered %}No articles match these filters.{% else %}No articles have been published yet.{% endif %}
+                    </p>
                 {% endif %}
             {% endif %}
         </div>
-        <div class="col-12 col-lg-4"></div>
+        <div class="col-12 col-lg-4 order-1 order-lg-2 mb-4 mb-lg-0">
+            {% if facet_filters %}
+                {% include "components/news_filters.html" %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

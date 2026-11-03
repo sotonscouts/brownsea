@@ -2,10 +2,13 @@ from django.urls import path, reverse
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.snippets import SnippetViewSet
+from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
+
+from brownsea.news.viewsets import NewsTopicViewSet, NewsTypeViewSet
 
 from .models import Author, CallToAction
 from .views.page_types import page_types_guide
+from .viewsets import AudienceViewSet
 
 
 @register_snippet
@@ -15,6 +18,13 @@ class AuthorSnippetViewSet(SnippetViewSet):
     list_display = ("name", "role")
     search_fields = ("name",)
     icon = "user"
+
+
+@register_snippet
+class TaxonomiesViewSetGroup(SnippetViewSetGroup):
+    menu_label = "Taxonomies"
+    menu_icon = "tag"
+    items = (AudienceViewSet, NewsTypeViewSet, NewsTopicViewSet)
 
 
 @register_snippet

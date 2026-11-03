@@ -19,5 +19,10 @@ class HomePage(RecentNewsMixin, BasePage):
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
         FieldPanel("body"),
-        FieldPanel("news_index_page"),
+        *RecentNewsMixin.news_panels,
     ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context.update(self.get_recent_news_context())
+        return context

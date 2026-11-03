@@ -6,6 +6,7 @@ from wagtail.search import index
 from brownsea.core.blocks import LandingPageBlock, LandingPageSidebarBlock
 from brownsea.core.models import BasePage
 from brownsea.core.utils import StreamField
+from brownsea.news.mixins import RecentNewsMixin
 
 
 def _linked_page_ids(stream):
@@ -20,7 +21,7 @@ def _linked_page_ids(stream):
             yield from _linked_page_ids(child.value)
 
 
-class LandingPage(BasePage):
+class LandingPage(RecentNewsMixin, BasePage):
     template = "pages/landing/landing_page.html"
     parent_page_types = ["wagtailcore.Page", "home.HomePage", "standard_pages.IndexPage", "landing.LandingPage"]
 
@@ -36,6 +37,7 @@ class LandingPage(BasePage):
         FieldPanel("introduction"),
         FieldPanel("body"),
         FieldPanel("sidebar"),
+        *RecentNewsMixin.news_panels,
     ]
 
     search_fields = BasePage.search_fields + [

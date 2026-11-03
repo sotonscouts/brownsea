@@ -1,0 +1,5 @@
+{% if recent_news %}
+    <div class="mb-3">
+        {% include "components/recent_news_card.html" with recent_news=recent_news news_index_url=news_index_url article_type_plural="news" feature_lead_article=False only %}
+    </div>
+{% endif %}

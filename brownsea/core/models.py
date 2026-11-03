@@ -449,3 +449,33 @@ class InPageNavMixin:
             context["in_page_nav"] = None
 
         return context
+
+
+class Taxonomy(models.Model):
+    """
+    A named value that content is classified by and that pages filter with.
+
+    Subclass it for each kind of classification, such as audiences or news types.
+    """
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("slug"),
+    ]
+
+    class Meta:
+        abstract = True
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Audience(Taxonomy):
+    """Who content is for, such as volunteers or a section. Shared by news, events and anything else that needs it."""
+
+    class Meta(Taxonomy.Meta):
+        pass

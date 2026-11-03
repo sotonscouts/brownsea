@@ -495,6 +495,23 @@ class QuickLinksBlock(blocks.StructBlock):
         label = "Quick Links"
 
 
+class RecentNewsBlock(blocks.StaticBlock):
+    """The page's latest news. Which news is chosen in the page's "Recent news filters"."""
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        page = (parent_context or {}).get("page")
+        if hasattr(page, "get_recent_news_context"):
+            context.update(page.get_recent_news_context())
+        return context
+
+    class Meta:
+        icon = "doc-full"
+        label = "Recent news"
+        admin_text = "Shows the latest news. Choose which news in the page's Recent news filters."
+        template = "components/streamfield/blocks/recent_news_block.html"
+
+
 class LandingPageBlock(blocks.StreamBlock):
     heading = HeadingBlock()
     text = RichTextBlock()
@@ -516,6 +533,7 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
     """A narrow aside beside the body, so only short blocks are allowed."""
 
     quick_links = QuickLinksBlock()
+    recent_news = RecentNewsBlock()
     call_to_action = SnippetChooserBlock(
         "core.CallToAction",
         icon="megaphone",
@@ -523,4 +541,8 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
     )
 
     class Meta:
-        block_counts = {"quick_links": {"max_num": 1}, "call_to_action": {"max_num": 2}}
+        block_counts = {
+            "quick_links": {"max_num": 1},
+            "recent_news": {"max_num": 1},
+            "call_to_action": {"max_num": 2},
+        }

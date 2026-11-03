@@ -1,0 +1,29 @@
+<button class="btn btn-outline-primary d-lg-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#news-filters" aria-expanded="{% if is_filtered %}true{% else %}false{% endif %}" aria-controls="news-filters">
+    Filter news{% if active_filter_count %} ({{ active_filter_count }}){% endif %}
+</button>
+<div class="collapse d-lg-block{% if is_filtered %} show{% endif %} mt-3 mt-lg-0" id="news-filters">
+    <form method="get" class="card" aria-label="Filter news">
+        <div class="card-header d-none d-lg-block">
+            <h2 class="h5 mb-0">Filter news</h2>
+        </div>
+        <div class="card-body">
+            {% for facet in facet_filters %}
+                <fieldset class="{% if not forloop.last %}mb-3{% endif %}">
+                    <legend class="h6">{{ facet.label }}</legend>
+                    {% for slug, name, checked in facet.choices %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="{{ facet.param }}" value="{{ slug }}" id="{{ facet.param }}-{{ slug }}"{% if checked %} checked{% endif %}>
+                            <label class="form-check-label" for="{{ facet.param }}-{{ slug }}">{{ name }}</label>
+                        </div>
+                    {% endfor %}
+                </fieldset>
+            {% endfor %}
+        </div>
+        <div class="card-footer d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if is_filtered %}
+                <a href="{{ page.url }}" class="btn btn-outline-secondary">Clear filters</a>
+            {% endif %}
+        </div>
+    </form>
+</div>

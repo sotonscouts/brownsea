@@ -1,15 +1,17 @@
 import datetime
 
+from django import forms
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
-from django.db.models.functions import Coalesce
+from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
 from wagtail.search import index
 
 from brownsea.core.blocks import StoryBlock
-from brownsea.core.models import BasePage, InPageNavMixin
+from brownsea.core.models import Audience, BasePage, InPageNavMixin
 from brownsea.core.utils import StreamField
+from brownsea.news.models.snippets import NewsTopic, NewsType
 
 
 class ArticlePage(InPageNavMixin, BasePage):
@@ -42,6 +44,18 @@ class ArticlePage(InPageNavMixin, BasePage):
         "news.NewsType",
         on_delete=models.PROTECT,
     )
+    audiences = ParentalManyToManyField(
+        "core.Audience",
+        blank=True,
+        related_name="+",
+        help_text="Who this is for. Pages can show only the news for particular audiences.",
+    )
+    topics = ParentalManyToManyField(
+        "news.NewsTopic",
+        blank=True,
+        related_name="articles",
+        help_text="What this is about. Pages can show only the news on particular topics.",
+    )
     introduction = models.TextField(
         help_text="The introduction for this article. Will be shown in article listings.",
     )
@@ -49,7 +63,14 @@ class ArticlePage(InPageNavMixin, BasePage):
 
     content_panels = BasePage.content_panels + [
         FieldPanel("author"),
-        FieldPanel("news_type"),
+        MultiFieldPanel(
+            [
+                FieldPanel("news_type"),
+                FieldPanel("audiences", widget=forms.CheckboxSelectMultiple),
+                FieldPanel("topics", widget=forms.CheckboxSelectMultiple),
+            ],
+            "Classification",
+        ),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
@@ -92,21 +113,22 @@ class NewsIndexPage(BasePage):
     search_fields = BasePage.search_fields + [index.SearchField("introduction")]
 
     def get_context(self, request):
+        from brownsea.news.filters import filter_articles, published_articles
+
         context = super().get_context(request)
 
-        child_pages = (
-            ArticlePage.objects.live()
-            .filter(show_in_menus=True)
-            .descendant_of(self)
-            .annotate(
-                date=Coalesce(
-                    "publication_date",
-                    "first_published_at",
-                    output_field=models.DateField(),
-                )
-            )
-            .select_related("author", "news_type")
-            .order_by("-date", "-first_published_at")
+        facets = [
+            NewsFacetFilter("type", "Type", NewsType.objects.all(), request.GET.getlist("type")),
+            NewsFacetFilter("audience", "Audience", Audience.objects.all(), request.GET.getlist("audience")),
+            NewsFacetFilter("topic", "Topic", NewsTopic.objects.all(), request.GET.getlist("topic")),
+        ]
+        type_filter, audience_filter, topic_filter = facets
+
+        child_pages = filter_articles(
+            published_articles(under=self),
+            types=type_filter.selected_objects,
+            audiences=audience_filter.selected_objects,
+            topics=topic_filter.selected_objects,
         )
 
         page_number = request.GET.get("page")
@@ -116,4 +138,25 @@ class NewsIndexPage(BasePage):
         )
 
         context["sub_pages"] = paginator.get_page(page_number)
+        context["facet_filters"] = [facet for facet in facets if facet.options]
+        context["active_filter_count"] = sum(len(facet.selected) for facet in facets)
+        context["is_filtered"] = bool(context["active_filter_count"])
         return context
+
+
+class NewsFacetFilter:
+    """One facet's choices on the news index, with the ones picked in the query string marked."""
+
+    def __init__(self, param, label, choices, selected_slugs):
+        self.param = param
+        self.label = label
+        self.options = list(choices)
+        self.selected = {slug for slug in selected_slugs if slug in {option.slug for option in self.options}}
+
+    @property
+    def selected_objects(self):
+        return [option for option in self.options if option.slug in self.selected]
+
+    @property
+    def choices(self):
+        return [(option.slug, option.name, option.slug in self.selected) for option in self.options]
