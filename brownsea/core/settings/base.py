@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "brownsea.core",
     "brownsea.events",
     "brownsea.home",
+    "brownsea.landing",
     "brownsea.navigation",
     "brownsea.news",
     "brownsea.people",

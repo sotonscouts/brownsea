@@ -1,0 +1,9 @@
+<div class="card mb-3 border-primary">
+    <div class="card-body">
+        <h3 class="card-title h5">{{ value.title }}</h3>
+        {% if value.summary %}
+            <p class="card-text">{{ value.summary }}</p>
+        {% endif %}
+        <a href="{{ value.url }}" class="btn btn-primary">{{ value.link_text }}</a>
+    </div>
+</div>

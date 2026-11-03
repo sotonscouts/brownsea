@@ -5,6 +5,8 @@ from wagtail.embeds.blocks import EmbedBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 
+from brownsea.core.icons import DEFAULT_TASK_ICON, TASK_ICON_CHOICES, task_icon_class
+
 GROUP_TEXT = "1. Text and Headings"
 GROUP_CALLOUTS = "2. Callouts"
 GROUP_MEDIA = "3. Media & Embeds"
@@ -381,6 +383,147 @@ class TableWithTitleBlock(blocks.StructBlock):
         template = "components/streamfield/blocks/table_with_title_block.html"
         icon = "table"
         label = "Table with title"
+
+
+class TaskTileValue(blocks.StructValue):
+    @property
+    def url(self):
+        if page := self.get("page"):
+            return page.url
+        return self.get("url")
+
+    @property
+    def icon_class(self):
+        return task_icon_class(self.get("icon"))
+
+
+class TaskTilePageBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=TASK_ICON_CHOICES, default=DEFAULT_TASK_ICON)
+    label = blocks.CharBlock(max_length=60, help_text="What the user wants to do, e.g. 'Reset a password'.")
+    page = blocks.PageChooserBlock()
+
+    class Meta:
+        icon = "doc-empty"
+        label = "Page"
+        value_class = TaskTileValue
+
+
+class TaskTileExternalBlock(blocks.StructBlock):
+    icon = blocks.ChoiceBlock(choices=TASK_ICON_CHOICES, default=DEFAULT_TASK_ICON)
+    label = blocks.CharBlock(max_length=60, help_text="What the user wants to do, e.g. 'Reset a password'.")
+    url = blocks.URLBlock()
+
+    class Meta:
+        icon = "link"
+        label = "External link"
+        value_class = TaskTileValue
+
+
+class TaskTilesBlock(blocks.StreamBlock):
+    page = TaskTilePageBlock()
+    external_link = TaskTileExternalBlock()
+
+    class Meta:
+        template = "components/streamfield/blocks/task_tiles_block.html"
+        icon = "list-ul"
+        label = "Task Tiles"
+        help_text = "Tiles for the things people most often want to do, each with an icon."
+        group = GROUP_CALLOUTS
+        max_num = 12
+
+
+def get_child_pages(page):
+    """The live, public children of a page, minus any already linked elsewhere on it."""
+    if page is None or page.pk is None:
+        return []
+    already_linked = page.get_linked_page_ids() if hasattr(page, "get_linked_page_ids") else []
+    return page.get_children().live().public().exclude(id__in=already_linked).specific()
+
+
+class ChildPagesBlock(blocks.StructBlock):
+    title = blocks.CharBlock(required=False, help_text="An optional heading, for example 'Read more'.")
+    layout = blocks.ChoiceBlock(
+        choices=[("cards", "Cards"), ("list", "List")],
+        default="cards",
+        help_text="Cards show a grid. A list is more compact, for pages with many children.",
+    )
+    show_introductions = blocks.BooleanBlock(
+        required=False,
+        default=True,
+        help_text="List layout only. Show each page's introduction under its title.",
+    )
+
+    class Meta:
+        template = "components/streamfield/blocks/child_pages_block.html"
+        icon = "folder-open-inverse"
+        label = "Child Pages"
+        help_text = "The pages below this one. Pages already linked elsewhere on this page are left out."
+        group = GROUP_CALLOUTS
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        context["child_pages"] = get_child_pages((parent_context or {}).get("page"))
+        return context
+
+
+class QuickExternalLinkBlock(blocks.StructBlock):
+    url = blocks.URLBlock()
+    title = blocks.CharBlock()
+
+    class Meta:
+        icon = "link"
+        label = "External Link"
+        value_class = LinkItemValue
+
+
+class QuickLinksStreamBlock(blocks.StreamBlock):
+    page = PageLinkBlock()
+    external_link = QuickExternalLinkBlock()
+
+    class Meta:
+        max_num = 6
+        min_num = 1
+
+
+class QuickLinksBlock(blocks.StructBlock):
+    heading = blocks.CharBlock(default="Quick links", max_length=60)
+    links = QuickLinksStreamBlock(help_text="Up to 6 links. Only the title is shown.")
+
+    class Meta:
+        template = "components/streamfield/blocks/quick_links_block.html"
+        icon = "link"
+        label = "Quick Links"
+
+
+class LandingPageBlock(blocks.StreamBlock):
+    heading = HeadingBlock()
+    text = RichTextBlock()
+    featured_sections = FeaturedSectionBlock()
+    link_sections = LinkSectionBlock()
+    logo_grid = LogoGridBlock()
+    task_tiles = TaskTilesBlock()
+    table = TableWithTitleBlock()
+    child_pages = ChildPagesBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        group=GROUP_CALLOUTS,
+        template="components/streamfield/blocks/call_to_action_block.html",
+    )
+
+
+class LandingPageSidebarBlock(blocks.StreamBlock):
+    """A narrow aside beside the body, so only short blocks are allowed."""
+
+    quick_links = QuickLinksBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        template="components/streamfield/blocks/call_to_action_aside.html",
+    )
+
+    class Meta:
+        block_counts = {"quick_links": {"max_num": 1}, "call_to_action": {"max_num": 2}}
 
 
 class TopicPageBlock(HomePageBlock):

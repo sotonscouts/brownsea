@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    {% if page.sidebar %}
+        <div class="row">
+            <div class="col-12 col-md-8">
+                {% include "pages/landing/includes/landing_page_body.html" %}
+            </div>
+            <div class="col-12 col-md-4 mt-4 mt-md-0">
+                {% for block in page.sidebar %}
+                    {% include_block block %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        {% include "pages/landing/includes/landing_page_body.html" %}
+    {% endif %}
+{% endblock %}

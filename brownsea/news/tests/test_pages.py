@@ -1,6 +1,7 @@
 import pytest
 
-from brownsea.factories import LandingPageFactory, publish
+from brownsea.factories import publish
+from brownsea.landing.factories import LandingPageFactory
 from brownsea.news.models.pages import NewsIndexPage
 from brownsea.topics.models import TopicPage
 

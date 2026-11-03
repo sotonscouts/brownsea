@@ -1,0 +1,11 @@
+{% load wagtailcore_tags %}
+
+<p class="lead">{{ page.introduction }}</p>
+
+<h2 class="visually-hidden">Page content</h2>
+
+{% for block in page.body %}
+    <div class="mb-4">
+        {% include_block block %}
+    </div>
+{% endfor %}

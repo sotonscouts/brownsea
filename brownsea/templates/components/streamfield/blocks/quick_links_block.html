@@ -1,0 +1,10 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="h5 mb-0">{{ value.heading }}</h3>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for link in value.links %}
+            <a href="{{ link.value.url }}" class="list-group-item list-group-item-action py-2">{{ link.value.title }}</a>
+        {% endfor %}
+    </div>
+</div>
