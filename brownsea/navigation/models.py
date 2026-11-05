@@ -6,9 +6,10 @@ from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.blocks.struct_block import StructBlockValidationError
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+from wagtail.models import PreviewableMixin
 from wagtail.snippets.blocks import SnippetChooserBlock
 
-from brownsea.core.models import CallToAction
+from brownsea.core.models import BrownseaPreviewableMixin, CallToAction
 from brownsea.core.utils import StreamField
 
 from .struct_values import LinkStructValue
@@ -81,7 +82,7 @@ class PrimaryNavigationLinkBlock(blocks.StructBlock):
 
 
 @register_setting(icon="list-ul")
-class NavigationSettings(BaseSiteSetting, ClusterableModel):
+class NavigationSettings(BrownseaPreviewableMixin, BaseSiteSetting, ClusterableModel):
     # Navigation
     primary_navigation = StreamField(
         [("link", PrimaryNavigationLinkBlock())],
@@ -92,3 +93,13 @@ class NavigationSettings(BaseSiteSetting, ClusterableModel):
     panels = [
         FieldPanel("primary_navigation"),
     ]
+
+    preview_full_bleed = True
+    preview_sizes = PreviewableMixin.DEFAULT_PREVIEW_SIZES
+
+    @property
+    def default_preview_size(self):
+        return "desktop"
+
+    def get_preview_template(self, request, mode_name):
+        return "components/navigation/preview.html"
