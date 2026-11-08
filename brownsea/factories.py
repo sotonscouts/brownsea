@@ -79,6 +79,8 @@ class InfoPageFactory(PageFactory):
 
     title = factory.Sequence(lambda n: f"Info page {n}")
     introduction = "Introduction"
+    # The admin defaults new pages to this (`BasePage.show_in_menus_default`), which index pages list children by.
+    show_in_menus = True
     # e.g. `InfoPageFactory(body__0__heading__heading="First", body__1__heading__heading="Second")`
     body = StreamFieldFactory({"heading": factory.SubFactory(HeadingBlockFactory)})
 
@@ -89,3 +91,4 @@ class IndexPageFactory(PageFactory):
 
     title = factory.Sequence(lambda n: f"Index page {n}")
     introduction = "Introduction"
+    show_in_menus = True

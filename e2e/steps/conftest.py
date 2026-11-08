@@ -66,11 +66,32 @@ ACCESS_LEVELS = {
 }
 
 
-@given(parsers.parse('the page "{title}" is {level}'))
+@given(parsers.re(r'the page "(?P<title>[^"]+)" is (?P<level>public|logged in only|magic link only|inherited)'))
 def _access_level(scenario_state, title, level):
     page = _page(scenario_state, title)
     page.access_level = ACCESS_LEVELS[level]
     page.save()
+
+
+@given(parsers.parse('the page "{title}" is hidden from menus'))
+def _hidden_from_menus(scenario_state, title):
+    page = _page(scenario_state, title)
+    page.show_in_menus = False
+    page.save()
+
+
+@given(parsers.parse('the page "{title}" is unpublished'))
+def _unpublished(scenario_state, title):
+    _page(scenario_state, title).unpublish()
+
+
+@given(parsers.parse('the page "{parent}" has the info pages:'))
+def _info_pages(scenario_state, parent, datatable):
+    _, *rows = datatable  # first row is the header: title | introduction
+    for title, introduction in rows:
+        scenario_state["pages"][title] = InfoPageFactory(
+            parent=_page(scenario_state, parent), title=title, introduction=introduction
+        )
 
 
 @given(parsers.parse('the page "{title}" has the password "{password}"'))
