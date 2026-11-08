@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e:report": "node e2e/report.mjs"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
@@ -15,6 +16,7 @@
     "temporal-polyfill": "^1.0.6"
   },
   "devDependencies": {
+    "multiple-cucumber-html-reporter": "^4.6.0",
     "sass": "^1.105.2",
     "vite": "^8.3.4"
   }

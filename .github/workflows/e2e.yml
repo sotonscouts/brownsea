@@ -1,0 +1,33 @@
+name: E2E Tests
+
+on:
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+          npm ci
+      - name: Install Playwright browser
+        run: uv run playwright install --with-deps chromium
+      - name: E2E tests
+        run: cp .env.example .env && make e2e
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: reports/e2e/html
+          if-no-files-found: ignore
