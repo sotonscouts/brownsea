@@ -3,8 +3,9 @@ from django.contrib.auth.models import Group, User
 from factory.django import DjangoModelFactory
 from wagtail.models import PageViewRestriction
 from wagtail_factories import PageFactory, StreamFieldFactory, StructBlockFactory
+from wagtail_factories.blocks import BlockFactory
 
-from brownsea.core.blocks import HeadingBlock
+from brownsea.core.blocks import HeadingBlock, QuoteBlock, RichTextBlock
 from brownsea.home.models import HomePage
 from brownsea.standard_pages.models import IndexPage, InfoPage
 
@@ -63,6 +64,24 @@ class HeadingBlockFactory(StructBlockFactory):
     visually_hidden = False
 
 
+class RichTextBlockFactory(BlockFactory):
+    class Meta:
+        model = RichTextBlock
+
+    @classmethod
+    def _construct_block(cls, block_class, *args, **kwargs):
+        # `InfoPageFactory(body__0__text="Some <b>text</b>")` takes the rich text's HTML directly.
+        return block_class().to_python(kwargs.get("value", "<p>Some text</p>"))
+
+
+class QuoteBlockFactory(StructBlockFactory):
+    class Meta:
+        model = QuoteBlock
+
+    quote = "Be prepared"
+    author = ""
+
+
 class HomePageFactory(PageFactory):
     class Meta:
         model = HomePage
@@ -81,8 +100,14 @@ class InfoPageFactory(PageFactory):
     introduction = "Introduction"
     # The admin defaults new pages to this (`BasePage.show_in_menus_default`), which index pages list children by.
     show_in_menus = True
-    # e.g. `InfoPageFactory(body__0__heading__heading="First", body__1__heading__heading="Second")`
-    body = StreamFieldFactory({"heading": factory.SubFactory(HeadingBlockFactory)})
+    # e.g. `InfoPageFactory(body__0__heading__heading="First", body__1__text="<p>Some text</p>")`
+    body = StreamFieldFactory(
+        {
+            "heading": factory.SubFactory(HeadingBlockFactory),
+            "text": RichTextBlockFactory,
+            "quote": factory.SubFactory(QuoteBlockFactory),
+        }
+    )
 
 
 class IndexPageFactory(PageFactory):

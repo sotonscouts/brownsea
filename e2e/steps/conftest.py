@@ -159,6 +159,22 @@ def _info_page_with_headings(scenario_state, title, datatable):
     scenario_state["pages"][title] = InfoPageFactory(parent=scenario_state["home"], title=title, **headings)
 
 
+BODY_BLOCKS = {
+    "heading": lambda index, value: {f"body__{index}__heading__heading": value},
+    "text": lambda index, value: {f"body__{index}__text": f"<p>{value}</p>"},
+    "quote": lambda index, value: {f"body__{index}__quote__quote": value},
+}
+
+
+@given(parsers.parse('the site has an info page "{title}" with the body:'))
+def _info_page_with_body(scenario_state, title, datatable):
+    _, *rows = datatable  # first row is the header: block | value
+    body = {}
+    for index, (block, value) in enumerate(rows):
+        body.update(BODY_BLOCKS[block](index, value))
+    scenario_state["pages"][title] = InfoPageFactory(parent=scenario_state["home"], title=title, **body)
+
+
 @given("the navigation has the links:")
 def _navigation_links(scenario_state, datatable):
     _, *rows = datatable  # first row is the header: title | page | url
@@ -210,6 +226,18 @@ def _click_in_navigation(page, name):
 def _click_button_in_navigation(page, name):
     # The logout button is icon-only, so it is found by its title.
     page.locator("nav.navbar").get_by_title(name).click()
+
+
+@when(parsers.parse('I search for "{query}"'))
+def _search(page, query):
+    box = page.get_by_role("searchbox", name="Search", exact=True)
+    box.fill(query)
+    box.press("Enter")
+
+
+@when(parsers.parse('I open the search result "{title}"'))
+def _open_result(page, title):
+    page.locator(".list-group-item").filter(has_text=title).click()
 
 
 @when(parsers.parse('I click "{name}" in the breadcrumbs'))
@@ -275,6 +303,11 @@ def _not_in_navigation(page, name):
 def _button_in_navigation(page, name):
     # The logout button is icon-only, so it is found by its title.
     expect(page.locator("nav.navbar").get_by_title(name)).to_be_visible()
+
+
+@then("I see the search results:")
+def _results(page, datatable):
+    expect(page.locator(".list-group-item h3")).to_have_text([row[0] for row in datatable])
 
 
 @then(parsers.parse('the breadcrumbs are "{trail}"'))
