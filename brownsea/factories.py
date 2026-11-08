@@ -1,6 +1,7 @@
 import factory
 from django.contrib.auth.models import Group, User
 from factory.django import DjangoModelFactory
+from wagtail.models import PageViewRestriction
 from wagtail_factories import PageFactory, StreamFieldFactory, StructBlockFactory
 
 from brownsea.core.blocks import HeadingBlock
@@ -24,12 +25,34 @@ class UserFactory(DjangoModelFactory):
     is_active = True
 
 
+class AdminUserFactory(UserFactory):
+    """A superuser, who can use the Wagtail admin and edit every page."""
+
+    is_staff = True
+    is_superuser = True
+
+
 class GroupFactory(DjangoModelFactory):
     class Meta:
         model = Group
         django_get_or_create = ("name",)
 
     name = factory.Sequence(lambda n: f"Group {n}")
+
+
+class PageViewRestrictionFactory(DjangoModelFactory):
+    """Wagtail's own page privacy (password, group or logged-in restrictions)."""
+
+    class Meta:
+        model = PageViewRestriction
+
+    restriction_type = PageViewRestriction.PASSWORD
+    password = "secret"  # noqa: S105
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        if create and extracted:
+            self.groups.set(extracted)
 
 
 class HeadingBlockFactory(StructBlockFactory):

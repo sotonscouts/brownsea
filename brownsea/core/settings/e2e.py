@@ -15,6 +15,9 @@ INSTALLED_APPS.append("debug_toolbar")  # noqa: F405
 # Never fall back to the developer's database (DATABASE_URL), even if the test database isn't set up in time.
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "e2e.sqlite3")}}  # noqa: F405
 
+# Production sends people to an external site after logout; keep the browser inside the app under test.
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 # Serve the compiled frontend (`npm run build`) rather than requiring a running Vite dev server.

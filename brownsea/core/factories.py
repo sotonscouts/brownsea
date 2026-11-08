@@ -1,7 +1,7 @@
 import factory
 from factory.django import DjangoModelFactory
 
-from brownsea.core.models import AlertBannerSettings, CallToAction, ThemeSettings
+from brownsea.core.models import AlertBannerSettings, CallToAction, PageMagicLink, ThemeSettings
 
 
 class CallToActionFactory(DjangoModelFactory):
@@ -32,3 +32,10 @@ class AlertBannerSettingsFactory(DjangoModelFactory):
     enabled = True
     message = "Something you should know"
     type = "info"
+
+
+class PageMagicLinkFactory(DjangoModelFactory):
+    class Meta:
+        model = PageMagicLink
+
+    label = factory.Sequence(lambda n: f"Magic link {n}")

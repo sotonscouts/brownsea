@@ -1,12 +1,23 @@
 """Steps shared by every feature."""
 
 import re
+from datetime import timedelta
 
 import pytest
+from django.utils import timezone
 from playwright.sync_api import expect
 from pytest_bdd import given, parsers, then, when
 
-from brownsea.factories import IndexPageFactory, InfoPageFactory, UserFactory
+from brownsea.core.factories import PageMagicLinkFactory
+from brownsea.core.magic_links import build_magic_link_url
+from brownsea.core.models import PageAccessLevel
+from brownsea.factories import (
+    AdminUserFactory,
+    IndexPageFactory,
+    InfoPageFactory,
+    PageViewRestrictionFactory,
+    UserFactory,
+)
 from brownsea.navigation.factories import NavigationSettingsFactory, nav_link
 
 
@@ -22,7 +33,7 @@ def _page(state, title):
 @pytest.fixture
 def scenario_state():
     """Scratch space for sharing values between the steps of a scenario."""
-    return {"pages": {}}
+    return {"pages": {}, "magic_links": {}}
 
 
 # --- Data ---------------------------------------------------------------------------------------------------------
@@ -45,6 +56,60 @@ def _public_home(scenario_state):
 @given("I am logged in")
 def _logged_in(log_in):
     log_in(UserFactory())
+
+
+ACCESS_LEVELS = {
+    "public": PageAccessLevel.PUBLIC,
+    "logged in only": PageAccessLevel.LOGGED_IN,
+    "magic link only": PageAccessLevel.MAGIC_LINK,
+    "inherited": PageAccessLevel.INHERIT,
+}
+
+
+@given(parsers.parse('the page "{title}" is {level}'))
+def _access_level(scenario_state, title, level):
+    page = _page(scenario_state, title)
+    page.access_level = ACCESS_LEVELS[level]
+    page.save()
+
+
+@given(parsers.parse('the page "{title}" has the password "{password}"'))
+def _password_protected(scenario_state, title, password):
+    PageViewRestrictionFactory(page=_page(scenario_state, title), password=password)
+
+
+@given(parsers.parse('the page "{title}" has a magic link labelled "{label}"'))
+def _magic_link(scenario_state, title, label):
+    scenario_state["magic_links"][label] = PageMagicLinkFactory(page=_page(scenario_state, title), label=label)
+
+
+@given(parsers.parse('the page "{title}" has a revoked magic link labelled "{label}"'))
+def _revoked_magic_link(scenario_state, title, label):
+    scenario_state["magic_links"][label] = PageMagicLinkFactory(
+        page=_page(scenario_state, title), label=label, revoked_at=timezone.now()
+    )
+
+
+@given(parsers.parse('the page "{title}" has an expired magic link labelled "{label}"'))
+def _expired_magic_link(scenario_state, title, label):
+    scenario_state["magic_links"][label] = PageMagicLinkFactory(
+        page=_page(scenario_state, title), label=label, expires_at=timezone.now() - timedelta(days=1)
+    )
+
+
+@given(parsers.parse('a user "{username}" exists'))
+def _user(username):
+    UserFactory(username=username)
+
+
+@given(parsers.parse('an editor "{username}" exists'))
+def _editor(username):
+    AdminUserFactory(username=username)
+
+
+@given("I am logged in as an editor")
+def _logged_in_as_editor(log_in):
+    log_in(AdminUserFactory())
 
 
 @given(parsers.parse('the page "{parent}" has an info page "{title}"'))
@@ -103,9 +168,27 @@ def _visit(page, scenario_state, path):
     scenario_state["response"] = page.goto(path)
 
 
+@when(parsers.parse('I open the magic link "{label}"'))
+def _open_magic_link(page, scenario_state, label):
+    page.goto(build_magic_link_url(scenario_state["magic_links"][label]))
+
+
+@when(parsers.parse('I log in as "{username}" with the password "{password}"'))
+def _log_in_with_form(page, username, password):
+    page.get_by_label("Username").fill(username)
+    page.get_by_label("Password").fill(password)
+    page.get_by_role("button", name="Login").click()
+
+
 @when(parsers.parse('I click "{name}" in the navigation'))
 def _click_in_navigation(page, name):
     _link(page.locator("nav.navbar"), name).click()
+
+
+@when(parsers.parse('I click the "{name}" button in the navigation'))
+def _click_button_in_navigation(page, name):
+    # The logout button is icon-only, so it is found by its title.
+    page.locator("nav.navbar").get_by_title(name).click()
 
 
 @when(parsers.parse('I click "{name}" in the breadcrumbs'))
@@ -136,6 +219,11 @@ def _text(page, text):
     expect(page.get_by_text(text).first).to_be_visible()
 
 
+@then(parsers.parse('I do not see the heading "{text}"'))
+def _no_heading(page, text):
+    expect(page.get_by_role("heading", name=text, level=1)).to_have_count(0)
+
+
 @then(parsers.parse('I do not see the text "{text}"'))
 def _no_text(page, text):
     expect(page.get_by_text(text)).to_have_count(0)
@@ -144,6 +232,12 @@ def _no_text(page, text):
 @then(parsers.parse('I am on "{path}"'))
 def _on_path(page, base_url, path):
     expect(page).to_have_url(f"{base_url}{path}")
+
+
+@then("I am asked to log in")
+def _asked_to_log_in(page):
+    # The page asked for is kept in `next`, including any query string, so only the start of the URL is fixed.
+    expect(page).to_have_url(re.compile(r"/accounts/login/\?next="))
 
 
 @then(parsers.parse('I see "{name}" in the navigation'))
