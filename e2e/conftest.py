@@ -27,13 +27,30 @@ def _reset_screenshots():
     SCREENSHOT_INDEX.write_text("{}")
 
 
+@pytest.fixture(scope="session")
+def _initial_data(django_db_setup, django_db_blocker):
+    """The rows migrations create (root page, locale, ...), which every scenario's flush deletes."""
+    from django.db import connection
+
+    with django_db_blocker.unblock():
+        return connection.creation.serialize_db_to_string()
+
+
 @pytest.fixture(autouse=True)
-def _e2e_database(transactional_db, live_server):
-    """Set up the test database and the live server up front, in that order.
+def _e2e_database(django_db_serialized_rollback, _initial_data, transactional_db, live_server):
+    """Set up the test database and the live server up front, in that order, with the migration data in place.
 
     Steps request fixtures dynamically, which is too late for pytest-django to guarantee the test database
     (rather than the configured one) is the one in use.
+
+    Each scenario's flush deletes the rows migrations create, so Django's serialized rollback restores them. Django
+    only does that when the connection carries the serialized data, but Playwright's sync API runs an event loop,
+    which gives the tests a different connection from the one that was serialized at setup, so attach it here.
     """
+    from django.db import connection
+
+    if not hasattr(connection, "_test_serialized_contents"):
+        connection._test_serialized_contents = _initial_data
 
 
 @pytest.fixture(scope="session")
@@ -47,6 +64,53 @@ def scenario_state():
     return {}
 
 
+@pytest.fixture(autouse=True)
+def browser_errors(page, live_server):
+    """Collect problems the browser reports for this app (not for third-party hosts such as CDNs)."""
+    errors = []
+
+    def is_local(url):
+        return url.startswith(live_server.url)
+
+    page.on("pageerror", lambda error: errors.append(f"Uncaught exception: {error}"))
+    page.on(
+        "console",
+        lambda msg: msg.type == "error" and is_local(msg.location.get("url", "")) and errors.append(msg.text),
+    )
+    page.on("requestfailed", lambda request: is_local(request.url) and errors.append(f"Request failed: {request.url}"))
+    page.on(
+        "response",
+        lambda response: (
+            is_local(response.url)
+            and response.status >= 500
+            and errors.append(f"{response.status} from {response.url}")
+        ),
+    )
+    return errors
+
+
+@pytest.fixture
+def log_in(context, live_server):
+    """Log a user in by giving the browser a session cookie, which is much faster than using the login form."""
+    from django.conf import settings
+    from django.test import Client
+
+    def _log_in(user):
+        client = Client()
+        client.force_login(user)
+        context.add_cookies(
+            [
+                {
+                    "name": settings.SESSION_COOKIE_NAME,
+                    "value": client.cookies[settings.SESSION_COOKIE_NAME].value,
+                    "url": live_server.url,
+                }
+            ]
+        )
+
+    return _log_in
+
+
 @pytest.fixture
 def make_site(live_server):
     """Replace the default Site with one that resolves to the live server."""
@@ -58,13 +122,14 @@ def make_site(live_server):
         Site.objects.all().delete()
         home = publish(HomePageFactory(parent=Page.get_first_root_node(), title="Home", slug="e2e-home"))
         host, _, port = live_server.url.removeprefix("http://").partition(":")
-        return SiteFactory(
+        site = SiteFactory(
             hostname=host,
             port=int(port or 80),
             root_page=home,
             is_default_site=True,
             site_name="Brownsea Intranet",
         )
+        return site, home
 
     return _make_site
 

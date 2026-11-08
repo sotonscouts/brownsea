@@ -1,10 +1,11 @@
 import factory
 from django.contrib.auth.models import Group, User
 from factory.django import DjangoModelFactory
-from wagtail_factories import PageFactory
+from wagtail_factories import PageFactory, StreamFieldFactory, StructBlockFactory
 
+from brownsea.core.blocks import HeadingBlock
 from brownsea.home.models import HomePage
-from brownsea.standard_pages.models import InfoPage
+from brownsea.standard_pages.models import IndexPage, InfoPage
 
 
 def publish(page):
@@ -31,6 +32,14 @@ class GroupFactory(DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Group {n}")
 
 
+class HeadingBlockFactory(StructBlockFactory):
+    class Meta:
+        model = HeadingBlock
+
+    heading = factory.Sequence(lambda n: f"Heading {n}")
+    visually_hidden = False
+
+
 class HomePageFactory(PageFactory):
     class Meta:
         model = HomePage
@@ -47,4 +56,13 @@ class InfoPageFactory(PageFactory):
 
     title = factory.Sequence(lambda n: f"Info page {n}")
     introduction = "Introduction"
-    body = []
+    # e.g. `InfoPageFactory(body__0__heading__heading="First", body__1__heading__heading="Second")`
+    body = StreamFieldFactory({"heading": factory.SubFactory(HeadingBlockFactory)})
+
+
+class IndexPageFactory(PageFactory):
+    class Meta:
+        model = IndexPage
+
+    title = factory.Sequence(lambda n: f"Index page {n}")
+    introduction = "Introduction"

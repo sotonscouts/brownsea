@@ -21,7 +21,7 @@ def site_tree(db):
     site.root_page = home
     site.save()
 
-    return {"root": root, "home": home}
+    return {"root": root, "home": home, "site": site}
 
 
 @pytest.fixture
