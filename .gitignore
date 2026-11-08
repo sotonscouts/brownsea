@@ -458,3 +458,7 @@ pyrightconfig.json
 data.json
 db-old.sqlite3
 *.sqlite3.*.bak
+
+# E2E test reports and screenshots
+reports/
+e2e.sqlite3

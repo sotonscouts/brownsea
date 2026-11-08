@@ -1,4 +1,4 @@
-.PHONY: all clean fix hooks lint type test test-cov
+.PHONY: all clean fix hooks lint type test test-cov e2e e2e-report
 
 CMD:=uv run
 PYMODULE:=brownsea
@@ -36,6 +36,15 @@ test: | $(PYMODULE)
 
 test-cov:
 	DJANGO_SETTINGS_MODULE=$(SETTINGS_MODULE) $(CMD) pytest -vv --cov=$(PYMODULE) $(PYMODULE) --cov-report html
+
+e2e: | $(PYMODULE)
+	npm run build
+	$(CMD) playwright install chromium
+	mkdir -p reports/e2e
+	$(CMD) pytest -vv e2e --cucumberjson=reports/e2e/cucumber.json; status=$$?; npm run e2e:report; exit $$status
+
+e2e-report:
+	npm run e2e:report
 
 clean:
 	git clean -Xdf # Delete all files in .gitignore
