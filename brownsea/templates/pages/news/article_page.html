@@ -35,6 +35,10 @@
                 </div>
             {% endwith %}
 
+            {% if page.image %}
+                {% image page.image fill-800x300 class="img-fluid mb-4" %}
+            {% endif %}
+
             <div class="main-content" data-bs-spy="scroll" data-bs-target="#page-nav" data-bs-offset="0" tabindex="0" style="scroll-padding-top: 100px;">
                 <section id="introduction">
                     <p class="lead">{{ page.introduction }}</p>

@@ -4,6 +4,12 @@ from wagtail.models import Page, Site
 from brownsea.factories import HomePageFactory, publish
 
 
+@pytest.fixture(autouse=True)
+def _temporary_media(settings, tmp_path):
+    """Keep uploaded test images out of the real media folder."""
+    settings.MEDIA_ROOT = str(tmp_path / "media")
+
+
 @pytest.fixture
 def site_tree(db):
     site = Site.objects.get(is_default_site=True)
