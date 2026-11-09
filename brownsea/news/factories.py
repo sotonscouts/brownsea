@@ -2,8 +2,9 @@ import datetime
 
 import factory
 from factory.django import DjangoModelFactory
-from wagtail_factories import PageFactory
+from wagtail_factories import PageFactory, StreamFieldFactory
 
+from brownsea.factories import HeadingBlockFactory, RichTextBlockFactory
 from brownsea.news.models.pages import ArticlePage, NewsIndexPage
 from brownsea.news.models.snippets import NewsTopic, NewsType
 
@@ -47,7 +48,13 @@ class ArticlePageFactory(PageFactory):
     publication_date = factory.LazyFunction(datetime.date.today)
     # The admin defaults new pages to this, and news listings only show pages that have it.
     show_in_menus = True
-    body = []
+    # e.g. `ArticlePageFactory(body__0__heading__heading="First", body__1__text="<p>Some text</p>")`
+    body = StreamFieldFactory(
+        {
+            "heading": factory.SubFactory(HeadingBlockFactory),
+            "text": RichTextBlockFactory,
+        }
+    )
 
     @factory.post_generation
     def audiences(self, create, extracted, **kwargs):

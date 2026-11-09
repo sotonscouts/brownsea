@@ -3,7 +3,7 @@
 <div class="card h-100">
     {% if article.image %}
         <div class="d-block d-md-none">
-            {% image article.image width-800 class="img-fluid" %}
+            {% image article.image fill-800x300 class="img-fluid" %}
         </div>
     {% endif %}
     <div class="card-body d-flex flex-column flex-md-row gap-md-4">
@@ -21,7 +21,7 @@
         </div>
         {% if article.image %}
             <div class="d-none d-md-block" style="width: 200px; flex-shrink: 0;">
-                {% image article.image width-200 class="img-fluid" style="max-width: 100%; height: auto;" %}
+                {% image article.image fill-200x200 class="img-fluid" style="max-width: 100%; height: auto;" %}
             </div>
         {% endif %}
     </div>

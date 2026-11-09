@@ -17,23 +17,21 @@
         <div class="col-12 col-lg-8 order-2 order-lg-1">
             <h2 class="visually-hidden">News articles</h2>
 
-            {% if sub_pages %}
-                {% if sub_pages.object_list.exists %}
-                    <div class="d-grid gap-4">
-                        {% for article in sub_pages.object_list %}
-                            {% pageurl article as url %}
-                            {% include "components/news_card.html" with article=article url=url %}
-                        {% endfor %}
-                    </div>
+            {% if sub_pages.object_list.exists %}
+                <div class="d-grid gap-4">
+                    {% for article in sub_pages.object_list %}
+                        {% pageurl article as url %}
+                        {% include "components/news_card.html" with article=article url=url %}
+                    {% endfor %}
+                </div>
 
-                    <div class="mt-4">
-                        {% include "components/navigation/pagination.html" with page=sub_pages %}
-                    </div>
-                {% else %}
-                    <p class="text-muted">
-                        {% if is_filtered %}No articles match these filters.{% else %}No articles have been published yet.{% endif %}
-                    </p>
-                {% endif %}
+                <div class="mt-4">
+                    {% include "components/navigation/pagination.html" with page=sub_pages %}
+                </div>
+            {% else %}
+                <p class="text-muted">
+                    {% if is_filtered %}No articles match these filters.{% else %}No articles have been published yet.{% endif %}
+                </p>
             {% endif %}
         </div>
         <div class="col-12 col-lg-4 order-1 order-lg-2 mb-4 mb-lg-0">
