@@ -1,9 +1,12 @@
 import pytest
 from django.urls import reverse
+from wagtail.blocks.struct_block import StructBlockValidationError
+from wagtail_factories import ImageFactory
 
 from brownsea.core.factories import CallToActionFactory
 from brownsea.factories import InfoPageFactory
 from brownsea.navigation.factories import NavigationSettingsFactory, nav_link
+from brownsea.navigation.models import PrimaryNavigationLinkBlock
 
 
 @pytest.fixture
@@ -73,6 +76,42 @@ def test_menus_show_their_call_to_action(authenticated_client, site_tree, guides
 
     assert "Volunteer today" in html
     assert 'href="https://example.com/join" class="btn btn-light">Sign up</a>' in html
+    assert "card-img-top" not in html
+
+
+def test_menus_show_their_featured_page_card(authenticated_client, site_tree, guides, safeguarding):
+    featured = InfoPageFactory(
+        parent=site_tree["home"], title="Camp guide", slug="camp-guide", introduction="Everything for camp"
+    )
+    NavigationSettingsFactory(
+        site=site_tree["site"],
+        primary_navigation=[
+            nav_link(
+                "Resources",
+                page=guides,
+                groups={"Policies": [safeguarding]},
+                featured_page=featured,
+                featured_image=ImageFactory(),
+            )
+        ],
+    )
+
+    html = authenticated_client.get("/").content.decode()
+
+    assert f'<a href="{featured.url}" class="text-decoration-none">' in html
+    assert "Camp guide</h4>" in html
+    assert "Everything for camp" in html
+
+
+def test_menus_without_a_featured_page_have_no_card(authenticated_client, site_tree, guides, safeguarding):
+    NavigationSettingsFactory(
+        site=site_tree["site"],
+        primary_navigation=[nav_link("Resources", page=guides, groups={"Policies": [safeguarding]})],
+    )
+
+    html = authenticated_client.get("/").content.decode()
+
+    assert "card-img-top" not in html
 
 
 def test_the_logo_links_to_the_site_home(authenticated_client, site_tree):
@@ -113,3 +152,17 @@ def test_the_menu_can_be_shown_to_anonymous_users(client, site_tree, guides, set
     html = client.get(reverse("accounts:login")).content.decode()
 
     assert f'<a class="nav-link" href="{guides.url}">Guides</a>' in html
+
+
+def test_a_menu_cannot_have_both_a_call_to_action_and_a_featured_page(site_tree, guides, safeguarding):
+    block = PrimaryNavigationLinkBlock()
+    value = nav_link("Resources", page=guides, groups={"Policies": [safeguarding]})["value"]
+    value["callout"] = [
+        {"type": "call_to_action", "value": CallToActionFactory().pk},
+        {"type": "featured_page", "value": {"page": safeguarding.pk, "image": ImageFactory().pk}},
+    ]
+
+    with pytest.raises(StructBlockValidationError) as error:
+        block.clean(block.to_python(value))
+
+    assert "callout" in error.value.block_errors

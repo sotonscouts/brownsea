@@ -1,3 +1,4 @@
+{% load wagtailimages_tags %}
 <li class="nav-item dropdown has-megamenu">
     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{{ parent_link_text }}</a>
     <div class="dropdown-menu megamenu shadow-sm border-0 w-100" role="menu">
@@ -23,15 +24,30 @@
                     </div>
                 {% endfor %}
 
-                <!-- Call to Action Block -->
-                {% if call_to_action %}
+                {% if callout.block_type == "call_to_action" %}
                     <div class="col-lg-3 ms-auto">
                         <div class="text-bg-primary p-4">
-                            <h4 class="fw-bold mb-2">{{ call_to_action.title }}</h4>
-                            <p class="mb-3">{{ call_to_action.summary }}</p>
-                            <a href="{{ call_to_action.url }}" class="btn btn-light">{{ call_to_action.link_text }}</a>
+                            <h4 class="fw-bold mb-2">{{ callout.value.title }}</h4>
+                            <p class="mb-3">{{ callout.value.summary }}</p>
+                            <a href="{{ callout.value.url }}" class="btn btn-light">{{ callout.value.link_text }}</a>
                         </div>
                     </div>
+                {% elif callout.block_type == "featured_page" %}
+                    {% with featured_page=callout.value.get_page %}
+                        {% if featured_page %}
+                            <div class="col-lg-3 ms-auto d-none d-lg-block">
+                                <div class="card h-100">
+                                    <a href="{{ featured_page.url }}" class="text-decoration-none">
+                                        {% image callout.value.image fill-400x200 class="card-img-top" %}
+                                        <div class="card-body">
+                                            <h4 class="card-title h5">{{ featured_page.title }}</h4>
+                                            <p class="card-text">{{ featured_page.introduction }}</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
             </div>
         </div>
