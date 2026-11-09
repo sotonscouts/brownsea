@@ -31,3 +31,7 @@ DJANGO_VITE = {
 
 # Avoid needing `collectstatic` before running the suite.
 STORAGES["staticfiles"] = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}  # noqa: F405
+
+# Images made by scenarios go in their own folder, never the developer's `media/`. Served by `core/urls_e2e.py`.
+MEDIA_ROOT = os.path.join(BASE_DIR, "reports", "e2e", "media")  # noqa: F405
+ROOT_URLCONF = "brownsea.core.urls_e2e"

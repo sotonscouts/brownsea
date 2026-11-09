@@ -13,6 +13,7 @@ from brownsea.core.magic_links import build_magic_link_url
 from brownsea.core.models import PageAccessLevel
 from brownsea.factories import (
     AdminUserFactory,
+    HomePageFactory,
     IndexPageFactory,
     InfoPageFactory,
     PageViewRestrictionFactory,
@@ -28,6 +29,19 @@ def _link(scope, name):
 
 def _page(state, title):
     return state["pages"][title]
+
+
+def _cards(page):
+    return page.locator("main .card").filter(has=page.locator(".card-title"))
+
+
+def _card(page, title):
+    return _cards(page).filter(has=page.get_by_role("heading", name=title, exact=True))
+
+
+def _rows(datatable):
+    header, *rows = datatable
+    return [dict(zip(header, row, strict=True)) for row in rows]
 
 
 @pytest.fixture
@@ -197,6 +211,29 @@ def _menu_for_anonymous(settings):
     settings.APP_SHOW_MENU_WHEN_UNAUTHENTICATED = True
 
 
+@given("the home page has the sections:")
+def _sections(scenario_state, datatable):
+    """Rows with the same section ("featured 1", "links 2", ...) share one section; sections keep the order written."""
+    sections = {}
+    for row in _rows(datatable):
+        sections.setdefault(row["section"], []).append(row)
+
+    fields = {}
+    for index, (name, items) in enumerate(sections.items()):
+        kind = "featured_sections" if name.startswith("featured") else "link_sections"
+        for item_index, item in enumerate(items):
+            prefix = f"body__{index}__{kind}__{item_index}"
+            if item["page"]:
+                fields[f"{prefix}__page__page"] = scenario_state["pages"][item["page"]]
+            else:
+                fields[f"{prefix}__external_link__title"] = item["title"]
+                fields[f"{prefix}__external_link__url"] = item["url"]
+
+    home = scenario_state["home"]
+    home.body = HomePageFactory.build(**fields).body
+    home.save()
+
+
 # --- Actions ------------------------------------------------------------------------------------------------------
 
 
@@ -248,6 +285,11 @@ def _click_in_breadcrumbs(page, name):
 @when(parsers.parse('I click "{name}" in the menu'))
 def _click_in_menu(page, name):
     page.locator(".dropdown-menu.show").get_by_role("link", name=name, exact=True).click()
+
+
+@when(parsers.parse('I open the card "{title}"'))
+def _open_card(page, title):
+    _card(page, title).get_by_role("link").first.click()
 
 
 # --- Assertions ---------------------------------------------------------------------------------------------------
@@ -321,6 +363,30 @@ def _no_breadcrumbs(page):
     expect(page.get_by_label("breadcrumb")).to_have_count(0)
 
 
+@then(parsers.parse('the browser tab is titled "{title}"'))
+def _tab_title(page, title):
+    expect(page).to_have_title(re.compile(re.escape(title)))
+
+
 @then("the browser reported no errors")
 def _no_browser_errors(browser_errors):
     assert browser_errors == []
+
+
+@then("I see the cards:")
+def _see_cards(page, datatable):
+    expect(_cards(page).locator(".card-title")).to_have_text([row[0] for row in datatable])
+
+
+@then(parsers.parse('the card "{title}" links to "{url}"'))
+def _card_link(page, title, url):
+    expect(_card(page, title).get_by_role("link").first).to_have_attribute("href", url)
+
+
+@then("the card images have loaded")
+def _images_loaded(page):
+    images = page.locator("main img")
+    expect(images.first).to_be_visible()
+    for image in images.all():
+        expect(image).to_have_js_property("complete", True)
+        assert image.evaluate("img => img.naturalWidth") > 0, image.get_attribute("src")

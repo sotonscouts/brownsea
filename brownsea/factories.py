@@ -6,6 +6,7 @@ from wagtail_factories import PageFactory, StreamFieldFactory, StructBlockFactor
 from wagtail_factories.blocks import BlockFactory
 
 from brownsea.core.blocks import HeadingBlock, QuoteBlock, RichTextBlock
+from brownsea.core.factories import FeaturedSectionBlockFactory, LinkSectionBlockFactory
 from brownsea.home.models import HomePage
 from brownsea.standard_pages.models import IndexPage, InfoPage
 
@@ -89,7 +90,13 @@ class HomePageFactory(PageFactory):
     title = "Home"
     slug = factory.Sequence(lambda n: f"home-{n}")
     introduction = "Welcome"
-    body = []
+    # e.g. `HomePageFactory(body__0__link_sections__0__page__page=page)`
+    body = StreamFieldFactory(
+        {
+            "featured_sections": factory.SubFactory(FeaturedSectionBlockFactory),
+            "link_sections": factory.SubFactory(LinkSectionBlockFactory),
+        }
+    )
 
 
 class InfoPageFactory(PageFactory):

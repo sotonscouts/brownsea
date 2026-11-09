@@ -1,14 +1,7 @@
-import re
-
 from playwright.sync_api import expect
-from pytest_bdd import parsers, scenarios, then
+from pytest_bdd import scenarios, then
 
 scenarios("pages/info_page.feature")
-
-
-@then(parsers.parse('the browser tab is titled "{title}"'))
-def _tab_title(page, title):
-    expect(page).to_have_title(re.compile(re.escape(title)))
 
 
 @then("the page body reads:")
