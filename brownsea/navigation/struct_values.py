@@ -21,3 +21,11 @@ class LinkStructValue(blocks.StructValue):
             return page.specific.url
 
         return ""
+
+
+class FeaturedPageStructValue(blocks.StructValue):
+    def get_page(self):
+        # Handle instance where the page referenced is deleted.
+        if page := self.get("page"):
+            return page.specific
+        return None

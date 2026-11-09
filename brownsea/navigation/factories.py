@@ -21,7 +21,7 @@ def link_value(title="", page=None, url=""):
     return {"page": page.pk if page else None, "external_url": url, "title": title}
 
 
-def nav_link(title="", page=None, url="", groups=None, call_to_action=None):
+def nav_link(title="", page=None, url="", groups=None, call_to_action=None, featured_page=None, featured_image=None):
     """
     A primary navigation item.
 
@@ -36,12 +36,19 @@ def nav_link(title="", page=None, url="", groups=None, call_to_action=None):
         ]
         secondary.append(_list_item({"heading": heading, "links": links}))
 
+    callout = []
+    if call_to_action:
+        callout.append({"type": "call_to_action", "value": call_to_action.pk, "id": str(uuid.uuid4())})
+    elif featured_page:
+        value = {"page": featured_page.pk, "image": featured_image.pk}
+        callout.append({"type": "featured_page", "value": value, "id": str(uuid.uuid4())})
+
     return {
         "type": "link",
         "value": {
             "link": link_value(title, page, url),
             "secondary_level_links": secondary,
-            "call_to_action": call_to_action.pk if call_to_action else None,
+            "callout": callout,
         },
     }
 

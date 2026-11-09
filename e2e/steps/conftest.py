@@ -210,6 +210,23 @@ def _navigation_menu(scenario_state, title, heading, datatable):
     )
 
 
+@given(
+    parsers.parse(
+        'the navigation has a "{title}" menu featuring the page "{featured}" with the group "{heading}" '
+        "containing the pages:"
+    )
+)
+def _navigation_menu_with_featured_page(scenario_state, title, featured, heading, datatable):
+    pages = [_page(scenario_state, row[0]) for row in datatable]
+    item = nav_link(
+        title=title,
+        groups={heading: pages},
+        featured_page=_page(scenario_state, featured),
+        featured_image=ImageFactory(),
+    )
+    NavigationSettingsFactory(site=scenario_state["site"], primary_navigation=[item])
+
+
 @given("anonymous visitors can see the menu")
 def _menu_for_anonymous(settings):
     settings.APP_SHOW_MENU_WHEN_UNAUTHENTICATED = True
@@ -306,6 +323,11 @@ def _click_in_navigation(page, name):
     _link(page.locator("nav.navbar"), name).click()
 
 
+@when("I open the navigation menu")
+def _open_navigation_menu(page):
+    page.get_by_role("button", name="Toggle navigation").click()
+
+
 @when(parsers.parse('I click the "{name}" button in the navigation'))
 def _click_button_in_navigation(page, name):
     # The logout button is icon-only, so it is found by its title.
@@ -332,6 +354,12 @@ def _click_in_breadcrumbs(page, name):
 @when(parsers.parse('I click "{name}" in the menu'))
 def _click_in_menu(page, name):
     page.locator(".dropdown-menu.show").get_by_role("link", name=name, exact=True).click()
+
+
+@when(parsers.parse('I click the featured card "{title}" in the menu'))
+def _click_featured_card_in_menu(page, title):
+    card = page.locator(".dropdown-menu.show .card").filter(has=page.get_by_role("heading", name=title, exact=True))
+    card.get_by_role("link").click()
 
 
 @when(parsers.parse('I open the card "{title}"'))
@@ -423,6 +451,25 @@ def _tab_title(page, title):
 @then("the browser reported no errors")
 def _no_browser_errors(browser_errors):
     assert browser_errors == []
+
+
+@then(parsers.parse('the menu shows a featured card "{title}" with the introduction "{introduction}"'))
+def _menu_featured_card(page, title, introduction):
+    card = page.locator(".dropdown-menu.show .card")
+    expect(card.get_by_role("heading", name=title, exact=True)).to_be_visible()
+    expect(card.get_by_text(introduction)).to_be_visible()
+    expect(card.locator("img")).to_be_visible()
+
+
+@then("the menu shows no featured card")
+def _menu_no_featured_card(page):
+    expect(page.locator(".dropdown-menu.show")).to_be_visible()
+    expect(page.locator(".dropdown-menu .card")).to_have_count(0)
+
+
+@then("the menu shows no visible featured card")
+def _menu_no_visible_featured_card(page):
+    expect(page.locator(".dropdown-menu .card")).to_be_hidden()
 
 
 @then("I see the cards:")

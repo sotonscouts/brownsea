@@ -62,6 +62,44 @@ Feature: Primary navigation
     Then I am on "/safeguarding/"
     And I see the heading "Safeguarding"
 
+  Scenario: A menu can feature a page as a card
+    Given the intranet has a site
+    And the site has an info page "Safeguarding"
+    And the site has an info page "Camp guide" with the introduction "Everything you need for camp"
+    And the navigation has a "Resources" menu featuring the page "Camp guide" with the group "Policies" containing the pages:
+      | Safeguarding |
+    And I am logged in
+    When I visit "/"
+    And I click "Resources" in the navigation
+    Then the menu shows a featured card "Camp guide" with the introduction "Everything you need for camp"
+    When I click the featured card "Camp guide" in the menu
+    Then I am on "/camp-guide/"
+    And I see the heading "Camp guide"
+
+  Scenario: The featured card is hidden on a phone
+    Given the intranet has a site
+    And the site has an info page "Safeguarding"
+    And the site has an info page "Camp guide"
+    And the navigation has a "Resources" menu featuring the page "Camp guide" with the group "Policies" containing the pages:
+      | Safeguarding |
+    And I am logged in
+    And I am using a phone
+    When I visit "/"
+    And I open the navigation menu
+    And I click "Resources" in the navigation
+    Then I see the text "Policies"
+    And the menu shows no visible featured card
+
+  Scenario: A menu without a featured page shows no card
+    Given the intranet has a site
+    And the site has an info page "Safeguarding"
+    And the navigation has a "Resources" menu with the group "Policies" containing the pages:
+      | Safeguarding |
+    And I am logged in
+    When I visit "/"
+    And I click "Resources" in the navigation
+    Then the menu shows no featured card
+
   Scenario: Logged in users can search and log out from the header
     Given the intranet has a site
     And I am logged in

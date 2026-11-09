@@ -6,13 +6,14 @@ from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.blocks.struct_block import StructBlockValidationError
 from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import PreviewableMixin
 from wagtail.snippets.blocks import SnippetChooserBlock
 
 from brownsea.core.models import BrownseaPreviewableMixin, CallToAction
 from brownsea.core.utils import StreamField
 
-from .struct_values import LinkStructValue
+from .struct_values import FeaturedPageStructValue, LinkStructValue
 
 
 class LinkBlock(blocks.StructBlock):
@@ -49,6 +50,25 @@ class LinkBlock(blocks.StructBlock):
         return value
 
 
+class FeaturedPageCardBlock(blocks.StructBlock):
+    page = blocks.PageChooserBlock()
+    image = ImageChooserBlock()
+
+    class Meta:
+        icon = "doc-full"
+        label = "Featured page"
+        value_class = FeaturedPageStructValue
+
+
+class CalloutBlock(blocks.StreamBlock):
+    call_to_action = SnippetChooserBlock(CallToAction)
+    featured_page = FeaturedPageCardBlock()
+
+    class Meta:
+        max_num = 1
+        label = "Callout"
+
+
 class PrimaryNavigationLinkBlock(blocks.StructBlock):
     link = LinkBlock(link_required=False)
     secondary_level_links = blocks.ListBlock(
@@ -65,7 +85,10 @@ class PrimaryNavigationLinkBlock(blocks.StructBlock):
             "Add up to 3 columns of links for the mega menu. Leave blank if this link doesn't need a mega menu.",
         ),
     )
-    call_to_action = SnippetChooserBlock(CallToAction, required=False)
+    callout = CalloutBlock(
+        required=False,
+        help_text="Optionally add a call to action or a featured page card alongside the links in the mega menu.",
+    )
 
     class Meta:
         template = "components/navigation/includes/primary_nav_item.html"
