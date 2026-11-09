@@ -1,5 +1,4 @@
-# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,django,python,node
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,django,python,node
+e2e/FEATURES.md
 
 .env.prod
 .env.dev
