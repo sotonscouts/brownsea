@@ -54,11 +54,6 @@ def _open_recent_news_item(page, title):
 # --- Assertions ---------------------------------------------------------------------------------------------------
 
 
-@then("the recent news is:")
-def _recent_news_is(page, datatable):
-    expect(_recent_news(page).locator(".list-group-item h3")).to_have_text([row[0] for row in datatable])
-
-
 @then("there is no recent news")
 def _no_recent_news(page):
     expect(_recent_news(page)).to_have_count(0)

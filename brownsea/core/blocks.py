@@ -432,12 +432,20 @@ class TaskTilesBlock(blocks.StreamBlock):
         max_num = 12
 
 
-def get_child_pages(page):
-    """The live, public children of a page, minus any already linked elsewhere on it."""
+def get_child_pages(page, request=None):
+    """
+    The live, public children of a page that are shown in menus, minus any already linked elsewhere on it.
+
+    Like every other listing, hidden-from-menus pages are left out. With a request, visitors who are not logged in only
+    get the children they could open, so a public page does not advertise pages that need a login.
+    """
     if page is None or page.pk is None:
         return []
     already_linked = page.get_linked_page_ids() if hasattr(page, "get_linked_page_ids") else []
-    return page.get_children().live().public().exclude(id__in=already_linked).specific()
+    children = page.get_children().live().public().filter(show_in_menus=True).exclude(id__in=already_linked).specific()
+    if request is None or request.user.is_authenticated:
+        return list(children)
+    return [child for child in children if child.allow_anonymous_access(request)]
 
 
 class ChildPagesBlock(blocks.StructBlock):
@@ -462,7 +470,8 @@ class ChildPagesBlock(blocks.StructBlock):
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
-        context["child_pages"] = get_child_pages((parent_context or {}).get("page"))
+        parent_context = parent_context or {}
+        context["child_pages"] = get_child_pages(parent_context.get("page"), parent_context.get("request"))
         return context
 
 

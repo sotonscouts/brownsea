@@ -447,3 +447,9 @@ def _images_loaded(page):
 @then("the news index lists:")
 def _news_index_lists(page, datatable):
     expect(page.locator("main .card-title")).to_have_text([row[0] for row in datatable])
+
+
+@then("the recent news is:")
+def _recent_news_is(page, datatable):
+    card = page.locator(".card").filter(has=page.get_by_role("heading", name="Recent News"))
+    expect(card.locator(".list-group-item h3")).to_have_text([row[0] for row in datatable])
