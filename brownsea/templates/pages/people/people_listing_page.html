@@ -1,15 +1,24 @@
 {% extends "base.html" %}
 
-{% load static %}
 {% load wagtailcore_tags %}
-{% load wagtailimages_tags %}
 
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
     <p class="lead">{{ page.introduction }}</p>
 
-    {% for block in page.body %}
-        {% include_block block %}
+    {% for section in sections %}
+        <section class="mb-5"{% if section.name %} aria-labelledby="team-{{ forloop.counter }}"{% endif %}>
+            {% if section.name %}
+                <h2 id="team-{{ forloop.counter }}" class="h3 fw-semibold mb-4 pb-2 border-bottom border-primary border-2">{{ section.name }}</h2>
+            {% endif %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                {% for entry in section.entries %}
+                    <div class="col">
+                        {% include "components/person_card.html" with person=entry.person roles=entry.roles only %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
     {% endfor %}
 {% endblock %}

@@ -24,6 +24,7 @@ from brownsea.factories import (
 )
 from brownsea.navigation.factories import NavigationSettingsFactory, nav_link
 from brownsea.news.factories import ArticlePageFactory, NewsIndexPageFactory, NewsTopicFactory, NewsTypeFactory
+from brownsea.people.factories import PersonFactory, PersonRoleFactory
 
 
 def _link(scope, name):
@@ -225,6 +226,13 @@ def _navigation_menu_with_featured_page(scenario_state, title, featured, heading
         featured_image=ImageFactory(),
     )
     NavigationSettingsFactory(site=scenario_state["site"], primary_navigation=[item])
+
+
+@given(parsers.parse('"{name}" has the past role "{past}" and the current role "{current}"'))
+def _person_roles(scenario_state, name, past, current):
+    person = PersonFactory(name=name, role=past, role__is_current=False)
+    PersonRoleFactory(person=person, title=current)
+    scenario_state.setdefault("people", {})[name] = person
 
 
 @given("anonymous visitors can see the menu")

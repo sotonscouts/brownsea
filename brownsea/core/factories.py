@@ -11,7 +11,7 @@ from brownsea.core.blocks import (
     LinkSectionBlock,
     PageLinkBlock,
 )
-from brownsea.core.models import AlertBannerSettings, Audience, Author, CallToAction, PageMagicLink, ThemeSettings
+from brownsea.core.models import AlertBannerSettings, Audience, CallToAction, PageMagicLink, ThemeSettings
 
 
 class AudienceFactory(DjangoModelFactory):
@@ -21,14 +21,6 @@ class AudienceFactory(DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f"Audience {n}")
     slug = factory.Sequence(lambda n: f"audience-{n}")
-
-
-class AuthorFactory(DjangoModelFactory):
-    class Meta:
-        model = Author
-
-    name = factory.Sequence(lambda n: f"Author {n}")
-    role = "Volunteer"
 
 
 class CallToActionFactory(DjangoModelFactory):

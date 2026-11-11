@@ -13,7 +13,7 @@ def published_articles(under=None):
         articles.annotate(
             date=Coalesce("publication_date", "first_published_at", output_field=models.DateField()),
         )
-        .select_related("author", "news_type", "image")
+        .select_related("author_role__person", "news_type", "image")
         .order_by("-date", "-first_published_at")
     )
 

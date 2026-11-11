@@ -1,8 +1,8 @@
 from playwright.sync_api import expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from brownsea.core.factories import AuthorFactory
 from brownsea.news.factories import ArticlePageFactory
+from brownsea.people.factories import PersonFactory
 
 scenarios("pages/article_page.feature")
 
@@ -23,7 +23,14 @@ def _rows(datatable):
 @given(parsers.parse('the article "{title}" is written by "{name}", the "{role}"'))
 def _author(scenario_state, title, name, role):
     article = scenario_state["pages"][title]
-    article.author = AuthorFactory(name=name, role=role)
+    article.author_role = PersonFactory(name=name, role=role).roles.get()
+    article.save()
+
+
+@given(parsers.parse('the article "{title}" is written by "{name}" as "{role}"'))
+def _author_as(scenario_state, title, name, role):
+    article = scenario_state["pages"][title]
+    article.author_role = scenario_state["people"][name].roles.get(title=role)
     article.save()
 
 
@@ -75,6 +82,11 @@ def _image_between_date_and_introduction(page):
 def _image_is_cropped(page):
     image = page.locator("main img").first.bounding_box()
     assert image["height"] <= image["width"] * 0.4 + 1, image
+
+
+@then(parsers.parse('the author card does not show "{text}"'))
+def _author_card_without(page, text):
+    expect(page.locator("main .card")).not_to_contain_text(text)
 
 
 @then("I do not see an author")

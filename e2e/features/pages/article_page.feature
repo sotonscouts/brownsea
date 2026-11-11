@@ -41,6 +41,16 @@ Feature: Article page
     When I visit "/news/camp-tips/"
     Then I see the author "Sam Smith", the "County Commissioner"
 
+  Scenario: An article shows the role its author had when it was written
+    Given the news has the articles:
+      | title     | published  | type         |
+      | Camp tips | 2026-03-05 | Announcement |
+    And "Sam Smith" has the past role "Deputy District Commissioner" and the current role "Trustee"
+    And the article "Camp tips" is written by "Sam Smith" as "Deputy District Commissioner"
+    When I visit "/news/camp-tips/"
+    Then I see the author "Sam Smith", the "Deputy District Commissioner"
+    And the author card does not show "Trustee"
+
   Scenario: An article without an author has no author card
     Given the news has the articles:
       | title     | published  | type         |
