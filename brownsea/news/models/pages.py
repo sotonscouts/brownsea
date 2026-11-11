@@ -34,11 +34,15 @@ class ArticlePage(InPageNavMixin, BasePage):
         blank=True,
         help_text="The date the article was published. If not set, the current date will be used.",
     )
-    author = models.ForeignKey(
-        "core.Author",
+    author_role = models.ForeignKey(
+        "people.PersonRole",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name="articles",
+        verbose_name="Author",
+        help_text="Who wrote this, and the role they had at the time. Choose their role, not just their name, "
+        "so the article keeps showing it after they move on.",
     )
     news_type = models.ForeignKey(
         "news.NewsType",
@@ -62,7 +66,7 @@ class ArticlePage(InPageNavMixin, BasePage):
     body = StreamField(StoryBlock())
 
     content_panels = BasePage.content_panels + [
-        FieldPanel("author"),
+        FieldPanel("author_role"),
         MultiFieldPanel(
             [
                 FieldPanel("news_type"),
@@ -87,6 +91,10 @@ class ArticlePage(InPageNavMixin, BasePage):
         index.SearchField("introduction"),
         index.SearchField("body"),
     ]
+
+    @property
+    def author(self):
+        return self.author_role.person if self.author_role else None
 
     @property
     def display_date(self) -> datetime.date | None:

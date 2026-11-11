@@ -4,10 +4,11 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail_factories import ImageFactory
 
-from brownsea.core.factories import AudienceFactory, AuthorFactory
+from brownsea.core.factories import AudienceFactory
 from brownsea.factories import publish
 from brownsea.news.factories import ArticlePageFactory, NewsIndexPageFactory, NewsTopicFactory, NewsTypeFactory
 from brownsea.news.models.pages import ArticlePage
+from brownsea.people.factories import PersonFactory, PersonRoleFactory
 
 
 def soup(response):
@@ -55,13 +56,16 @@ def test_the_date_falls_back_to_when_it_was_first_published(authenticated_client
     assert "24 December 2025" in authenticated_client.get(article.url).content.decode()
 
 
-def test_shows_the_author_when_there_is_one(authenticated_client, news_index):
-    with_author = make_article(news_index, author=AuthorFactory(name="Sam Smith", role="County Commissioner"))
+def test_shows_the_author_and_the_role_they_had_when_there_is_one(authenticated_client, news_index):
+    sam = PersonFactory(name="Sam Smith", role="Deputy District Commissioner", role__is_current=False)
+    then = sam.roles.get()
+    PersonRoleFactory(person=sam, title="District Commissioner")
+    with_author = make_article(news_index, author_role=then)
 
     card = soup(authenticated_client.get(with_author.url)).select_one(".card")
 
     assert card.select_one(".card-title").get_text(strip=True) == "Sam Smith"
-    assert "County Commissioner" in card.get_text()
+    assert card.select_one(".card-text").get_text(strip=True) == "Deputy District Commissioner"
 
 
 def test_has_no_author_card_without_an_author(authenticated_client, news_index):
