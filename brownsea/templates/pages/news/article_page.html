@@ -54,7 +54,7 @@
         <div class="col-12 col-md-4">
             {% if page.author_role %}
                 <div class="mb-4">
-                    {% include "components/author_card.html" with person=page.author_role.person role=page.author_role only %}
+                    {% include "components/person_card.html" with person=page.author_role.person role=page.author_role only %}
                 </div>
             {% endif %}
 

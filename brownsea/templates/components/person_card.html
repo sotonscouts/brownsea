@@ -7,12 +7,15 @@
                 {% image person.profile_picture fill-240x240 format-webp as photo %}
                 <img src="{{ photo.url }}" alt="" class="rounded-circle" width="120" height="120" style="object-fit: cover;">
             {% else %}
-                <div class="author-card__image rounded-circle bg-primary d-flex align-items-center justify-content-center" aria-hidden="true">
-                    <span class="author-card__placeholder text-white">{{ person.name|first|upper }}</span>
+                <div class="person-card__image rounded-circle bg-primary d-flex align-items-center justify-content-center" aria-hidden="true">
+                    <span class="person-card__placeholder text-white">{{ person.name|first|upper }}</span>
                 </div>
             {% endif %}
         </div>
         <h3 class="card-title h5 mb-1">{{ person.name }}</h3>
+        {% if role %}
+            <p class="card-text text-muted small mb-0">{{ role.title }}</p>
+        {% endif %}
         {% for role in roles %}
             <p class="card-text text-muted small mb-0">{{ role.title }}</p>
         {% endfor %}
