@@ -6,18 +6,9 @@ from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 
 from brownsea.news.viewsets import NewsTopicViewSet, NewsTypeViewSet
 
-from .models import Author, CallToAction
+from .models import CallToAction
 from .views.page_types import page_types_guide
 from .viewsets import AudienceViewSet
-
-
-@register_snippet
-class AuthorSnippetViewSet(SnippetViewSet):
-    model = Author
-    menu_label = "Authors"
-    list_display = ("name", "role")
-    search_fields = ("name",)
-    icon = "user"
 
 
 @register_snippet
