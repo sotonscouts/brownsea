@@ -13,6 +13,7 @@ from brownsea.core.models import BasePage, BrownseaPreviewableMixin
 class PersonListingPage(BasePage):
     template = "pages/people/people_listing_page.html"
     max_count = 1
+    subpage_types = []
 
     introduction = models.TextField()
 
