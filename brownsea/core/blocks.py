@@ -1,4 +1,5 @@
 from wagtail import blocks
+from wagtail.blocks import StreamValue
 from wagtail.contrib.table_block.blocks import TableBlock as BaseTableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
@@ -432,6 +433,18 @@ class TaskTilesBlock(blocks.StreamBlock):
         max_num = 12
 
 
+def linked_page_ids(stream):
+    """Yield the id of every page linked from a stream, however deeply the links are nested."""
+    for child in stream:
+        if child.block_type == "page":
+            if page := child.value.get("page"):
+                yield page.id
+        elif child.block_type == "quick_links":
+            yield from linked_page_ids(child.value["links"])
+        elif isinstance(child.value, StreamValue):
+            yield from linked_page_ids(child.value)
+
+
 def get_child_pages(page, request=None):
     """
     The live, public children of a page that are shown in menus, minus any already linked elsewhere on it.
@@ -553,5 +566,72 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
         block_counts = {
             "quick_links": {"max_num": 1},
             "recent_news": {"max_num": 1},
+            "call_to_action": {"max_num": 2},
+        }
+
+
+class KeyDateValue(blocks.StructValue):
+    @property
+    def link_url(self):
+        """Where the description links to, if anywhere. A chosen page wins over an address."""
+        if page := self.get("page"):
+            return page.url
+        return self.get("url") or None
+
+
+class KeyDateBlock(blocks.StructBlock):
+    when = blocks.CharBlock(
+        max_length=80,
+        help_text="Free text, so it can be a range or a time of day, e.g. '30th April to 3rd May 2027'.",
+    )
+    what = blocks.CharBlock(max_length=120, help_text="What happens, e.g. 'Groups to submit final numbers'.")
+    page = blocks.PageChooserBlock(
+        required=False,
+        label="Link to a page",
+        help_text="Optional. Makes the description a link, for example to the event for a meeting.",
+    )
+    url = blocks.URLBlock(
+        required=False,
+        label="Or link to an address",
+        help_text="Optional. Used only when no page is chosen.",
+    )
+
+    class Meta:
+        value_class = KeyDateValue
+
+
+class KeyDatesBlock(blocks.StructBlock):
+    heading = blocks.CharBlock(default="Key dates", max_length=60)
+    dates = blocks.ListBlock(KeyDateBlock(), min_num=1, label="Dates")
+
+    class Meta:
+        template = "components/streamfield/blocks/key_dates_block.html"
+        icon = "date"
+        label = "Key dates"
+
+
+class EventPageBlock(StoryBlock):
+    """The everyday content blocks, plus the landing-page blocks an event with several sub-pages needs."""
+
+    featured_sections = FeaturedSectionBlock()
+    task_tiles = TaskTilesBlock()
+    child_pages = ChildPagesBlock()
+
+
+class EventPageSidebarBlock(blocks.StreamBlock):
+    """A narrow aside beside the body, so only short blocks are allowed. The event's facts card is added by the page."""
+
+    key_dates = KeyDatesBlock()
+    quick_links = QuickLinksBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        template="components/streamfield/blocks/call_to_action_aside.html",
+    )
+
+    class Meta:
+        block_counts = {
+            "key_dates": {"max_num": 1},
+            "quick_links": {"max_num": 1},
             "call_to_action": {"max_num": 2},
         }

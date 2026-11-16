@@ -1,0 +1,17 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="h5 mb-0">{{ value.heading }}</h3>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for date in value.dates %}
+            <li class="list-group-item">
+                <span class="d-block fw-semibold">{{ date.when }}</span>
+                {% if date.link_url %}
+                    <a href="{{ date.link_url }}" class="text-decoration-none">{{ date.what }}</a>
+                {% else %}
+                    <span class="text-muted">{{ date.what }}</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

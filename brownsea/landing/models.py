@@ -1,24 +1,11 @@
 from django.db import models
 from wagtail.admin.panels import FieldPanel
-from wagtail.blocks import StreamValue
 from wagtail.search import index
 
-from brownsea.core.blocks import LandingPageBlock, LandingPageSidebarBlock
+from brownsea.core.blocks import LandingPageBlock, LandingPageSidebarBlock, linked_page_ids
 from brownsea.core.models import BasePage
 from brownsea.core.utils import StreamField
 from brownsea.news.mixins import RecentNewsMixin
-
-
-def _linked_page_ids(stream):
-    """Yield the id of every page linked from a stream, however deeply the links are nested."""
-    for child in stream:
-        if child.block_type == "page":
-            if page := child.value.get("page"):
-                yield page.id
-        elif child.block_type == "quick_links":
-            yield from _linked_page_ids(child.value["links"])
-        elif isinstance(child.value, StreamValue):
-            yield from _linked_page_ids(child.value)
 
 
 class LandingPage(RecentNewsMixin, BasePage):
@@ -50,4 +37,4 @@ class LandingPage(RecentNewsMixin, BasePage):
 
     def get_linked_page_ids(self):
         """The pages linked from this page's body and sidebar, so automatic lists can leave them out."""
-        return [*_linked_page_ids(self.body), *_linked_page_ids(self.sidebar)]
+        return [*linked_page_ids(self.body), *linked_page_ids(self.sidebar)]

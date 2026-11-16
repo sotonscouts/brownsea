@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    {% if page.has_extra_content %}
+        {# One grid so the details sit above the body on a phone and beside it on a wider screen. #}
+        <div class="event-layout">
+            <div class="event-layout__facts">
+                {% include "components/event_facts.html" %}
+            </div>
+            <div class="event-layout__body">
+                <p class="lead">{{ page.introduction }}</p>
+                {% for block in page.body %}
+                    <div class="mb-4">{% include_block block %}</div>
+                {% endfor %}
+            </div>
+            <div class="event-layout__sidebar">
+                {% for block in page.sidebar %}
+                    {% include_block block %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12 col-lg-8">
+                <p class="lead">{{ page.introduction }}</p>
+            </div>
+        </div>
+        <div class="mb-4">
+            {% include "components/event_facts.html" with wide=True %}
+        </div>
+    {% endif %}
+{% endblock %}

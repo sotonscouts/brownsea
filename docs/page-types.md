@@ -70,8 +70,8 @@ Root (hidden)
 | --- | --- | --- | --- | --- |
 | `NewsIndexPage` | Exists | Faceted, paginated list of news. Singleton. | Home | Article |
 | `ArticlePage` | Exists | A news item: update, announcement, project report, urgent notice. | News index | None |
-| `EventsIndexPage` | **New** | Upcoming and past events as a list with a calendar view, filterable. Singleton. May also show external calendar feeds (see below). | Home | Event |
-| `EventPage` | **New** | One event: dates, venue, who it is for, cost, sign-up link, status (open, full, cancelled). **Every event lives under the Events index**, and other pages list events by taxonomy. Can act as a hub for a multi-page event such as District Camp 2027, whose code of conduct, arrivals and costs pages become its children. | Events index only | Info, Process |
+| `EventsIndexPage` | **Exists** (minimal list; filters, tabs and calendar to come) | Upcoming and past events as a list with a calendar view, filterable. Singleton. May also show external calendar feeds (see below). | Home | Event |
+| `EventPage` | **Exists** | One event: dates, venue, who it is for, cost, sign-up link, status (open, full, cancelled). **Every event lives under the Events index**, and other pages list events by taxonomy. Can act as a hub for a multi-page event such as District Camp 2027, whose code of conduct, arrivals and costs pages become its children. | Events index only | Info, Process |
 | Policies | **Planned** | A place for formal documents with governance metadata (owner, version, status, review date). To be designed: whether this is an index plus item type, one type, or an extension of the Info page. Indicative placement: under Home, following the collection pattern. | Home (indicative) | To be designed |
 | Roles and vacancies | **Planned** | Volunteer roles and the openings for them. To be designed: whether role descriptions and vacancies are one type or two, and how they relate to the people listing. Indicative placement: under Home, following the collection pattern. | Home (indicative) | To be designed |
 
@@ -115,9 +115,9 @@ Root (hidden)
 
 | | Count |
 | --- | --- |
-| Exists, unchanged | `HomePage`, `LandingPage`, `IndexPage`, `InfoPage`, `NewsIndexPage`, `ArticlePage`, `GISPage` (7) |
+| Exists, unchanged | `HomePage`, `LandingPage`, `IndexPage`, `InfoPage`, `NewsIndexPage`, `ArticlePage`, `GISPage`, `EventsIndexPage`, `EventPage` (9) |
 | Rework | `ProcessPage`, `PersonListingPage` (2) |
-| New | `EventsIndexPage`, `EventPage`, `ProgrammeHomePage`, `ProgrammeSectionPage`, `DirectoryPage` (5) |
+| New | `ProgrammeHomePage`, `ProgrammeSectionPage`, `DirectoryPage` (3) |
 | Planned (to be designed) | Policies, roles and vacancies |
 
 The collection pattern keeps new types looking alike, and the "Page types" help screen in the admin is grouped to

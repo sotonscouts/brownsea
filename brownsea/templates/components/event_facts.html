@@ -1,0 +1,63 @@
+{% load wagtailcore_tags %}
+
+{# The event's facts, defined once for both layouts. Pass `wide=True` to lay the rows out in columns. #}
+<section class="card event-facts" aria-labelledby="event-details-heading">
+    <div class="card-header">
+        <h2 class="h5 mb-0" id="event-details-heading">Event details</h2>
+    </div>
+    <div class="card-body">
+        {% pageurl page.get_parent as events_index_url %}
+        <dl class="row row-cols-1 {% if wide %}row-cols-md-3{% endif %} g-3 mb-0">
+            <div class="col">
+                <dt class="event-facts__label">When</dt>
+                <dd class="mb-0">
+                    {% for line in page.when_lines %}
+                        {{ line }}
+                        {% if not forloop.last %}<br>{% endif %}
+                    {% endfor %}
+                </dd>
+            </div>
+            {% if page.location or page.address or page.is_online %}
+                <div class="col">
+                    <dt class="event-facts__label">Where</dt>
+                    <dd class="mb-0">
+                        {% if page.location %}{{ page.location }}{% endif %}
+                        {% if page.address %}
+                            <span class="d-block">{{ page.address|linebreaksbr }}</span>
+                        {% endif %}
+                        {% if page.is_online %}
+                            <span class="d-block">Online</span>
+                            {% if page.online_details %}<span class="d-block text-muted small">{{ page.online_details }}</span>{% endif %}
+                        {% endif %}
+                    </dd>
+                </div>
+            {% endif %}
+            {% with audiences=page.audiences.all %}
+                {% if audiences %}
+                    <div class="col">
+                        <dt class="event-facts__label">Who it's for</dt>
+                        <dd class="mb-0">
+                            <span class="d-inline-flex flex-wrap gap-1">
+                                {% for audience in audiences %}
+                                    <a href="{{ events_index_url }}?audience={{ audience.slug }}" class="badge text-bg-primary text-decoration-none">{{ audience.name }}</a>
+                                {% endfor %}
+                            </span>
+                        </dd>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div class="col">
+                <dt class="event-facts__label">Type</dt>
+                <dd class="mb-0">
+                    <a href="{{ events_index_url }}?type={{ page.event_type.slug }}" class="text-decoration-none">{{ page.event_type.name }}</a>
+                </dd>
+            </div>
+            {% if page.cost_display %}
+                <div class="col">
+                    <dt class="event-facts__label">Cost</dt>
+                    <dd class="mb-0">{{ page.cost_display }}</dd>
+                </div>
+            {% endif %}
+        </dl>
+    </div>
+</section>

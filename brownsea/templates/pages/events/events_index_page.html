@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <p class="lead">{{ page.introduction }}</p>
+    <ul class="list-group mb-4">
+        {% for event in events %}
+            <li class="list-group-item">
+                <a href="{% pageurl event %}" class="fw-semibold text-decoration-none">{{ event.title }}</a>
+                <span class="d-block small text-muted">{{ event.when_lines|first }}{% if event.location %} &bull; {{ event.location }}{% endif %}</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">There are no events yet.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
