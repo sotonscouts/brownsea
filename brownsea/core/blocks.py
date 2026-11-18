@@ -365,7 +365,44 @@ class StoryBlock(blocks.StreamBlock):
     embed = EmbedBlock(group=GROUP_MEDIA, help_text="Add a video, google form, etc.")
 
 
+class FeaturedEventBlock(blocks.StructBlock):
+    """One event as a promo. It shows nothing when the event is no longer published, but stays once it has ended."""
+
+    event = blocks.PageChooserBlock(page_type="events.EventPage")
+    label_text = blocks.CharBlock(
+        label="Label",
+        required=False,
+        max_length=40,
+        default="Featured event",
+        help_text="Shown above the title, for example 'Don't miss' or 'Booking now open'. Leave empty for no label.",
+    )
+
+    def get_event(self, value):
+        """The chosen event, or None when it should not be shown."""
+        event = value.get("event")
+        if event is None or not event.live:
+            return None
+        return event.specific
+
+    def render(self, value, context=None):
+        if self.get_event(value) is None:
+            return ""
+        return super().render(value, context)
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        context["event"] = self.get_event(value)
+        return context
+
+    class Meta:
+        template = "components/streamfield/blocks/featured_event_block.html"
+        icon = "date"
+        label = "Featured event"
+        group = GROUP_CALLOUTS
+
+
 class HomePageBlock(blocks.StreamBlock):
+    featured_event = FeaturedEventBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     call_to_action = SnippetChooserBlock(
@@ -537,6 +574,7 @@ class RecentNewsBlock(blocks.StaticBlock):
 class LandingPageBlock(blocks.StreamBlock):
     heading = HeadingBlock()
     text = RichTextBlock()
+    featured_event = FeaturedEventBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     logo_grid = LogoGridBlock()

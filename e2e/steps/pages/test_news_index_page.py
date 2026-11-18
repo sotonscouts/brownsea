@@ -19,7 +19,9 @@ def _open_item(page, title):
 # --- Assertions ---------------------------------------------------------------------------------------------------
 
 
-@then(parsers.parse('the news index item "{title}" shows the date "{date}", the type "{news_type}" and the text "{text}"'))
+@then(
+    parsers.parse('the news index item "{title}" shows the date "{date}", the type "{news_type}" and the text "{text}"')
+)
 def _item_details(page, title, date, news_type, text):
     item = _item(page, title)
     expect(item).to_contain_text(date)

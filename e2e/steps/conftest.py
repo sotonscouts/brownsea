@@ -556,6 +556,13 @@ def _events(scenario_state, datatable):
         scenario_state["pages"][row["title"]] = event
 
 
+@given(parsers.parse('the home page features the event "{title}"'))
+def _home_features_event(scenario_state, title):
+    home = scenario_state["home"]
+    home.body = [{"type": "featured_event", "value": {"event": scenario_state["pages"][title].pk}}]
+    home.save()
+
+
 @given(parsers.parse("events are shown {count:d} to a page"))
 def _events_page_size(settings, count):
     settings.APP_SEARCH_RESULTS_PER_PAGE = count
