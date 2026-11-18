@@ -1,4 +1,6 @@
+from django.template.loader import render_to_string
 from wagtail import blocks
+from wagtail.blocks import StreamValue
 from wagtail.contrib.table_block.blocks import TableBlock as BaseTableBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.embeds.blocks import EmbedBlock
@@ -364,7 +366,119 @@ class StoryBlock(blocks.StreamBlock):
     embed = EmbedBlock(group=GROUP_MEDIA, help_text="Add a video, google form, etc.")
 
 
+class FeaturedEventBlock(blocks.StructBlock):
+    """One event as a promo. It shows nothing when the event is no longer published, but stays once it has ended."""
+
+    event = blocks.PageChooserBlock(page_type="events.EventPage")
+    label_text = blocks.CharBlock(
+        label="Label",
+        required=False,
+        max_length=40,
+        default="Featured event",
+        help_text="Shown above the title, for example 'Don't miss' or 'Booking now open'. Leave empty for no label.",
+    )
+
+    def get_event(self, value):
+        """The chosen event, or None when it should not be shown."""
+        event = value.get("event")
+        if event is None or not event.live:
+            return None
+        return event.specific
+
+    def render(self, value, context=None):
+        if self.get_event(value) is None:
+            return ""
+        return super().render(value, context)
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        context["event"] = self.get_event(value)
+        return context
+
+    class Meta:
+        template = "components/streamfield/blocks/featured_event_block.html"
+        icon = "date"
+        label = "Featured event"
+        group = GROUP_CALLOUTS
+
+
+UPCOMING_EVENTS_COUNT = 4
+
+
+class ArticlePageBlock(StoryBlock):
+    """The everyday content blocks, plus a featured event for articles that announce or follow up on one."""
+
+    featured_event = FeaturedEventBlock()
+
+
+class UpcomingEventsBase(blocks.StructBlock):
+    """The next four events, narrowed by the type, audience and topic chosen on the block. Shows nothing without any."""
+
+    heading = blocks.CharBlock(default="Upcoming events", required=False, max_length=60)
+    types = blocks.ListBlock(
+        SnippetChooserBlock("events.EventType"),
+        label="Only these types",
+        default=[],
+        help_text="Leave empty to include every type.",
+    )
+    audiences = blocks.ListBlock(
+        SnippetChooserBlock("core.Audience"),
+        label="Only these audiences",
+        default=[],
+        help_text="Leave empty to include every audience.",
+    )
+    topics = blocks.ListBlock(
+        SnippetChooserBlock("events.EventTopic"),
+        label="Only these topics",
+        default=[],
+        help_text="Leave empty to include every topic.",
+    )
+
+    def get_context(self, value, parent_context=None):
+        from brownsea.events.filters import upcoming_events_for
+
+        context = super().get_context(value, parent_context=parent_context)
+        context["events"], context["events_index_url"] = upcoming_events_for(
+            types=list(value["types"]),
+            audiences=list(value["audiences"]),
+            topics=list(value["topics"]),
+            count=UPCOMING_EVENTS_COUNT,
+        )
+        return context
+
+    def render(self, value, context=None):
+        template_context = self.get_context(value, parent_context=context)
+        if not template_context["events"]:
+            return ""
+        return render_to_string(self.meta.template, template_context)
+
+    class Meta:
+        icon = "date"
+        label = "Upcoming events"
+
+
+class UpcomingEventsBlock(UpcomingEventsBase):
+    layout = blocks.ChoiceBlock(
+        choices=[("cards", "Cards"), ("list", "List")],
+        default="cards",
+        help_text="Cards show a grid. A list is more compact, for when space is tight.",
+    )
+
+    class Meta:
+        template = "components/streamfield/blocks/upcoming_events_block.html"
+        group = GROUP_CALLOUTS
+
+
+class UpcomingEventsSidebarBlock(UpcomingEventsBase):
+    """The same events as a compact list, for a narrow column."""
+
+    class Meta:
+        template = "components/streamfield/blocks/upcoming_events_aside.html"
+
+
 class HomePageBlock(blocks.StreamBlock):
+    featured_event = FeaturedEventBlock()
+    upcoming_events = UpcomingEventsBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     call_to_action = SnippetChooserBlock(
@@ -430,6 +544,18 @@ class TaskTilesBlock(blocks.StreamBlock):
         help_text = "Tiles for the things people most often want to do, each with an icon."
         group = GROUP_CALLOUTS
         max_num = 12
+
+
+def linked_page_ids(stream):
+    """Yield the id of every page linked from a stream, however deeply the links are nested."""
+    for child in stream:
+        if child.block_type == "page":
+            if page := child.value.get("page"):
+                yield page.id
+        elif child.block_type == "quick_links":
+            yield from linked_page_ids(child.value["links"])
+        elif isinstance(child.value, StreamValue):
+            yield from linked_page_ids(child.value)
 
 
 def get_child_pages(page, request=None):
@@ -512,9 +638,11 @@ class RecentNewsBlock(blocks.StaticBlock):
         page = (parent_context or {}).get("page")
         if hasattr(page, "get_recent_news_context"):
             context.update(page.get_recent_news_context())
+        context["feature_lead_article"] = self.meta.feature_lead_article
         return context
 
     class Meta:
+        feature_lead_article = False
         icon = "doc-full"
         label = "Recent news"
         admin_text = "Shows the latest news. Choose which news in the page's Recent news filters."
@@ -524,6 +652,8 @@ class RecentNewsBlock(blocks.StaticBlock):
 class LandingPageBlock(blocks.StreamBlock):
     heading = HeadingBlock()
     text = RichTextBlock()
+    featured_event = FeaturedEventBlock()
+    upcoming_events = UpcomingEventsBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     logo_grid = LogoGridBlock()
@@ -543,6 +673,7 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
 
     quick_links = QuickLinksBlock()
     recent_news = RecentNewsBlock()
+    upcoming_events = UpcomingEventsSidebarBlock()
     call_to_action = SnippetChooserBlock(
         "core.CallToAction",
         icon="megaphone",
@@ -553,5 +684,79 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
         block_counts = {
             "quick_links": {"max_num": 1},
             "recent_news": {"max_num": 1},
+            "upcoming_events": {"max_num": 1},
+            "call_to_action": {"max_num": 2},
+        }
+
+
+class HomePageSidebarBlock(LandingPageSidebarBlock):
+    """The landing page sidebar, but recent news leads with the newest article's image and introduction."""
+
+    recent_news = RecentNewsBlock(feature_lead_article=True)
+
+
+class KeyDateValue(blocks.StructValue):
+    @property
+    def link_url(self):
+        """Where the description links to, if anywhere. A chosen page wins over an address."""
+        if page := self.get("page"):
+            return page.url
+        return self.get("url") or None
+
+
+class KeyDateBlock(blocks.StructBlock):
+    when = blocks.CharBlock(
+        max_length=80,
+        help_text="Free text, so it can be a range or a time of day, e.g. '30th April to 3rd May 2027'.",
+    )
+    what = blocks.CharBlock(max_length=120, help_text="What happens, e.g. 'Groups to submit final numbers'.")
+    page = blocks.PageChooserBlock(
+        required=False,
+        label="Link to a page",
+        help_text="Optional. Makes the description a link, for example to the event for a meeting.",
+    )
+    url = blocks.URLBlock(
+        required=False,
+        label="Or link to an address",
+        help_text="Optional. Used only when no page is chosen.",
+    )
+
+    class Meta:
+        value_class = KeyDateValue
+
+
+class KeyDatesBlock(blocks.StructBlock):
+    heading = blocks.CharBlock(default="Key dates", max_length=60)
+    dates = blocks.ListBlock(KeyDateBlock(), min_num=1, label="Dates")
+
+    class Meta:
+        template = "components/streamfield/blocks/key_dates_block.html"
+        icon = "date"
+        label = "Key dates"
+
+
+class EventPageBlock(StoryBlock):
+    """The everyday content blocks, plus the landing-page blocks an event with several sub-pages needs."""
+
+    featured_sections = FeaturedSectionBlock()
+    task_tiles = TaskTilesBlock()
+    child_pages = ChildPagesBlock()
+
+
+class EventPageSidebarBlock(blocks.StreamBlock):
+    """A narrow aside beside the body, so only short blocks are allowed. The event's facts card is added by the page."""
+
+    key_dates = KeyDatesBlock()
+    quick_links = QuickLinksBlock()
+    call_to_action = SnippetChooserBlock(
+        "core.CallToAction",
+        icon="megaphone",
+        template="components/streamfield/blocks/call_to_action_aside.html",
+    )
+
+    class Meta:
+        block_counts = {
+            "key_dates": {"max_num": 1},
+            "quick_links": {"max_num": 1},
             "call_to_action": {"max_num": 2},
         }

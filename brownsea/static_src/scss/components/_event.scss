@@ -1,0 +1,70 @@
+.event-facts {
+    &__label {
+        display: block;
+        margin: 0;
+        font-size: 0.75rem;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--bs-secondary-color);
+    }
+}
+
+// Details first on a phone. From md up the body fills the left column and the details and sidebar stack on the right.
+.event-layout {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "facts"
+        "body"
+        "sidebar";
+
+    @media (min-width: map-get($grid-breakpoints, md)) {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "body facts"
+            "body sidebar";
+    }
+
+    &__facts {
+        grid-area: facts;
+    }
+
+    &__body {
+        grid-area: body;
+    }
+
+    &__sidebar {
+        grid-area: sidebar;
+    }
+}
+
+.event-month {
+    margin: 1.5rem 0 0.25rem;
+    font-size: 1.1rem;
+    color: var(--bs-secondary-color);
+
+    &:first-of-type {
+        margin-top: 1rem;
+    }
+}
+
+.event-row {
+    &__body {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &__icon {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.125em;
+    }
+
+    &__meta {
+        font-size: 0.875rem;
+        color: var(--bs-secondary-color);
+    }
+}

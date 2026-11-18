@@ -4,6 +4,7 @@ from wagtail.admin.menu import MenuItem
 from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import SnippetViewSet, SnippetViewSetGroup
 
+from brownsea.events.viewsets import EventTopicViewSet, EventTypeViewSet
 from brownsea.news.viewsets import NewsTopicViewSet, NewsTypeViewSet
 
 from .models import CallToAction
@@ -15,7 +16,7 @@ from .viewsets import AudienceViewSet
 class TaxonomiesViewSetGroup(SnippetViewSetGroup):
     menu_label = "Taxonomies"
     menu_icon = "tag"
-    items = (AudienceViewSet, NewsTypeViewSet, NewsTopicViewSet)
+    items = (AudienceViewSet, NewsTypeViewSet, NewsTopicViewSet, EventTypeViewSet, EventTopicViewSet)
 
 
 @register_snippet

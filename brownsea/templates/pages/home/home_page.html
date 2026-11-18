@@ -8,7 +8,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-12 col-md-8">
+        <div class="col-12{% if page.sidebar %} col-md-8{% endif %}">
             <p class="lead">{{ page.introduction }}</p>
 
             {% url 'search' as search_url %}
@@ -22,10 +22,12 @@
                 </div>
             {% endfor %}
         </div>
-        <div class="col-12 col-md-4 mt-4 mt-md-0">
-            {% if recent_news %}
-                {% include "components/recent_news_card.html" with recent_news=recent_news news_index_url=news_index_url article_type_plural="news" feature_lead_article=True only %}
-            {% endif %}
-        </div>
+        {% if page.sidebar %}
+            <div class="col-12 col-md-4 mt-4 mt-md-0">
+                {% for block in page.sidebar %}
+                    {% include_block block %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

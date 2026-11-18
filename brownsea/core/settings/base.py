@@ -51,6 +51,7 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 INSTALLED_APPS = [
     "brownsea.accounts",
     "brownsea.core",
+    "brownsea.events",
     "brownsea.home",
     "brownsea.landing",
     "brownsea.navigation",

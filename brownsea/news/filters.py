@@ -1,7 +1,9 @@
 from django.db import models
 from django.db.models.functions import Coalesce
 
+from brownsea.core.filters import AudienceFilter, FacetFilterSet, TaxonomyFilter
 from brownsea.news.models.pages import ArticlePage
+from brownsea.news.models.snippets import NewsTopic, NewsType
 
 
 def published_articles(under=None):
@@ -18,19 +20,7 @@ def published_articles(under=None):
     )
 
 
-def filter_articles(articles, *, types=(), exclude_types=(), audiences=(), topics=()):
-    """
-    Narrow articles by the news facets. Each argument is a list of facet objects (or their ids).
-
-    An empty list means "any". Within one facet an article matches if it has any of the chosen values, and an
-    article must match every facet that has values.
-    """
-    if types:
-        articles = articles.filter(news_type__in=types)
-    if exclude_types:
-        articles = articles.exclude(news_type__in=exclude_types)
-    if audiences:
-        articles = articles.filter(pk__in=ArticlePage.objects.filter(audiences__in=audiences).values("pk"))
-    if topics:
-        articles = articles.filter(pk__in=ArticlePage.objects.filter(topics__in=topics).values("pk"))
-    return articles
+class ArticleFilterSet(FacetFilterSet):
+    type = TaxonomyFilter(NewsType.objects.all(), field_name="news_type", label="Type")
+    audience = AudienceFilter()
+    topic = TaxonomyFilter(NewsTopic.objects.all(), field_name="topics", label="Topic")

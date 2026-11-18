@@ -1,8 +1,10 @@
 """Steps shared by every feature."""
 
 import datetime
+import json
 import re
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from django.utils import timezone
@@ -14,6 +16,7 @@ from wagtail_factories import ImageFactory
 from brownsea.core.factories import AudienceFactory, PageMagicLinkFactory
 from brownsea.core.magic_links import build_magic_link_url
 from brownsea.core.models import PageAccessLevel
+from brownsea.events.factories import EventPageFactory, EventsIndexPageFactory, EventTypeFactory
 from brownsea.factories import (
     AdminUserFactory,
     HomePageFactory,
@@ -508,3 +511,134 @@ def _news_index_lists(page, datatable):
 def _recent_news_is(page, datatable):
     card = page.locator(".card").filter(has=page.get_by_role("heading", name="Recent News"))
     expect(card.locator(".list-group-item h3")).to_have_text([row[0] for row in datatable])
+
+
+# --- Events -------------------------------------------------------------------------------------------------------
+
+
+@given("the site has an events index")
+def _events_index(scenario_state):
+    scenario_state["events_index"] = EventsIndexPageFactory(parent=scenario_state["home"])
+    scenario_state["pages"]["Events"] = scenario_state["events_index"]
+
+
+@given("the events are:")
+def _events(scenario_state, datatable):
+    """
+    Columns: title, starts (a date) and type are required. ends, from, to (times), location, address, audiences
+    (comma-separated), cost (an amount, 0 for free) and introduction are optional.
+    """
+    for row in _rows(datatable):
+        fields = {}
+        if row.get("ends"):
+            fields["end_date"] = datetime.date.fromisoformat(row["ends"])
+        if row.get("from"):
+            fields["start_time"] = datetime.time.fromisoformat(row["from"])
+        if row.get("to"):
+            fields["end_time"] = datetime.time.fromisoformat(row["to"])
+        for column in ("location", "address", "introduction"):
+            if row.get(column):
+                fields[column] = row[column]
+        audiences = [
+            AudienceFactory(name=name, slug=slugify(name)) for name in row.get("audiences", "").split(", ") if name
+        ]
+        event = EventPageFactory(
+            parent=scenario_state["events_index"],
+            title=row["title"],
+            start_date=datetime.date.fromisoformat(row["starts"]),
+            event_type=EventTypeFactory(name=row["type"], slug=slugify(row["type"])),
+            audiences=audiences,
+            **fields,
+        )
+        if row.get("cost"):
+            event.cost = json.dumps([{"type": "fixed_cost", "value": str(Decimal(row["cost"])), "id": "cost"}])
+            event.save()
+        scenario_state["pages"][row["title"]] = event
+
+
+@given(parsers.parse('the home page features the event "{title}"'))
+def _home_features_event(scenario_state, title):
+    home = scenario_state["home"]
+    home.body = [{"type": "featured_event", "value": {"event": scenario_state["pages"][title].pk}}]
+    home.save()
+
+
+@given(parsers.parse("the home page body shows upcoming events as {layout}"))
+def _home_body_upcoming(scenario_state, layout):
+    home = scenario_state["home"]
+    value = {"heading": "Upcoming events", "layout": layout, "types": [], "audiences": [], "topics": []}
+    home.body = [{"type": "upcoming_events", "value": value}]
+    home.save()
+
+
+@given("the home page sidebar shows upcoming events")
+def _home_sidebar_upcoming(scenario_state):
+    value = {"heading": "Coming up", "types": [], "audiences": [], "topics": []}
+    home = scenario_state["home"]
+    home.sidebar = [{"type": "upcoming_events", "value": value}]
+    home.save()
+
+
+@given(parsers.parse("events are shown {count:d} to a page"))
+def _events_page_size(settings, count):
+    settings.APP_SEARCH_RESULTS_PER_PAGE = count
+
+
+@then("the events index lists:")
+def _events_index_lists(page, datatable):
+    expect(page.locator("main .event-row h3")).to_have_text([row[0] for row in datatable])
+
+
+# --- Filters ------------------------------------------------------------------------------------------------------
+
+
+@when(parsers.parse('I tick the filter "{name}"'))
+def _tick(page, name):
+    page.get_by_label(name, exact=True).check()
+
+
+@when("I apply the filters")
+def _apply(page):
+    page.get_by_role("button", name="Filter", exact=True).click()
+
+
+@when("I clear the filters")
+def _clear(page):
+    page.get_by_role("link", name="Clear filters").click()
+
+
+@when("I open the filters")
+def _open_filters(page):
+    page.get_by_role("button", name=re.compile(r"^Filter (news|events)")).click()
+
+
+@then(parsers.parse('the filter "{name}" is ticked'))
+def _is_ticked(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_checked()
+
+
+@then(parsers.parse('the filter "{name}" is not ticked'))
+def _is_not_ticked(page, name):
+    expect(page.get_by_label(name, exact=True)).not_to_be_checked()
+
+
+@then(parsers.parse('the filter "{name}" is hidden'))
+def _is_hidden(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_hidden()
+
+
+@then(parsers.parse('the filter "{name}" is shown'))
+def _is_shown(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_visible()
+
+
+@then(parsers.parse('the filter "{name}" is shown and ticked'))
+def _is_shown_and_ticked(page, name):
+    box = page.get_by_label(name, exact=True)
+    expect(box).to_be_visible()
+    expect(box).to_be_checked()
+
+
+@then(parsers.parse("I see the filters button counting {count:d} active filter"))
+def _filters_count(page, count):
+    expect(page.get_by_role("button", name=re.compile(rf"^Filter (news|events) \({count}\)$"))).to_be_visible()

@@ -2,10 +2,11 @@ from urllib.parse import urlencode
 
 from django import forms
 from django.db import models
+from django.utils.datastructures import MultiValueDict
 from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 
-from brownsea.news.filters import filter_articles, published_articles
+from brownsea.news.filters import ArticleFilterSet, published_articles
 from brownsea.news.models.pages import NewsIndexPage
 
 RECENT_NEWS_COUNT = 3
@@ -66,12 +67,12 @@ class RecentNewsMixin(models.Model):
     def get_news_index_page(self):
         return NewsIndexPage.objects.live().first()
 
-    def get_news_filters(self):
+    def get_news_filter_params(self):
+        """The chosen facets as the news index's query string parameters, each with the slugs picked."""
         return {
-            "types": list(self.news_types.all()),
-            "exclude_types": list(self.news_exclude_types.all()),
-            "audiences": list(self.news_audiences.all()),
-            "topics": list(self.news_topics.all()),
+            "type": [facet.slug for facet in self.news_types.all()],
+            "audience": [facet.slug for facet in self.news_audiences.all()],
+            "topic": [facet.slug for facet in self.news_topics.all()],
         }
 
     def get_recent_news(self):
@@ -79,7 +80,12 @@ class RecentNewsMixin(models.Model):
         if news_index_page is None:
             return []
 
-        return filter_articles(published_articles(under=news_index_page), **self.get_news_filters())[:RECENT_NEWS_COUNT]
+        articles = published_articles(under=news_index_page)
+        excluded_types = list(self.news_exclude_types.all())
+        if excluded_types:
+            articles = articles.exclude(news_type__in=excluded_types)
+
+        return ArticleFilterSet(MultiValueDict(self.get_news_filter_params()), queryset=articles).qs[:RECENT_NEWS_COUNT]
 
     def get_news_index_url(self):
         """The news index, narrowed to the same types, audiences and topics. Left-out types cannot be passed on."""
@@ -87,16 +93,7 @@ class RecentNewsMixin(models.Model):
         if news_index_page is None:
             return None
 
-        filters = self.get_news_filters()
-        params = [
-            (param, facet.slug)
-            for param, facets in (
-                ("type", filters["types"]),
-                ("audience", filters["audiences"]),
-                ("topic", filters["topics"]),
-            )
-            for facet in facets
-        ]
+        params = [(param, slug) for param, slugs in self.get_news_filter_params().items() for slug in slugs]
         url = news_index_page.url
         return f"{url}?{urlencode(params)}" if params else url
 

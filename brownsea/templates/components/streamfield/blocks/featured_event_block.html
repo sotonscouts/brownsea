@@ -1,0 +1,33 @@
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+<div class="card overflow-hidden my-4">
+    <div class="row g-0">
+        {% if event.image %}
+            <div class="col-md-5 position-relative">
+                {% image event.image fill-600x400 class="w-100 h-100 object-fit-cover" alt="" %}
+                <div class="position-absolute top-0 start-0 m-3 rounded shadow">
+                    {% include "components/date_tile.html" with date=event.start_date only %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="col">
+            <div class="card-body{% if not event.image %} d-flex gap-3{% endif %}">
+                {% if not event.image %}
+                    {% include "components/date_tile.html" with date=event.start_date only %}
+                {% endif %}
+                <div>
+                    {% if value.label_text %}
+                        <p class="text-uppercase small fw-semibold text-body-secondary mb-1">{{ value.label_text }}</p>
+                    {% endif %}
+                    <h3 class="h4"><a href="{% pageurl event %}" class="text-decoration-none">{{ event.title }}</a></h3>
+                    <p class="text-body-secondary mb-2">
+                        {{ event.when_summary }}{% if event.location %}, {{ event.location }}{% elif event.is_online %}, online{% endif %}
+                    </p>
+                    <p>{{ event.introduction }}</p>
+                    <a href="{% pageurl event %}" class="btn btn-primary">View event<span class="visually-hidden">: {{ event.title }}</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

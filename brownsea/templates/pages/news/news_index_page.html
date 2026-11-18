@@ -36,7 +36,7 @@
         </div>
         <div class="col-12 col-lg-4 order-1 order-lg-2 mb-4 mb-lg-0">
             {% if facet_filters %}
-                {% include "components/news_filters.html" %}
+                {% include "components/facet_filters.html" with noun="news" filters_id="news-filters" %}
             {% endif %}
         </div>
     </div>

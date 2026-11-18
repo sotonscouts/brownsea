@@ -1,0 +1,40 @@
+.date-tile {
+    display: inline-flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    align-self: flex-start;
+    width: 3.5rem;
+    overflow: hidden;
+    line-height: 1.1;
+    text-align: center;
+    border: 1px solid var(--theme-primary);
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-body-bg);
+
+    &__month,
+    &__weekday {
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    &__month {
+        align-self: stretch;
+        padding: 0.15rem 0;
+        font-weight: 600;
+        background: var(--theme-primary);
+        color: var(--theme-on-primary);
+    }
+
+    &__day {
+        margin-top: 0.15rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
+    &__weekday {
+        padding-bottom: 0.2rem;
+        color: var(--bs-secondary-color);
+    }
+}

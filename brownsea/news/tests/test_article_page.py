@@ -2,9 +2,11 @@ import datetime
 
 import pytest
 from bs4 import BeautifulSoup
+from django.utils import timezone
 from wagtail_factories import ImageFactory
 
 from brownsea.core.factories import AudienceFactory
+from brownsea.events.factories import EventPageFactory, EventsIndexPageFactory
 from brownsea.factories import publish
 from brownsea.news.factories import ArticlePageFactory, NewsIndexPageFactory, NewsTopicFactory, NewsTypeFactory
 from brownsea.news.models.pages import ArticlePage
@@ -148,3 +150,22 @@ def test_articles_can_be_found_by_searching_their_introduction(authenticated_cli
     response = authenticated_client.get("/search/?query=marshmallows")
 
     assert "Camp news" in response.content.decode()
+
+
+def test_can_feature_an_event_in_its_body(authenticated_client, news_index):
+    events_index = publish(EventsIndexPageFactory(parent=news_index.get_parent()))
+    event = publish(
+        EventPageFactory(
+            parent=events_index,
+            title="District Camp",
+            start_date=timezone.localdate() + datetime.timedelta(days=30),
+        )
+    )
+    article = make_article(news_index)
+    article.body = [{"type": "featured_event", "value": {"event": event.pk}}]
+    article.save()
+
+    card = soup(authenticated_client.get(article.url)).select_one(".card.overflow-hidden")
+
+    assert card.select_one("h3 a").get_text(strip=True) == "District Camp"
+    assert card.select_one("h3 a")["href"] == event.url
