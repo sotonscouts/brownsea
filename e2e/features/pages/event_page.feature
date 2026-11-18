@@ -143,13 +143,18 @@ Feature: Event page
   Scenario: Audience and type open the events index filtered to them
     Given the events are:
       | title                  | starts     | type     | audiences  |
-      | Safeguarding Refresher | 2026-11-17 | Training | Volunteers |
+      | Safeguarding Refresher | 2099-11-17 | Training | Volunteers |
+      | Cubs camp              | 2099-11-18 | Camp     | Cubs       |
     When I visit "/events/safeguarding-refresher/"
     And I click the event detail "Volunteers"
     Then I am on "/events/?audience=volunteers"
+    And the events index lists:
+      | Safeguarding Refresher |
     When I visit "/events/safeguarding-refresher/"
     And I click the event detail "Training"
     Then I am on "/events/?type=training"
+    And the events index lists:
+      | Safeguarding Refresher |
 
   Scenario: An event lists its sub-pages and opens one
     Given the events are:
@@ -167,16 +172,6 @@ Feature: Event page
     When I open the card "Code of conduct"
     Then I see the heading "Code of conduct"
     And the breadcrumbs are "Home > Events > District Camp"
-
-  Scenario: The events index lists the events
-    Given the events are:
-      | title                  | starts     | type     |
-      | Safeguarding Refresher | 2026-11-17 | Training |
-      | District Camp          | 2027-04-30 | Camp     |
-    When I visit "/events/"
-    Then the events index lists:
-      | Safeguarding Refresher |
-      | District Camp          |
 
   Scenario: An event page loads without browser errors
     Given the events are:

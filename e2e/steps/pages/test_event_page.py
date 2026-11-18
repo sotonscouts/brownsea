@@ -1,13 +1,9 @@
-import datetime
 import json
-from decimal import Decimal
 
-from django.utils.text import slugify
 from playwright.sync_api import expect
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from brownsea.core.factories import AudienceFactory
-from brownsea.events.factories import EventPageFactory, EventsIndexPageFactory, EventTypeFactory
+from brownsea.events.factories import EventPageFactory
 
 scenarios("pages/event_page.feature")
 
@@ -51,46 +47,6 @@ def _key_dates(page):
 
 
 # --- Data ---------------------------------------------------------------------------------------------------------
-
-
-@given("the site has an events index")
-def _events_index(scenario_state):
-    scenario_state["events_index"] = EventsIndexPageFactory(parent=scenario_state["home"])
-    scenario_state["pages"]["Events"] = scenario_state["events_index"]
-
-
-@given("the events are:")
-def _events(scenario_state, datatable):
-    """
-    Columns: title, starts (a date) and type are required. ends, from, to (times), location, address, audiences
-    (comma-separated), cost (an amount, 0 for free) and introduction are optional.
-    """
-    for row in _rows(datatable):
-        fields = {}
-        if row.get("ends"):
-            fields["end_date"] = datetime.date.fromisoformat(row["ends"])
-        if row.get("from"):
-            fields["start_time"] = datetime.time.fromisoformat(row["from"])
-        if row.get("to"):
-            fields["end_time"] = datetime.time.fromisoformat(row["to"])
-        for column in ("location", "address", "introduction"):
-            if row.get(column):
-                fields[column] = row[column]
-        audiences = [
-            AudienceFactory(name=name, slug=slugify(name)) for name in row.get("audiences", "").split(", ") if name
-        ]
-        event = EventPageFactory(
-            parent=scenario_state["events_index"],
-            title=row["title"],
-            start_date=datetime.date.fromisoformat(row["starts"]),
-            event_type=EventTypeFactory(name=row["type"], slug=slugify(row["type"])),
-            audiences=audiences,
-            **fields,
-        )
-        if row.get("cost"):
-            event.cost = json.dumps([{"type": "fixed_cost", "value": str(Decimal(row["cost"])), "id": "cost"}])
-            event.save()
-        scenario_state["pages"][row["title"]] = event
 
 
 @given(parsers.parse('the event "{title}" has the body:'))
@@ -230,8 +186,3 @@ def _key_date_not_a_link(page, name):
     item = _key_dates(page).locator("li").filter(has_text=name)
     expect(item).to_have_count(1)
     expect(item.locator("a")).to_have_count(0)
-
-
-@then("the events index lists:")
-def _events_index_lists(page, datatable):
-    expect(page.locator("main .list-group-item a")).to_have_text([row[0] for row in datatable])

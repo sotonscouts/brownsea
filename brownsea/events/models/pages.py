@@ -1,13 +1,16 @@
 import datetime
+import itertools
 from decimal import Decimal
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db import models
 from django.utils import timezone
 from modelcluster.fields import ParentalManyToManyField
 from wagtail import blocks
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
 from wagtail.search import index
 
 from brownsea.core.blocks import EventPageBlock, EventPageSidebarBlock, linked_page_ids
@@ -41,13 +44,39 @@ class EventsIndexPage(BasePage):
 
     content_panels = BasePage.content_panels + [
         FieldPanel("introduction"),
+        HelpPanel("All published events will be listed."),
     ]
     search_fields = BasePage.search_fields + [index.SearchField("introduction")]
 
     def get_context(self, request, *args, **kwargs):
+        from brownsea.events.filters import EventFilterSet, past_events, upcoming_events
+
         context = super().get_context(request, *args, **kwargs)
-        context["events"] = EventPage.objects.child_of(self).live().filter(show_in_menus=True).order_by("start_date")
+
+        show_past = request.GET.get("tab") == "past"
+        filterset = EventFilterSet(
+            request.GET, queryset=past_events(under=self) if show_past else upcoming_events(under=self)
+        )
+        events = filterset.qs.prefetch_related("audiences")
+
+        paginator = Paginator(events, per_page=settings.APP_SEARCH_RESULTS_PER_PAGE)
+        sub_pages = paginator.get_page(request.GET.get("page"))
+
+        context["sub_pages"] = sub_pages
+        context["months"] = _group_by_month(sub_pages.object_list)
+        context["show_past"] = show_past
+        context.update(filterset.listing_context())
+        context["hidden_fields"] = [("tab", "past")] if show_past else []
+        context["clear_url"] = f"{self.url}?tab=past" if show_past else self.url
         return context
+
+
+def _group_by_month(events):
+    """Events in the order given, grouped under the month they start in."""
+    return [
+        {"month": month, "events": list(group)}
+        for month, group in itertools.groupby(events, key=lambda event: event.start_date.replace(day=1))
+    ]
 
 
 class EventPage(BasePage):
@@ -236,6 +265,15 @@ class EventPage(BasePage):
         elif self.start_time:
             lines.append(f"Starts {_format_time(self.start_time)}")
         return lines
+
+    @property
+    def when_summary(self) -> str:
+        """The date and time on one line, for listings."""
+        first, *rest = self.when_lines
+        if rest:
+            time = rest[0]
+            return f"{first}, {time[0].lower()}{time[1:]}"
+        return first
 
     def get_linked_page_ids(self):
         """The pages linked from this page's body and sidebar, so automatic lists can leave them out."""

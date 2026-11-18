@@ -1,0 +1,6 @@
+{# A small calendar tile for a date. Pass `date`. #}
+<span class="date-tile" aria-hidden="true">
+    <span class="date-tile__month">{{ date|date:"M" }}</span>
+    <span class="date-tile__day">{{ date|date:"j" }}</span>
+    <span class="date-tile__weekday">{{ date|date:"D" }}</span>
+</span>
