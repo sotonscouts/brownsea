@@ -8,7 +8,7 @@ from modelcluster.fields import ParentalManyToManyField
 from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel
 from wagtail.search import index
 
-from brownsea.core.blocks import StoryBlock
+from brownsea.core.blocks import ArticlePageBlock
 from brownsea.core.models import BasePage, InPageNavMixin
 from brownsea.core.utils import StreamField
 
@@ -62,7 +62,7 @@ class ArticlePage(InPageNavMixin, BasePage):
     introduction = models.TextField(
         help_text="The introduction for this article. Will be shown in article listings.",
     )
-    body = StreamField(StoryBlock())
+    body = StreamField(ArticlePageBlock())
 
     content_panels = BasePage.content_panels + [
         FieldPanel("author_role"),

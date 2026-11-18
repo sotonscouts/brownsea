@@ -405,6 +405,12 @@ class FeaturedEventBlock(blocks.StructBlock):
 UPCOMING_EVENTS_COUNT = 4
 
 
+class ArticlePageBlock(StoryBlock):
+    """The everyday content blocks, plus a featured event for articles that announce or follow up on one."""
+
+    featured_event = FeaturedEventBlock()
+
+
 class UpcomingEventsBase(blocks.StructBlock):
     """The next four events, narrowed by the type, audience and topic chosen on the block. Shows nothing without any."""
 
