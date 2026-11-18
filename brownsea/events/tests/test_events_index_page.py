@@ -115,7 +115,7 @@ def test_the_tabs_show_which_is_active_and_keep_the_filters(authenticated_client
     html = soup(authenticated_client.get(f"{events_index.url}?tab=past"))
     upcoming, past = html.select(".nav-pills a")
     assert "active" in past["class"]
-    assert upcoming["href"] == "?"
+    assert upcoming["href"] == events_index.url
 
 
 def test_events_are_grouped_under_their_month(authenticated_client, events_index):

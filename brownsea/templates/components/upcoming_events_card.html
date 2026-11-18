@@ -1,0 +1,24 @@
+{% load wagtailcore_tags %}
+
+{# A compact list of events in a card. Pass `heading`, `events` and `events_index_url`. #}
+<div class="card">
+    {% if heading %}
+        <div class="card-header">
+            <h2 class="h5 mb-0">{{ heading }}</h2>
+        </div>
+    {% endif %}
+    <div class="list-group list-group-flush">
+        {% for event in events %}
+            <div class="list-group-item d-flex gap-3">
+                {% include "components/date_tile.html" with date=event.start_date only %}
+                <div>
+                    <h3 class="h6 mb-1"><a href="{% pageurl event %}" class="text-decoration-none text-body">{{ event.title }}</a></h3>
+                    <p class="text-body-secondary small mb-0">{{ event.when_summary }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="card-footer text-end">
+        <a href="{{ events_index_url }}" class="text-decoration-none">View all events &rarr;</a>
+    </div>
+</div>

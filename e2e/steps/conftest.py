@@ -563,6 +563,22 @@ def _home_features_event(scenario_state, title):
     home.save()
 
 
+@given(parsers.parse("the home page body shows upcoming events as {layout}"))
+def _home_body_upcoming(scenario_state, layout):
+    home = scenario_state["home"]
+    value = {"heading": "Upcoming events", "layout": layout, "types": [], "audiences": [], "topics": []}
+    home.body = [{"type": "upcoming_events", "value": value}]
+    home.save()
+
+
+@given("the home page sidebar shows upcoming events")
+def _home_sidebar_upcoming(scenario_state):
+    value = {"heading": "Coming up", "types": [], "audiences": [], "topics": []}
+    home = scenario_state["home"]
+    home.sidebar = [{"type": "upcoming_events", "value": value}]
+    home.save()
+
+
 @given(parsers.parse("events are shown {count:d} to a page"))
 def _events_page_size(settings, count):
     settings.APP_SEARCH_RESULTS_PER_PAGE = count

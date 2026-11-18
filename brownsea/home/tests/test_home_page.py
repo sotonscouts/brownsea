@@ -225,3 +225,17 @@ def test_news_filters_narrow_the_card_and_the_view_all_link(authenticated_client
         soup(response).select_one(".card-footer a")["href"]
         == f"{news_index.url}?type=update&audience=leaders&topic=camping"
     )
+
+
+def test_a_new_home_page_shows_recent_news_in_its_sidebar(home):
+    assert [block.block_type for block in home.sidebar] == ["recent_news"]
+
+
+def test_the_body_takes_the_full_width_without_a_sidebar(authenticated_client, home):
+    home.sidebar = []
+    home.save()
+
+    page = soup(authenticated_client.get("/"))
+
+    assert page.select_one("main .col-md-8") is None
+    assert page.select_one("main .col-md-4") is None

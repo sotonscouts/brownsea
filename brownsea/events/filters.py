@@ -1,9 +1,12 @@
+from urllib.parse import urlencode
+
 from django.db import models
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+from django.utils.datastructures import MultiValueDict
 
 from brownsea.core.filters import AudienceFilter, FacetFilterSet, TaxonomyFilter
-from brownsea.events.models.pages import EventPage
+from brownsea.events.models.pages import EventPage, EventsIndexPage
 from brownsea.events.models.snippets import EventTopic, EventType
 
 
@@ -34,3 +37,24 @@ class EventFilterSet(FacetFilterSet):
     type = TaxonomyFilter(EventType.objects.all(), field_name="event_type", label="Type")
     audience = AudienceFilter()
     topic = TaxonomyFilter(EventTopic.objects.all(), field_name="topics", label="Topic")
+
+
+def upcoming_events_for(*, types=(), audiences=(), topics=(), count):
+    """
+    The next few upcoming events matching the chosen facets, and the events index narrowed the same way.
+
+    Each facet is a list of taxonomy objects, and leaving one empty means "any". Returns `([], None)` when the site
+    has no events index.
+    """
+    index = EventsIndexPage.objects.live().first()
+    if index is None:
+        return [], None
+
+    params = {
+        "type": [facet.slug for facet in types],
+        "audience": [facet.slug for facet in audiences],
+        "topic": [facet.slug for facet in topics],
+    }
+    events = EventFilterSet(MultiValueDict(params), queryset=upcoming_events(under=index)).qs[:count]
+    query = urlencode([(param, slug) for param, slugs in params.items() for slug in slugs])
+    return list(events), f"{index.url}?{query}" if query else index.url

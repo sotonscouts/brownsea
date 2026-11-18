@@ -1,3 +1,4 @@
+from django.template.loader import render_to_string
 from wagtail import blocks
 from wagtail.blocks import StreamValue
 from wagtail.contrib.table_block.blocks import TableBlock as BaseTableBlock
@@ -401,8 +402,77 @@ class FeaturedEventBlock(blocks.StructBlock):
         group = GROUP_CALLOUTS
 
 
+UPCOMING_EVENTS_COUNT = 4
+
+
+class UpcomingEventsBase(blocks.StructBlock):
+    """The next four events, narrowed by the type, audience and topic chosen on the block. Shows nothing without any."""
+
+    heading = blocks.CharBlock(default="Upcoming events", required=False, max_length=60)
+    types = blocks.ListBlock(
+        SnippetChooserBlock("events.EventType"),
+        label="Only these types",
+        default=[],
+        help_text="Leave empty to include every type.",
+    )
+    audiences = blocks.ListBlock(
+        SnippetChooserBlock("core.Audience"),
+        label="Only these audiences",
+        default=[],
+        help_text="Leave empty to include every audience.",
+    )
+    topics = blocks.ListBlock(
+        SnippetChooserBlock("events.EventTopic"),
+        label="Only these topics",
+        default=[],
+        help_text="Leave empty to include every topic.",
+    )
+
+    def get_context(self, value, parent_context=None):
+        from brownsea.events.filters import upcoming_events_for
+
+        context = super().get_context(value, parent_context=parent_context)
+        context["events"], context["events_index_url"] = upcoming_events_for(
+            types=list(value["types"]),
+            audiences=list(value["audiences"]),
+            topics=list(value["topics"]),
+            count=UPCOMING_EVENTS_COUNT,
+        )
+        return context
+
+    def render(self, value, context=None):
+        template_context = self.get_context(value, parent_context=context)
+        if not template_context["events"]:
+            return ""
+        return render_to_string(self.meta.template, template_context)
+
+    class Meta:
+        icon = "date"
+        label = "Upcoming events"
+
+
+class UpcomingEventsBlock(UpcomingEventsBase):
+    layout = blocks.ChoiceBlock(
+        choices=[("cards", "Cards"), ("list", "List")],
+        default="cards",
+        help_text="Cards show a grid. A list is more compact, for when space is tight.",
+    )
+
+    class Meta:
+        template = "components/streamfield/blocks/upcoming_events_block.html"
+        group = GROUP_CALLOUTS
+
+
+class UpcomingEventsSidebarBlock(UpcomingEventsBase):
+    """The same events as a compact list, for a narrow column."""
+
+    class Meta:
+        template = "components/streamfield/blocks/upcoming_events_aside.html"
+
+
 class HomePageBlock(blocks.StreamBlock):
     featured_event = FeaturedEventBlock()
+    upcoming_events = UpcomingEventsBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     call_to_action = SnippetChooserBlock(
@@ -562,9 +632,11 @@ class RecentNewsBlock(blocks.StaticBlock):
         page = (parent_context or {}).get("page")
         if hasattr(page, "get_recent_news_context"):
             context.update(page.get_recent_news_context())
+        context["feature_lead_article"] = self.meta.feature_lead_article
         return context
 
     class Meta:
+        feature_lead_article = False
         icon = "doc-full"
         label = "Recent news"
         admin_text = "Shows the latest news. Choose which news in the page's Recent news filters."
@@ -575,6 +647,7 @@ class LandingPageBlock(blocks.StreamBlock):
     heading = HeadingBlock()
     text = RichTextBlock()
     featured_event = FeaturedEventBlock()
+    upcoming_events = UpcomingEventsBlock()
     featured_sections = FeaturedSectionBlock()
     link_sections = LinkSectionBlock()
     logo_grid = LogoGridBlock()
@@ -594,6 +667,7 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
 
     quick_links = QuickLinksBlock()
     recent_news = RecentNewsBlock()
+    upcoming_events = UpcomingEventsSidebarBlock()
     call_to_action = SnippetChooserBlock(
         "core.CallToAction",
         icon="megaphone",
@@ -604,8 +678,15 @@ class LandingPageSidebarBlock(blocks.StreamBlock):
         block_counts = {
             "quick_links": {"max_num": 1},
             "recent_news": {"max_num": 1},
+            "upcoming_events": {"max_num": 1},
             "call_to_action": {"max_num": 2},
         }
+
+
+class HomePageSidebarBlock(LandingPageSidebarBlock):
+    """The landing page sidebar, but recent news leads with the newest article's image and introduction."""
+
+    recent_news = RecentNewsBlock(feature_lead_article=True)
 
 
 class KeyDateValue(blocks.StructValue):

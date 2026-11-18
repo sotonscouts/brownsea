@@ -13,9 +13,11 @@
     <div class="row">
         {# On phones the filters come first, collapsed; from lg up they sit beside the events #}
         <div class="col-12 col-lg-8 order-2 order-lg-1">
+            {# An empty query string comes back as a bare "?", so fall back to the plain path #}
+            {% querystring tab=None page=None as upcoming_query %}
             <ul class="nav nav-pills mb-2">
                 <li class="nav-item">
-                    <a class="nav-link{% if not show_past %} active{% endif %}" href="{% querystring tab=None page=None %}"{% if not show_past %} aria-current="page"{% endif %}>Upcoming</a>
+                    <a class="nav-link{% if not show_past %} active{% endif %}" href="{% if upcoming_query == '?' %}{{ request.path }}{% else %}{{ upcoming_query }}{% endif %}"{% if not show_past %} aria-current="page"{% endif %}>Upcoming</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link{% if show_past %} active{% endif %}" href="{% querystring tab='past' page=None %}"{% if show_past %} aria-current="page"{% endif %}>Past events</a>
