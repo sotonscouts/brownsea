@@ -508,3 +508,58 @@ def _news_index_lists(page, datatable):
 def _recent_news_is(page, datatable):
     card = page.locator(".card").filter(has=page.get_by_role("heading", name="Recent News"))
     expect(card.locator(".list-group-item h3")).to_have_text([row[0] for row in datatable])
+
+
+# --- Filters ------------------------------------------------------------------------------------------------------
+
+
+@when(parsers.parse('I tick the filter "{name}"'))
+def _tick(page, name):
+    page.get_by_label(name, exact=True).check()
+
+
+@when("I apply the filters")
+def _apply(page):
+    page.get_by_role("button", name="Filter", exact=True).click()
+
+
+@when("I clear the filters")
+def _clear(page):
+    page.get_by_role("link", name="Clear filters").click()
+
+
+@when("I open the filters")
+def _open_filters(page):
+    page.get_by_role("button", name=re.compile(r"^Filter (news|events)")).click()
+
+
+@then(parsers.parse('the filter "{name}" is ticked'))
+def _is_ticked(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_checked()
+
+
+@then(parsers.parse('the filter "{name}" is not ticked'))
+def _is_not_ticked(page, name):
+    expect(page.get_by_label(name, exact=True)).not_to_be_checked()
+
+
+@then(parsers.parse('the filter "{name}" is hidden'))
+def _is_hidden(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_hidden()
+
+
+@then(parsers.parse('the filter "{name}" is shown'))
+def _is_shown(page, name):
+    expect(page.get_by_label(name, exact=True)).to_be_visible()
+
+
+@then(parsers.parse('the filter "{name}" is shown and ticked'))
+def _is_shown_and_ticked(page, name):
+    box = page.get_by_label(name, exact=True)
+    expect(box).to_be_visible()
+    expect(box).to_be_checked()
+
+
+@then(parsers.parse("I see the filters button counting {count:d} active filter"))
+def _filters_count(page, count):
+    expect(page.get_by_role("button", name=re.compile(rf"^Filter (news|events) \({count}\)$"))).to_be_visible()

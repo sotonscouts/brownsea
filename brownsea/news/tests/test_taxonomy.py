@@ -137,12 +137,19 @@ def test_news_index_ignores_unknown_values(authenticated_client, site_tree, arti
     assert response.context["is_filtered"] is False
 
 
+def test_news_index_keeps_known_values_next_to_unknown_ones(authenticated_client, site_tree, articles, news_index):
+    response = authenticated_client.get(news_index.url, {"audience": ["beavers", "nobody"]})
+
+    assert [a.title for a in response.context["sub_pages"].object_list] == ["Beaver news"]
+    assert response.context["active_filter_count"] == 1
+
+
 def test_news_index_only_offers_facets_that_have_values(authenticated_client, site_tree, news_index, taxonomy):
     NewsTopic.objects.all().delete()
 
     response = authenticated_client.get(news_index.url)
 
-    assert [facet.param for facet in response.context["facet_filters"]] == ["type", "audience"]
+    assert [facet.name for facet in response.context["facet_filters"]] == ["type", "audience"]
 
 
 def test_recent_news_block_renders_only_where_the_page_has_news(site_tree, articles, taxonomy):
